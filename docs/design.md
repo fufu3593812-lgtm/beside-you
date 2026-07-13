@@ -441,4 +441,64 @@ User 永远拥有最高视觉优先级。
 
 ---
 
+# 18. Asset Specifications（素材规范）
+
+## 背景素材
+
+文件名：bedroom_day.webp（开发阶段可用 .png）
+
+路径：assets/background/bedroom_day.webp
+
+尺寸：1440×3200px，比例 9:20
+
+风格：二次元奶油风插画，Cream Pink Bedroom
+
+元素：落地窗、白纱窗帘、奶油色木地板、毛绒熊、白色床铺、少量绿植、柔和阳光
+
+禁止画入：UI、人物、文字、Logo、水印
+
+CSS要求：
+
+```css
+background-size: cover;
+background-position: center;
+background-repeat: no-repeat;
+background-attachment: fixed;
+```
+
+背景切换：
+
+day → bedroom_day.webp（05:00–17:59）
+
+night → bedroom_night.webp（18:00–04:59）
+
+夜晚版素材待出。
+
+---
+
+## User 素材
+
+文件名：user_base.png
+
+路径：assets/user/user_base.png
+
+内容：女主基础体型，正面+背面三视图
+
+要求：
+
+- 无五官
+- 透明底 PNG
+- 用途：所有服装/发型/配饰的基底层
+- 开发时正面单独裁切使用
+- 服装图层对齐此基底
+
+User站位：
+
+- 画面中央
+- 占屏幕高度 65%~70%
+- 背景无需裁切
+- UI不允许遮挡人物身体
+
+---
+
 End.

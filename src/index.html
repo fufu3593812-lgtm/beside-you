@@ -14,8 +14,6 @@
       overflow: hidden;
       position: relative;
     }
-
-    /* 全屏背景立绘 */
     .bg-layer {
       position: absolute;
       inset: 0;
@@ -24,13 +22,13 @@
     }
     .character-img {
       position: absolute;
-      bottom: 80px;
+      bottom: 130px;
       left: 50%;
       transform: translateX(-50%);
       width: 75%;
       max-width: 320px;
-      height: 70vh;
-      background: rgba(255,200,210,0.15);
+      height: 68vh;
+      background: rgba(255,200,210,0.12);
       border-radius: 20px;
       z-index: 1;
       display: flex;
@@ -39,8 +37,6 @@
       color: #ddd;
       font-size: 13px;
     }
-
-    /* 顶部左侧问候 */
     .top-left {
       position: absolute;
       top: 48px;
@@ -66,8 +62,6 @@
       margin-top: 8px;
       line-height: 1.6;
     }
-
-    /* 顶部右侧图标 */
     .top-right {
       position: absolute;
       top: 48px;
@@ -76,14 +70,15 @@
       display: flex;
       gap: 10px;
     }
-    .top-right .icon-btn {
+    .icon-btn {
       width: 40px; height: 40px;
-      background: rgba(255,255,255,0.8);
-      backdrop-filter: blur(10px);
+      background: rgba(255,255,255,0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border-radius: 12px;
       display: flex; align-items: center; justify-content: center;
       font-size: 18px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
       position: relative;
     }
     .dot {
@@ -93,8 +88,6 @@
       background: #F28B82;
       border-radius: 50%;
     }
-
-    /* 右侧浮动卡片 */
     .right-cards {
       position: absolute;
       top: 140px;
@@ -105,11 +98,12 @@
       gap: 10px;
     }
     .r-card {
-      background: rgba(255,255,255,0.82);
+      background: rgba(255,255,255,0.6);
       backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
       border-radius: 16px;
       padding: 12px 16px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
       min-width: 120px;
     }
     .r-card .label {
@@ -120,7 +114,7 @@
       gap: 4px;
     }
     .r-card .value {
-      font-size: 26px;
+      font-size: 24px;
       font-weight: 300;
       color: #444;
       margin-top: 4px;
@@ -142,15 +136,14 @@
       background: linear-gradient(90deg, #FFB5B5, #FF8E8E);
       border-radius: 2px;
     }
-
-    /* 左下心情 */
     .mood-card {
       position: absolute;
-      bottom: 160px;
+      bottom: 140px;
       left: 16px;
       z-index: 10;
-      background: rgba(255,255,255,0.8);
+      background: rgba(255,255,255,0.6);
       backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border-radius: 16px;
       padding: 14px 18px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.04);
@@ -158,95 +151,86 @@
     .mood-card .title { font-size: 11px; color: #baa; }
     .mood-card .emoji { font-size: 28px; margin-top: 6px; }
     .mood-card .mood-text { font-size: 12px; color: #999; margin-top: 4px; }
-
-    /* 右下签到 */
     .signin-btn {
       position: absolute;
-      bottom: 170px;
+      bottom: 148px;
       right: 20px;
       z-index: 10;
       width: 56px; height: 56px;
-      background: rgba(255,255,255,0.85);
+      background: rgba(255,255,255,0.6);
       backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border-radius: 50%;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.05);
       font-size: 20px;
     }
     .signin-btn .text { font-size: 8px; color: #baa; margin-top: 2px; }
-
-    /* 小贴士 */
-    .tip-bar {
-      position: absolute;
-      bottom: 100px;
-      left: 20px;
-      right: 20px;
-      z-index: 10;
-      background: rgba(255,255,255,0.7);
-      backdrop-filter: blur(10px);
-      border-radius: 16px;
-      padding: 12px 16px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-    }
-    .tip-bar .tip-title { font-size: 11px; color: #C88; }
-    .tip-bar .tip-content { font-size: 12px; color: #999; margin-top: 4px; line-height: 1.5; }
-
-    /* 底部Dock */
     .dock {
       position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
+      bottom: 16px;
+      left: 12px;
+      right: 12px;
       z-index: 20;
-      background: rgba(255,255,255,0.9);
-      backdrop-filter: blur(16px);
-      padding: 10px 12px 20px;
       display: flex;
-      justify-content: space-around;
-      box-shadow: 0 -2px 16px rgba(0,0,0,0.04);
+      justify-content: space-between;
+      gap: 8px;
+      background: none;
+      padding: 0;
     }
     .dock-item {
+      flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 2px;
-      flex: 1;
+      background: rgba(255,255,255,0.6);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 20px;
+      padding: 12px 4px 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+    }
+    .dock-item.active {
+      background: rgba(245,220,220,0.7);
     }
     .dock-item .d-icon {
-      width: 44px; height: 44px;
-      background: rgba(255,235,235,0.6);
-      border-radius: 14px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 20px;
+      font-size: 22px;
     }
-    .dock-item .d-en { font-size: 9px; color: #999; margin-top: 2px; }
-    .dock-item .d-cn { font-size: 9px; color: #ccc; }
-    .dock-item.active .d-icon { background: rgba(255,210,210,0.7); }
-    .dock-item .heart { font-size: 8px; color: #F5A; margin-top: 1px; }
+    .dock-item .d-en {
+      font-size: 8px;
+      color: #888;
+      margin-top: 4px;
+    }
+    .dock-item .d-cn {
+      font-size: 8px;
+      color: #bbb;
+    }
+    .dock-item .heart {
+      font-size: 8px;
+      color: #E8A0A0;
+      margin-top: 2px;
+    }
   </style>
 </head>
 <body>
-
   <div class="bg-layer"></div>
   <div class="character-img">立绘区域</div>
 
-  <!-- 左上问候 -->
   <div class="top-left">
     <div class="greet">Good evening,</div>
     <div class="name">珩</div>
     <div class="subtitle">今天也辛苦了，<br>我一直都在这里等你。</div>
   </div>
 
-  <!-- 右上图标 -->
   <div class="top-right">
     <div class="icon-btn">📅</div>
     <div class="icon-btn">💌<span class="dot"></span></div>
   </div>
 
-  <!-- 右侧卡片 -->
   <div class="right-cards">
     <div class="r-card">
       <div class="label">❤️ 亲密度</div>
@@ -254,31 +238,22 @@
       <div class="progress-bar"><div class="fill"></div></div>
     </div>
     <div class="r-card">
-      <div class="label">🕐 今日陪伴时长</div>
+      <div class="label">🕐 今日陪伴</div>
       <div class="value" style="font-size:18px;">03:26:18</div>
     </div>
   </div>
 
-  <!-- 左下心情 -->
   <div class="mood-card">
     <div class="title">今日心情</div>
     <div class="emoji">😊</div>
     <div class="mood-text">开心</div>
   </div>
 
-  <!-- 右下签到 -->
   <div class="signin-btn">
     🎁
-    <span class="text">签到奖励</span>
+    <span class="text">签到</span>
   </div>
 
-  <!-- 小贴士 -->
-  <div class="tip-bar">
-    <div class="tip-title">小贴士 ❤️</div>
-    <div class="tip-content">记得好好照顾自己哦，<br>我会一直陪着你。</div>
-  </div>
-
-  <!-- 底部Dock -->
   <div class="dock">
     <div class="dock-item">
       <div class="d-icon">💬</div>
@@ -293,24 +268,23 @@
       <span class="heart">♥</span>
     </div>
     <div class="dock-item active">
-      <div class="d-icon">🛍️</div>
-      <span class="d-en">Merch Store</span>
-      <span class="d-cn">周边商店</span>
+      <div class="d-icon">🏠</div>
+      <span class="d-en">Home</span>
+      <span class="d-cn">主页</span>
       <span class="heart">♥</span>
     </div>
     <div class="dock-item">
-      <div class="d-icon">🎁</div>
-      <span class="d-en">Gifts</span>
-      <span class="d-cn">礼物</span>
+      <div class="d-icon">🎴</div>
+      <span class="d-en">Gacha</span>
+      <span class="d-cn">抽卡</span>
       <span class="heart">♥</span>
     </div>
     <div class="dock-item">
-      <div class="d-icon">⚙️</div>
-      <span class="d-en">Settings</span>
-      <span class="d-cn">设置</span>
+      <div class="d-icon">🛒</div>
+      <span class="d-en">Shop</span>
+      <span class="d-cn">商店</span>
       <span class="heart">♥</span>
     </div>
   </div>
-
 </body>
 </html>

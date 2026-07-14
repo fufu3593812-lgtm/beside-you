@@ -20,22 +20,31 @@
       background: linear-gradient(180deg, #FFF5F0 0%, #FFE8F0 40%, #FFF0F0 100%);
       z-index: 0;
     }
-    .character-img {
+    .scene {
       position: absolute;
       bottom: 130px;
       left: 50%;
       transform: translateX(-50%);
-      width: 75%;
-      max-width: 320px;
+      width: 80%;
+      max-width: 360px;
       height: 68vh;
-      background: rgba(255,200,210,0.12);
-      border-radius: 20px;
       z-index: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #ddd;
-      font-size: 13px;
+    }
+    .bg-room {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 20px;
+    }
+    .char-layer {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      height: 90%;
+      object-fit: contain;
     }
     .top-left {
       position: absolute;
@@ -197,28 +206,21 @@
     .dock-item.active {
       background: rgba(245,220,220,0.7);
     }
-    .dock-item .d-icon {
-      font-size: 22px;
-    }
-    .dock-item .d-en {
-      font-size: 8px;
-      color: #888;
-      margin-top: 4px;
-    }
-    .dock-item .d-cn {
-      font-size: 8px;
-      color: #bbb;
-    }
-    .dock-item .heart {
-      font-size: 8px;
-      color: #E8A0A0;
-      margin-top: 2px;
-    }
+    .dock-item .d-icon { font-size: 22px; }
+    .dock-item .d-en { font-size: 8px; color: #888; margin-top: 4px; }
+    .dock-item .d-cn { font-size: 8px; color: #bbb; }
+    .dock-item .heart { font-size: 8px; color: #E8A0A0; margin-top: 2px; }
   </style>
 </head>
 <body>
   <div class="bg-layer"></div>
-  <div class="character-img">立绘区域</div>
+
+  <div class="scene">
+    < img class="bg-room" src="bf536e125345bd90cbc26aa8f7201860.png" alt="卧室">
+    < img class="char-layer" src="173cba69cf88d9158230c7363bc3abca.png" alt="素体">
+    < img class="char-layer" src="4e5d307e3d91f2a173bb1deb532d9d54.png" alt="发型">
+    < img class="char-layer" src="1c430b95d160ff91300adbc216f6b0f2.png" alt="睡裙">
+  </div>
 
   <div class="top-left">
     <div class="greet">Good evening,</div>

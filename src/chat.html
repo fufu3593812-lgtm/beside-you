@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Beside You - 世界频道</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, 'PingFang SC', sans-serif;
+      background: #FFF8F7;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+      max-width: 430px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      position: relative;
+      height: 88px;
+      padding: 44px 20px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(240, 220, 220, 0.4);
+      z-index: 10;
+    }
+
+    .header .back {
+      position: absolute;
+      left: 16px;
+      top: 48px;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .header .back svg {
+      width: 20px;
+      height: 20px;
+      stroke: #7D6666;
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .header .title {
+      font-size: 15px;
+      color: #3D3333;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+
+    .header .online {
+      position: absolute;
+      right: 20px;
+      top: 50px;
+      font-size: 10px;
+      color: #B8A0A0;
+    }
+
+    .header .online::before {
+      content: '';
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background: #A8D8A8;
+      border-radius: 50%;
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+
+    .chat-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 16px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .chat-area::-webkit-scrollbar { width: 0; }
+
+    .msg {
+      display: flex;
+      flex-direction: column;
+      max-width: 80%;
+    }
+
+    .msg.other { align-self: flex-start; }
+    .msg.self { align-self: flex-end; }
+
+    .msg .nickname {
+      font-size: 10px;
+      color: #B8A0A0;
+      margin-bottom: 4px;
+      padding: 0 4px;
+    }
+
+    .msg.self .nickname {
+      text-align: right;
+    }
+
+    .msg .bubble {
+      padding: 10px 14px;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.6;
+      word-break: break-word;
+    }
+
+    .msg.other .bubble {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      color: #3D3333;
+      border-top-left-radius: 4px;
+    }
+
+    .msg.self .bubble {
+      background: rgba(232, 160, 160, 0.25);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(232, 160, 160, 0.3);
+      color: #3D3333;
+      border-top-right-radius: 4px;
+    }
+
+    .msg .time {
+      font-size: 9px;
+      color: #C8B8B8;
+      margin-top: 4px;
+      padding: 0 4px;
+    }
+
+    .msg.self .time { text-align: right; }
+
+    .system-msg {
+      align-self: center;
+      text-align: center;
+      padding: 6px 16px;
+      border-radius: 20px;
+      background: rgba(255, 240, 220, 0.6);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(240, 210, 180, 0.4);
+      font-size: 11px;
+      color: #C4964A;
+      max-width: 85%;
+    }
+
+    .system-msg .ssr-icon {
+      display: inline-block;
+      margin-right: 2px;
+    }
+
+    .input-area {
+      padding: 12px 16px;
+      padding-bottom: max(12px, env(safe-area-inset-bottom));
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(240, 220, 220, 0.4);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .input-area input {
+      flex: 1;
+      height: 40px;
+      border-radius: 20px;
+      border: 1px solid rgba(200, 180, 180, 0.3);
+      background: rgba(255, 255, 255, 0.6);
+      padding: 0 16px;
+      font-size: 14px;
+      color: #3D3333;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .input-area input::placeholder {
+      color: #C8B8B8;
+    }
+
+    .input-area input:focus {
+      border-color: rgba(232, 160, 160, 0.5);
+    }
+
+    .input-area .send-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(232, 160, 160, 0.3);
+      border: 1px solid rgba(232, 160, 160, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .input-area .send-btn:active {
+      transform: scale(0.92);
+      background: rgba(232, 160, 160, 0.5);
+    }
+
+    .input-area .send-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: #7D6666;
+      stroke-width: 2;
+      fill: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="back">
+      <svg viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg>
+    </div>
+    <div class="title">世界频道</div>
+    <div class="online">42人在线</div>
+  </div>
+
+  <div class="chat-area" id="chat-area">
+    <div class="system-msg">
+      <span class="ssr-icon">✦</span> 恭喜「月下蝶」抽到了SSR【星海之约】
+    </div>
+
+    <div class="msg other">
+      <div class="nickname">云隐</div>
+      <div class="bubble">有人一起打副本吗 差一个奶</div>
+      <div class="time">18:01</div>
+    </div>
+
+    <div class="msg other">
+      <div class="nickname">鹿野</div>
+      <div class="bubble">刚才那个SSR也太好看了吧</div>
+      <div class="time">18:02</div>
+    </div>
+
+    <div class="msg self">
+      <div class="nickname">珩</div>
+      <div class="bubble">今天签到拿了多少</div>
+      <div class="time">18:03</div>
+    </div>
+
+    <div class="msg other">
+      <div class="nickname">云隐</div>
+      <div class="bubble">50金币 运气还行</div>
+      <div class="time">18:03</div>
+    </div>
+
+    <div class="system-msg">
+      <span class="ssr-icon">✦</span> 恭喜「霜序」抽到了SSR【深夜来信】
+    </div>
+
+    <div class="msg other">
+      <div class="nickname">折枝</div>
+      <div class="bubble">我的天 又有人出货了 我五十抽一张都没有</div>
+      <div class="time">18:05</div>
+    </div>
+
+    <div class="msg self">
+      <div class="nickname">珩</div>
+      <div class="bubble">攒着 保底不会亏</div>
+      <div class="time">18:06</div>
+    </div>
+
+    <div class="msg other">
+      <div class="nickname">晚星</div>
+      <div class="bubble">有没有人知道新主线什么时候更新啊</div>
+      <div class="time">18:07</div>
+    </div>
+  </div>
+
+  <div class="input-area">
+    <input type="text" placeholder="说点什么...">
+    <div class="send-btn">
+      <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22,2 15,22 11,13 2,9"/></svg>
+    </div>
+  </div>
+</body>
+</html>

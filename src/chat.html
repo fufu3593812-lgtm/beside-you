@@ -20,17 +20,32 @@
       flex-direction: column;
     }
 
+    /* 洛可可花纹背景 */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80px 80px at 15% 15%, rgba(245, 200, 200, 0.2), transparent),
+        radial-gradient(ellipse 60px 100px at 85% 20%, rgba(240, 210, 220, 0.15), transparent),
+        radial-gradient(ellipse 100px 60px at 10% 80%, rgba(240, 220, 210, 0.15), transparent),
+        radial-gradient(ellipse 70px 90px at 90% 75%, rgba(245, 200, 210, 0.12), transparent);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* 微光粒子 */
     body::after {
       content: '';
       position: fixed;
       inset: 0;
       background: 
-        radial-gradient(1.5px 1.5px at 15% 25%, rgba(232, 180, 140, 0.45), transparent),
-        radial-gradient(1px 1px at 55% 15%, rgba(232, 160, 160, 0.4), transparent),
-        radial-gradient(1.5px 1.5px at 75% 55%, rgba(232, 180, 140, 0.35), transparent),
-        radial-gradient(1px 1px at 35% 65%, rgba(232, 160, 160, 0.3), transparent),
-        radial-gradient(1px 1px at 85% 35%, rgba(255, 200, 160, 0.35), transparent),
-        radial-gradient(1.5px 1.5px at 25% 85%, rgba(232, 160, 160, 0.25), transparent);
+        radial-gradient(1.5px 1.5px at 12% 18%, rgba(232, 180, 160, 0.5), transparent),
+        radial-gradient(1px 1px at 48% 8%, rgba(240, 180, 200, 0.4), transparent),
+        radial-gradient(1.5px 1.5px at 78% 45%, rgba(232, 180, 160, 0.35), transparent),
+        radial-gradient(1px 1px at 32% 62%, rgba(240, 180, 200, 0.3), transparent),
+        radial-gradient(1px 1px at 88% 28%, rgba(255, 200, 180, 0.35), transparent),
+        radial-gradient(1.5px 1.5px at 22% 82%, rgba(240, 180, 200, 0.25), transparent);
       pointer-events: none;
       z-index: 0;
       animation: twinkle 3s ease-in-out infinite alternate;
@@ -51,7 +66,7 @@
       background: rgba(255, 248, 245, 0.85);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(240, 220, 220, 0.4);
+      border-bottom: 1px solid rgba(240, 210, 210, 0.4);
       z-index: 10;
     }
 
@@ -71,16 +86,17 @@
     .header .back svg {
       width: 20px;
       height: 20px;
-      stroke: #7D6666;
+      stroke: #A07070;
       stroke-width: 2;
       fill: none;
     }
 
     .header .title {
       font-size: 15px;
-      color: #3D3333;
+      color: #5D4040;
       font-weight: 500;
-      letter-spacing: 0.5px;
+      letter-spacing: 1px;
+      font-style: italic;
     }
 
     .header .online {
@@ -100,6 +116,34 @@
       border-radius: 50%;
       margin-right: 4px;
       vertical-align: middle;
+    }
+
+    .header .ornament {
+      position: absolute;
+      bottom: -1px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .header .ornament::before,
+    .header .ornament::after {
+      content: '❦';
+      font-size: 10px;
+      color: #E0B0B0;
+    }
+
+    .header .ornament .center-gem {
+      width: 6px;
+      height: 6px;
+      background: linear-gradient(135deg, #F5C4C4, #E8A0A0);
+      border-radius: 50%;
+      box-shadow: 0 0 6px rgba(232, 160, 160, 0.4);
     }
 
     .chat-area {
@@ -129,10 +173,12 @@
       color: #B8A0A0;
       margin-bottom: 4px;
       padding: 0 4px;
+      font-style: italic;
     }
 
     .msg.self .nickname {
       text-align: right;
+      color: #C09090;
     }
 
     .msg .bubble {
@@ -141,24 +187,48 @@
       font-size: 14px;
       line-height: 1.6;
       word-break: break-word;
+      position: relative;
     }
 
     .msg.other .bubble {
       background: rgba(255, 255, 255, 0.7);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.6);
+      border: 1.5px solid rgba(232, 190, 190, 0.3);
       color: #3D3333;
       border-top-left-radius: 4px;
     }
 
     .msg.self .bubble {
-      background: rgba(232, 160, 160, 0.25);
+      background: rgba(245, 210, 210, 0.35);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(232, 160, 160, 0.3);
+      border: 1.5px solid rgba(232, 170, 170, 0.3);
       color: #3D3333;
       border-top-right-radius: 4px;
+    }
+
+    /* 气泡洛可可花角 */
+    .msg .bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      width: 12px;
+      height: 12px;
+      border-bottom: 1px solid rgba(232, 180, 180, 0.3);
+      pointer-events: none;
+    }
+
+    .msg.other .bubble::after {
+      right: -1px;
+      border-right: 1px solid rgba(232, 180, 180, 0.3);
+      border-bottom-right-radius: 16px;
+    }
+
+    .msg.self .bubble::after {
+      left: -1px;
+      border-left: 1px solid rgba(232, 180, 180, 0.3);
+      border-bottom-left-radius: 16px;
     }
 
     .msg .time {
@@ -175,10 +245,10 @@
       text-align: center;
       padding: 8px 20px;
       border-radius: 20px;
-      background: rgba(255, 240, 220, 0.7);
+      background: rgba(255, 245, 235, 0.75);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
-      border: 1px solid rgba(240, 210, 180, 0.5);
+      border: 1.5px solid rgba(232, 200, 160, 0.4);
       font-size: 11px;
       color: #C4964A;
       max-width: 92%;
@@ -224,24 +294,45 @@
       50% { opacity: 0.7; text-shadow: 0 0 6px rgba(200, 160, 60, 0.8); }
     }
 
+    /* 频道分隔装饰 */
+    .chat-divider {
+      align-self: center;
+      font-size: 9px;
+      color: #E0C0C0;
+      letter-spacing: 3px;
+      padding: 4px 0;
+    }
+
     .input-area {
       padding: 12px 16px;
       padding-bottom: max(12px, env(safe-area-inset-bottom));
-      background: rgba(255, 248, 245, 0.85);
+      background: rgba(255, 248, 245, 0.88);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      border-top: 1px solid rgba(240, 220, 220, 0.4);
+      border-top: 1px solid rgba(232, 190, 190, 0.3);
       display: flex;
       gap: 10px;
       align-items: center;
       z-index: 10;
+      position: relative;
+    }
+
+    .input-area::before {
+      content: '· · ·';
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px;
+      color: #E0C0C0;
+      letter-spacing: 6px;
     }
 
     .input-area input {
       flex: 1;
       height: 40px;
       border-radius: 20px;
-      border: 1px solid rgba(200, 180, 180, 0.3);
+      border: 1.5px solid rgba(232, 190, 190, 0.3);
       background: rgba(255, 255, 255, 0.6);
       padding: 0 16px;
       font-size: 14px;
@@ -252,34 +343,36 @@
 
     .input-area input::placeholder {
       color: #C8B8B8;
+      font-style: italic;
     }
 
     .input-area input:focus {
-      border-color: rgba(232, 160, 160, 0.5);
+      border-color: rgba(232, 150, 150, 0.5);
+      box-shadow: 0 0 8px rgba(232, 160, 160, 0.1);
     }
 
     .input-area .send-btn {
       width: 40px;
       height: 40px;
       border-radius: 50%;
-      background: rgba(232, 160, 160, 0.3);
-      border: 1px solid rgba(232, 160, 160, 0.4);
+      background: linear-gradient(135deg, rgba(245, 200, 200, 0.5), rgba(232, 160, 160, 0.4));
+      border: 1.5px solid rgba(232, 170, 170, 0.4);
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: transform 0.2s, background 0.2s;
+      transition: transform 0.2s, box-shadow 0.2s;
     }
 
     .input-area .send-btn:active {
       transform: scale(0.92);
-      background: rgba(232, 160, 160, 0.5);
+      box-shadow: 0 0 8px rgba(232, 160, 160, 0.3);
     }
 
     .input-area .send-btn svg {
       width: 18px;
       height: 18px;
-      stroke: #7D6666;
+      stroke: #7D5555;
       stroke-width: 2;
       fill: none;
     }
@@ -292,6 +385,9 @@
     </a>
     <div class="title">世界频道</div>
     <div class="online">42人在线</div>
+    <div class="ornament">
+      <div class="center-gem"></div>
+    </div>
   </div>
 
   <div class="chat-area" id="chat-area">
@@ -310,6 +406,8 @@
       <div class="bubble">刚才那个SSR也太好看了吧</div>
       <div class="time">18:02</div>
     </div>
+
+    <div class="chat-divider">❦ · ✿ · ❦</div>
 
     <div class="msg self">
       <div class="nickname">珩</div>
@@ -338,6 +436,8 @@
       <div class="bubble">攒着 保底不会亏</div>
       <div class="time">18:06</div>
     </div>
+
+    <div class="chat-divider">❦ · ✿ · ❦</div>
 
     <div class="msg other">
       <div class="nickname">晚星</div>

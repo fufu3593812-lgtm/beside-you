@@ -20,33 +20,24 @@
       flex-direction: column;
     }
 
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='60' height='60' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 0;
-    }
-
     body::after {
       content: '';
       position: fixed;
       inset: 0;
       background: 
-        radial-gradient(1.5px 1.5px at 15% 25%, rgba(232, 180, 140, 0.4), transparent),
-        radial-gradient(1px 1px at 55% 15%, rgba(232, 160, 160, 0.35), transparent),
-        radial-gradient(1.5px 1.5px at 75% 55%, rgba(232, 180, 140, 0.3), transparent),
-        radial-gradient(1px 1px at 35% 65%, rgba(232, 160, 160, 0.25), transparent),
-        radial-gradient(1px 1px at 85% 35%, rgba(255, 200, 160, 0.3), transparent),
-        radial-gradient(1.5px 1.5px at 25% 85%, rgba(232, 160, 160, 0.2), transparent);
+        radial-gradient(1.5px 1.5px at 15% 25%, rgba(232, 180, 140, 0.45), transparent),
+        radial-gradient(1px 1px at 55% 15%, rgba(232, 160, 160, 0.4), transparent),
+        radial-gradient(1.5px 1.5px at 75% 55%, rgba(232, 180, 140, 0.35), transparent),
+        radial-gradient(1px 1px at 35% 65%, rgba(232, 160, 160, 0.3), transparent),
+        radial-gradient(1px 1px at 85% 35%, rgba(255, 200, 160, 0.35), transparent),
+        radial-gradient(1.5px 1.5px at 25% 85%, rgba(232, 160, 160, 0.25), transparent);
       pointer-events: none;
       z-index: 0;
       animation: twinkle 3s ease-in-out infinite alternate;
     }
 
     @keyframes twinkle {
-      0% { opacity: 0.5; }
+      0% { opacity: 0.4; }
       100% { opacity: 1; }
     }
 
@@ -182,7 +173,7 @@
     .system-msg {
       align-self: center;
       text-align: center;
-      padding: 8px 18px;
+      padding: 8px 20px;
       border-radius: 20px;
       background: rgba(255, 240, 220, 0.7);
       backdrop-filter: blur(8px);
@@ -190,33 +181,36 @@
       border: 1px solid rgba(240, 210, 180, 0.5);
       font-size: 11px;
       color: #C4964A;
-      max-width: 85%;
+      max-width: 92%;
       position: relative;
       overflow: hidden;
-      box-shadow: 0 0 8px rgba(220, 180, 80, 0.06);
+    }
+
+    .system-msg .msg-text {
+      position: relative;
+      z-index: 2;
     }
 
     .system-msg::before {
       content: '';
       position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
       background: linear-gradient(
-        45deg,
-        transparent 40%,
-        rgba(255, 220, 120, 0.1) 45%,
-        rgba(255, 220, 120, 0.2) 50%,
-        rgba(255, 220, 120, 0.1) 55%,
-        transparent 60%
+        90deg,
+        transparent,
+        rgba(255, 220, 120, 0.2),
+        transparent
       );
       animation: shimmer 3s ease-in-out infinite;
+      z-index: 1;
     }
 
     @keyframes shimmer {
-      0% { transform: translateX(-100%); }
-      100% { transform: translateX(100%); }
+      0% { left: -100%; }
+      100% { left: 100%; }
     }
 
     .system-msg .ssr-icon {
@@ -302,7 +296,7 @@
 
   <div class="chat-area" id="chat-area">
     <div class="system-msg">
-      <span class="ssr-icon">✦</span> 恭喜「月下蝶」抽到了SSR【星海之约】
+      <span class="msg-text"><span class="ssr-icon">✦</span> 恭喜「月下蝶」抽到了SSR【星海之约】</span>
     </div>
 
     <div class="msg other">
@@ -330,7 +324,7 @@
     </div>
 
     <div class="system-msg">
-      <span class="ssr-icon">✦</span> 恭喜「霜序」抽到了SSR【深夜来信】
+      <span class="msg-text"><span class="ssr-icon">✦</span> 恭喜「霜序」抽到了SSR【深夜来信】</span>
     </div>
 
     <div class="msg other">

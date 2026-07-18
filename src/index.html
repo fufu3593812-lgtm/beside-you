@@ -31,16 +31,16 @@
       position: absolute;
       bottom: 72px;
       left: 50%;
-      transform: translateX(-50%);
+      transform: translateX(-50%) translateY(0) scale(1);
       height: 70vh;
       object-fit: contain;
       z-index: 1;
-      animation: breathe 3.2s ease-in-out infinite;
+      animation: breathe 3s ease-in-out infinite;
     }
 
     @keyframes breathe {
-      0%, 100% { transform: translateX(-50%) translateY(0); }
-      50% { transform: translateX(-50%) translateY(-12px); }
+      0%, 100% { transform: translateX(-50%) translateY(0) scale(1); }
+      50% { transform: translateX(-50%) translateY(-16px) scale(1.008); }
     }
 
     .glass {

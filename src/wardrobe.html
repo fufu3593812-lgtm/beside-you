@@ -168,6 +168,12 @@
       animation: breathe 3s ease-in-out infinite;
       position: relative;
       z-index: 1;
+      transition: opacity 0.3s ease;
+    }
+
+    .preview .character.switching {
+      opacity: 0;
+      animation: none;
     }
 
     @keyframes breathe {
@@ -210,6 +216,7 @@
       border: 1px solid rgba(232, 180, 180, 0.3);
       box-shadow: 0 2px 8px rgba(232, 160, 160, 0.08);
       z-index: 2;
+      transition: opacity 0.3s ease;
     }
 
     .tabs {
@@ -392,6 +399,31 @@
       border: 1.5px solid rgba(232, 190, 190, 0.4);
       color: #7D5555;
     }
+
+    .toast {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.8);
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1.5px solid rgba(232, 180, 180, 0.4);
+      border-radius: 16px;
+      padding: 16px 28px;
+      font-size: 13px;
+      color: #5D4040;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      z-index: 100;
+      box-shadow: 0 8px 24px rgba(232, 160, 160, 0.15);
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
   </style>
 </head>
 <body>
@@ -414,8 +446,8 @@
         <span>┊</span>
         <span>❧</span>
       </div>
-      <img class="character" src="../assets/%E7%9D%A1%E8%A3%99.png" alt="珩">
-      <div class="outfit-name">月光睡裙</div>
+      <img class="character" id="preview-img" src="../assets/%E7%9D%A1%E8%A3%99.png" alt="珩">
+      <div class="outfit-name" id="outfit-name">月光睡裙</div>
     </div>
 
     <div class="tabs">
@@ -426,22 +458,22 @@
     </div>
 
     <div class="wardrobe-grid" id="wardrobe-grid">
-      <div class="outfit-card active" data-cat="limited">
+      <div class="outfit-card active" data-cat="limited" data-img="../assets/%E7%9D%A1%E8%A3%99.png" data-name="月光睡裙">
         <span class="rarity">SR</span>
         <img class="thumb" src="../assets/%E7%9D%A1%E8%A3%99.png" alt="睡裙">
         <div class="name">月光睡裙</div>
       </div>
-      <div class="outfit-card" data-cat="daily">
+      <div class="outfit-card" data-cat="daily" data-img="../assets/%E5%8D%AB%E8%A1%A3.png" data-name="慵懒卫衣">
         <span class="rarity">R</span>
         <img class="thumb" src="../assets/%E5%8D%AB%E8%A1%A3.png" alt="卫衣">
         <div class="name">慵懒卫衣</div>
       </div>
-      <div class="outfit-card" data-cat="daily">
+      <div class="outfit-card" data-cat="daily" data-img="../assets/jk.png" data-name="初恋JK">
         <span class="rarity">R</span>
         <img class="thumb" src="../assets/jk.png" alt="JK">
         <div class="name">初恋JK</div>
       </div>
-      <div class="outfit-card" data-cat="daily">
+      <div class="outfit-card" data-cat="daily" data-img="../assets/%E7%A2%8E%E8%8A%B1%E8%A3%99.png" data-name="碎花裙">
         <span class="rarity">SR</span>
         <img class="thumb" src="../assets/%E7%A2%8E%E8%8A%B1%E8%A3%99.png" alt="碎花裙">
         <div class="name">碎花裙</div>
@@ -450,29 +482,72 @@
   </div>
 
   <div class="bottom-bar">
-    <button class="btn btn-secondary">收藏</button>
-    <button class="btn btn-primary">换上</button>
+    <button class="btn btn-secondary" id="btn-fav">收藏</button>
+    <button class="btn btn-primary" id="btn-wear">换上</button>
   </div>
+
+  <div class="toast" id="toast"></div>
 
   <script>
     (function() {
       const tabs = document.querySelectorAll('.tab');
       const cards = document.querySelectorAll('.outfit-card');
+      const previewImg = document.getElementById('preview-img');
+      const outfitName = document.getElementById('outfit-name');
+      const btnWear = document.getElementById('btn-wear');
+      const toast = document.getElementById('toast');
 
+      let currentOutfit = '月光睡裙';
+      let selectedCard = document.querySelector('.outfit-card.active');
+
+      // tab筛选
       tabs.forEach(tab => {
         tab.addEventListener('click', () => {
           tabs.forEach(t => t.classList.remove('active'));
           tab.classList.add('active');
           const cat = tab.dataset.cat;
           cards.forEach(card => {
-            if (cat === 'all' || card.dataset.cat === cat) {
-              card.style.display = '';
-            } else {
-              card.style.display = 'none';
-            }
+            card.style.display = (cat === 'all' || card.dataset.cat === cat) ? '' : 'none';
           });
         });
       });
+
+      // 点卡片切换预览
+      cards.forEach(card => {
+        card.addEventListener('click', () => {
+          cards.forEach(c => c.classList.remove('active'));
+          card.classList.add('active');
+          selectedCard = card;
+
+          const img = card.dataset.img;
+          const name = card.dataset.name;
+
+          previewImg.classList.add('switching');
+          setTimeout(() => {
+            previewImg.src = img;
+            outfitName.textContent = name;
+            previewImg.classList.remove('switching');
+          }, 250);
+        });
+      });
+
+      // 换上按钮
+      btnWear.addEventListener('click', () => {
+        if (!selectedCard) return;
+        const name = selectedCard.dataset.name;
+        if (name === currentOutfit) {
+          showToast('已经穿着这件了');
+          return;
+        }
+        currentOutfit = name;
+        showToast('✿ 已换上「' + name + '」');
+      });
+
+      function showToast(msg) {
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 1600);
+      }
     })();
   </script>
 </body>

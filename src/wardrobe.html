@@ -419,29 +419,29 @@
     </div>
 
     <div class="tabs">
-      <div class="tab active">全部</div>
-      <div class="tab">日常</div>
-      <div class="tab">正装</div>
-      <div class="tab">限定</div>
+      <div class="tab active" data-cat="all">全部</div>
+      <div class="tab" data-cat="daily">日常</div>
+      <div class="tab" data-cat="formal">正装</div>
+      <div class="tab" data-cat="limited">限定</div>
     </div>
 
-    <div class="wardrobe-grid">
-      <div class="outfit-card active">
+    <div class="wardrobe-grid" id="wardrobe-grid">
+      <div class="outfit-card active" data-cat="limited">
         <span class="rarity">SR</span>
         <img class="thumb" src="../assets/%E7%9D%A1%E8%A3%99.png" alt="睡裙">
         <div class="name">月光睡裙</div>
       </div>
-      <div class="outfit-card">
+      <div class="outfit-card" data-cat="daily">
         <span class="rarity">R</span>
         <img class="thumb" src="../assets/%E5%8D%AB%E8%A1%A3.png" alt="卫衣">
         <div class="name">慵懒卫衣</div>
       </div>
-      <div class="outfit-card">
+      <div class="outfit-card" data-cat="daily">
         <span class="rarity">R</span>
         <img class="thumb" src="../assets/jk.png" alt="JK">
         <div class="name">初恋JK</div>
       </div>
-      <div class="outfit-card">
+      <div class="outfit-card" data-cat="daily">
         <span class="rarity">SR</span>
         <img class="thumb" src="../assets/%E7%A2%8E%E8%8A%B1%E8%A3%99.png" alt="碎花裙">
         <div class="name">碎花裙</div>
@@ -453,5 +453,27 @@
     <button class="btn btn-secondary">收藏</button>
     <button class="btn btn-primary">换上</button>
   </div>
+
+  <script>
+    (function() {
+      const tabs = document.querySelectorAll('.tab');
+      const cards = document.querySelectorAll('.outfit-card');
+
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          tabs.forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          const cat = tab.dataset.cat;
+          cards.forEach(card => {
+            if (cat === 'all' || card.dataset.cat === cat) {
+              card.style.display = '';
+            } else {
+              card.style.display = 'none';
+            }
+          });
+        });
+      });
+    })();
+  </script>
 </body>
 </html>

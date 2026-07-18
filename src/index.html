@@ -263,6 +263,7 @@
       padding: 12px 4px 10px;
       cursor: pointer;
       transition: transform 0.2s ease, background 0.3s ease;
+      text-decoration: none;
     }
 
     .dock-item:active { transform: scale(0.95); }
@@ -345,11 +346,11 @@
   </div>
 
   <div class="dock fade-in fade-in-delay-4">
-    <div class="dock-item glass">
+    <a class="dock-item glass" href="chat.html">
       <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
       <span class="d-en">Chat</span>
       <span class="d-cn">聊天</span>
-    </div>
+    </a>
     <div class="dock-item glass">
       <svg viewBox="0 0 24 24"><path d="M20 21V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v16"/><line x1="12" y1="3" x2="12" y2="21"/><line x1="4" y1="21" x2="20" y2="21"/><circle cx="8" cy="10" r="1"/><circle cx="16" cy="10" r="1"/></svg>
       <span class="d-en">Wardrobe</span>

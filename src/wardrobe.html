@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Beside You - 衣柜</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, 'PingFang SC', sans-serif;
+      background: #FFF8F7;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+      max-width: 430px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: 
+        radial-gradient(1.5px 1.5px at 10% 20%, rgba(232, 180, 140, 0.4), transparent),
+        radial-gradient(1px 1px at 50% 10%, rgba(232, 160, 160, 0.35), transparent),
+        radial-gradient(1.5px 1.5px at 80% 50%, rgba(232, 180, 140, 0.3), transparent),
+        radial-gradient(1px 1px at 30% 70%, rgba(232, 160, 160, 0.25), transparent),
+        radial-gradient(1px 1px at 90% 30%, rgba(255, 200, 160, 0.3), transparent);
+      pointer-events: none;
+      z-index: 0;
+      animation: twinkle 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes twinkle {
+      0% { opacity: 0.4; }
+      100% { opacity: 1; }
+    }
+
+    .header {
+      position: relative;
+      height: 88px;
+      padding: 44px 20px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 248, 245, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(240, 220, 220, 0.4);
+      z-index: 10;
+    }
+
+    .header .back {
+      position: absolute;
+      left: 16px;
+      top: 48px;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .header .back svg {
+      width: 20px;
+      height: 20px;
+      stroke: #7D6666;
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .header .title {
+      font-size: 15px;
+      color: #3D3333;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+      z-index: 1;
+    }
+
+    .preview {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .preview .character {
+      height: 55vh;
+      object-fit: contain;
+      animation: breathe 3s ease-in-out infinite;
+    }
+
+    @keyframes breathe {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-8px) scale(1.005); }
+    }
+
+    .preview .decor-left,
+    .preview .decor-right {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 40px;
+      height: 120px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      opacity: 0.4;
+    }
+
+    .preview .decor-left { left: 12px; }
+    .preview .decor-right { right: 12px; }
+
+    .preview .decor-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #E8A0A0;
+    }
+
+    .preview .decor-line {
+      width: 1px;
+      height: 32px;
+      background: linear-gradient(to bottom, transparent, #E8A0A0, transparent);
+    }
+
+    .preview .outfit-name {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      color: #9A8080;
+      font-style: italic;
+      letter-spacing: 1px;
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      padding: 6px 16px;
+      border-radius: 20px;
+      border: 1px solid rgba(240, 220, 220, 0.4);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 0;
+      padding: 0 16px;
+      background: rgba(255, 248, 245, 0.7);
+      border-bottom: 1px solid rgba(240, 220, 220, 0.3);
+    }
+
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 12px 0;
+      font-size: 12px;
+      color: #B8A0A0;
+      position: relative;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .tab.active {
+      color: #7D5555;
+      font-weight: 500;
+    }
+
+    .tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 24px;
+      height: 2px;
+      background: linear-gradient(90deg, #F5C4C4, #E8A0A0);
+      border-radius: 1px;
+    }
+
+    .wardrobe-grid {
+      padding: 16px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      overflow-y: auto;
+      max-height: 200px;
+    }
+
+    .wardrobe-grid::-webkit-scrollbar { width: 0; }
+
+    .outfit-card {
+      aspect-ratio: 1;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(240, 220, 220, 0.5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .outfit-card:active { transform: scale(0.95); }
+
+    .outfit-card.active {
+      border-color: rgba(232, 160, 160, 0.6);
+      box-shadow: 0 0 12px rgba(232, 160, 160, 0.15);
+    }
+
+    .outfit-card .icon {
+      font-size: 28px;
+      margin-bottom: 4px;
+    }
+
+    .outfit-card .name {
+      font-size: 9px;
+      color: #9A8080;
+    }
+
+    .outfit-card.locked {
+      opacity: 0.45;
+    }
+
+    .outfit-card.locked::after {
+      content: '🔒';
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      font-size: 10px;
+    }
+
+    .outfit-card .rarity {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      font-size: 8px;
+      padding: 1px 4px;
+      border-radius: 4px;
+      color: #fff;
+    }
+
+    .rarity-ssr { background: linear-gradient(135deg, #E8A040, #D4783C); }
+    .rarity-sr { background: linear-gradient(135deg, #B078D0, #8858B0); }
+    .rarity-r { background: linear-gradient(135deg, #60A0D0, #4880B0); }
+
+    .bottom-bar {
+      padding: 12px 16px;
+      padding-bottom: max(12px, env(safe-area-inset-bottom));
+      background: rgba(255, 248, 245, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(240, 220, 220, 0.4);
+      display: flex;
+      gap: 12px;
+      z-index: 10;
+    }
+
+    .btn {
+      flex: 1;
+      height: 40px;
+      border-radius: 20px;
+      border: none;
+      font-size: 13px;
+      cursor: pointer;
+      transition: transform 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .btn:active { transform: scale(0.96); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #F5C4C4, #E8A0A0);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(232, 160, 160, 0.25);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(240, 220, 220, 0.5);
+      color: #7D6666;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <a class="back" href="index.html">
+      <svg viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg>
+    </a>
+    <div class="title">衣柜</div>
+  </div>
+
+  <div class="main">
+    <div class="preview">
+      <div class="decor-left">
+        <div class="decor-dot"></div>
+        <div class="decor-line"></div>
+        <div class="decor-dot"></div>
+        <div class="decor-line"></div>
+        <div class="decor-dot"></div>
+      </div>
+      <img class="character" src="../assets/%E7%9D%A1%E8%A3%99.png" alt="珩">
+      <div class="decor-right">
+        <div class="decor-dot"></div>
+        <div class="decor-line"></div>
+        <div class="decor-dot"></div>
+        <div class="decor-line"></div>
+        <div class="decor-dot"></div>
+      </div>
+      <div class="outfit-name">— 月光睡裙 —</div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active">全部</div>
+      <div class="tab">日常</div>
+      <div class="tab">正装</div>
+      <div class="tab">限定</div>
+    </div>
+
+    <div class="wardrobe-grid">
+      <div class="outfit-card active">
+        <span class="rarity rarity-sr">SR</span>
+        <div class="icon">👗</div>
+        <div class="name">月光睡裙</div>
+      </div>
+      <div class="outfit-card">
+        <span class="rarity rarity-r">R</span>
+        <div class="icon">👔</div>
+        <div class="name">白衬衫</div>
+      </div>
+      <div class="outfit-card">
+        <span class="rarity rarity-ssr">SSR</span>
+        <div class="icon">🥻</div>
+        <div class="name">星海礼服</div>
+      </div>
+      <div class="outfit-card">
+        <span class="rarity rarity-r">R</span>
+        <div class="icon">🧥</div>
+        <div class="name">黑色外套</div>
+      </div>
+      <div class="outfit-card locked">
+        <span class="rarity rarity-ssr">SSR</span>
+        <div class="icon">👘</div>
+        <div class="name">落樱和服</div>
+      </div>
+      <div class="outfit-card locked">
+        <span class="rarity rarity-sr">SR</span>
+        <div class="icon">🎽</div>
+        <div class="name">运动套装</div>
+      </div>
+      <div class="outfit-card locked">
+        <span class="rarity rarity-ssr">SSR</span>
+        <div class="icon">👑</div>
+        <div class="name">深夜舞会</div>
+      </div>
+      <div class="outfit-card locked">
+        <span class="rarity rarity-sr">SR</span>
+        <div class="icon">🧣</div>
+        <div class="name">冬日温暖</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-bar">
+    <button class="btn btn-secondary">收藏</button>
+    <button class="btn btn-primary">换上</button>
+  </div>
+</body>
+</html>

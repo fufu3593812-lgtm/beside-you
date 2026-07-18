@@ -185,30 +185,61 @@
       font-size: 14px;
       line-height: 1.6;
       word-break: break-word;
+      position: relative;
     }
 
     .msg.other .bubble {
-      background: rgba(255, 255, 255, 0.45);
-      backdrop-filter: blur(16px) saturate(1.2);
-      -webkit-backdrop-filter: blur(16px) saturate(1.2);
-      border: 1px solid rgba(255, 255, 255, 0.6);
-      box-shadow: 
-        0 2px 8px rgba(232, 180, 180, 0.06),
-        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+      background: linear-gradient(168deg, rgba(255, 255, 255, 0.72) 0%, rgba(248, 242, 242, 0.48) 100%);
+      backdrop-filter: blur(16px) saturate(1.3);
+      -webkit-backdrop-filter: blur(16px) saturate(1.3);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      border-bottom-color: rgba(225, 205, 205, 0.4);
+      box-shadow:
+        inset 0 1.5px 0 rgba(255, 255, 255, 0.9),
+        inset 0 -1px 0 rgba(200, 180, 180, 0.12),
+        0 2px 3px rgba(180, 140, 140, 0.08),
+        0 5px 8px rgba(180, 140, 140, 0.05),
+        0 10px 20px rgba(180, 140, 140, 0.03);
       color: #3D3333;
       border-top-left-radius: 4px;
+      transform: translateY(0);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .msg.other .bubble:active {
+      transform: translateY(1px);
+      box-shadow:
+        inset 0 1.5px 0 rgba(255, 255, 255, 0.9),
+        inset 0 -1px 0 rgba(200, 180, 180, 0.12),
+        0 1px 2px rgba(180, 140, 140, 0.06),
+        0 3px 5px rgba(180, 140, 140, 0.03);
     }
 
     .msg.self .bubble {
-      background: rgba(245, 200, 200, 0.3);
-      backdrop-filter: blur(16px) saturate(1.2);
-      -webkit-backdrop-filter: blur(16px) saturate(1.2);
-      border: 1px solid rgba(245, 200, 200, 0.45);
-      box-shadow: 
-        0 2px 8px rgba(232, 160, 160, 0.08),
-        inset 0 1px 0 rgba(255, 230, 230, 0.4);
+      background: linear-gradient(168deg, rgba(255, 222, 222, 0.62) 0%, rgba(242, 195, 195, 0.38) 100%);
+      backdrop-filter: blur(16px) saturate(1.3);
+      -webkit-backdrop-filter: blur(16px) saturate(1.3);
+      border: 1px solid rgba(255, 218, 218, 0.6);
+      border-bottom-color: rgba(215, 165, 165, 0.3);
+      box-shadow:
+        inset 0 1.5px 0 rgba(255, 240, 240, 0.9),
+        inset 0 -1px 0 rgba(200, 160, 160, 0.12),
+        0 2px 3px rgba(200, 140, 140, 0.09),
+        0 5px 8px rgba(200, 140, 140, 0.05),
+        0 10px 20px rgba(200, 140, 140, 0.03);
       color: #3D3333;
       border-top-right-radius: 4px;
+      transform: translateY(0);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .msg.self .bubble:active {
+      transform: translateY(1px);
+      box-shadow:
+        inset 0 1.5px 0 rgba(255, 240, 240, 0.9),
+        inset 0 -1px 0 rgba(200, 160, 160, 0.12),
+        0 1px 2px rgba(200, 140, 140, 0.06),
+        0 3px 5px rgba(200, 140, 140, 0.03);
     }
 
     .msg .time {
@@ -225,13 +256,15 @@
       text-align: center;
       padding: 8px 20px;
       border-radius: 20px;
-      background: rgba(255, 245, 230, 0.5);
+      background: linear-gradient(168deg, rgba(255, 248, 228, 0.72) 0%, rgba(252, 238, 205, 0.48) 100%);
       backdrop-filter: blur(12px) saturate(1.3);
       -webkit-backdrop-filter: blur(12px) saturate(1.3);
-      border: 1px solid rgba(240, 210, 160, 0.4);
-      box-shadow: 
-        0 2px 8px rgba(220, 180, 100, 0.06),
-        inset 0 1px 0 rgba(255, 240, 200, 0.5);
+      border: 1px solid rgba(248, 218, 155, 0.5);
+      border-bottom-color: rgba(218, 178, 95, 0.3);
+      box-shadow:
+        inset 0 1.5px 0 rgba(255, 250, 218, 0.9),
+        0 2px 3px rgba(200, 160, 80, 0.07),
+        0 5px 10px rgba(200, 160, 80, 0.04);
       font-size: 11px;
       color: #B8863A;
       max-width: 92%;
@@ -285,8 +318,9 @@
       flex: 1;
       height: 40px;
       border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.6);
-      background: rgba(255, 255, 255, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      border-bottom-color: rgba(220, 200, 200, 0.4);
+      background: linear-gradient(168deg, rgba(255, 255, 255, 0.6) 0%, rgba(248, 242, 242, 0.38) 100%);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
       padding: 0 16px;
@@ -294,7 +328,10 @@
       color: #3D3333;
       outline: none;
       transition: border-color 0.2s, box-shadow 0.2s;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.7),
+        0 3px 6px rgba(180, 140, 140, 0.05),
+        0 1px 2px rgba(180, 140, 140, 0.07);
     }
 
     .input-area input::placeholder {
@@ -304,30 +341,37 @@
 
     .input-area input:focus {
       border-color: rgba(232, 160, 160, 0.5);
-      box-shadow: 
-        inset 0 1px 0 rgba(255, 255, 255, 0.5),
-        0 0 12px rgba(232, 160, 160, 0.1);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.7),
+        0 4px 12px rgba(232, 160, 160, 0.12),
+        0 1px 2px rgba(180, 140, 140, 0.06);
     }
 
     .input-area .send-btn {
       width: 40px;
       height: 40px;
       border-radius: 50%;
-      background: rgba(245, 200, 200, 0.4);
+      background: linear-gradient(168deg, rgba(255, 212, 212, 0.62) 0%, rgba(238, 178, 178, 0.42) 100%);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
-      border: 1px solid rgba(245, 200, 200, 0.5);
-      box-shadow: inset 0 1px 0 rgba(255, 230, 230, 0.5);
+      border: 1px solid rgba(255, 208, 208, 0.6);
+      border-bottom-color: rgba(198, 148, 148, 0.3);
+      box-shadow:
+        inset 0 1.5px 0 rgba(255, 232, 232, 0.9),
+        0 3px 6px rgba(200, 140, 140, 0.09),
+        0 1px 2px rgba(200, 140, 140, 0.11);
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
 
     .input-area .send-btn:active {
-      transform: scale(0.92);
-      box-shadow: 0 0 12px rgba(232, 160, 160, 0.25);
+      transform: translateY(1px);
+      box-shadow:
+        inset 0 1.5px 0 rgba(255, 232, 232, 0.9),
+        0 1px 3px rgba(200, 140, 140, 0.06);
     }
 
     .input-area .send-btn svg {
@@ -341,9 +385,9 @@
 </head>
 <body>
   <div class="header">
-    <a class="back" href="index.html">
+    <a class="back" href=" ">
       <svg viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg>
-    </a>
+    </a >
     <div class="title">世界频道</div>
     <div class="online">42人在线</div>
     <div class="ornament">

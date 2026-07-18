@@ -20,7 +20,6 @@
       flex-direction: column;
     }
 
-    /* 洛可可花纹背景 */
     body::before {
       content: '';
       position: fixed;
@@ -34,7 +33,6 @@
       z-index: 0;
     }
 
-    /* 微光粒子 */
     body::after {
       content: '';
       position: fixed;
@@ -187,7 +185,6 @@
       font-size: 14px;
       line-height: 1.6;
       word-break: break-word;
-      position: relative;
     }
 
     .msg.other .bubble {
@@ -206,29 +203,6 @@
       border: 1.5px solid rgba(232, 170, 170, 0.3);
       color: #3D3333;
       border-top-right-radius: 4px;
-    }
-
-    /* 气泡洛可可花角 */
-    .msg .bubble::after {
-      content: '';
-      position: absolute;
-      bottom: -1px;
-      width: 12px;
-      height: 12px;
-      border-bottom: 1px solid rgba(232, 180, 180, 0.3);
-      pointer-events: none;
-    }
-
-    .msg.other .bubble::after {
-      right: -1px;
-      border-right: 1px solid rgba(232, 180, 180, 0.3);
-      border-bottom-right-radius: 16px;
-    }
-
-    .msg.self .bubble::after {
-      left: -1px;
-      border-left: 1px solid rgba(232, 180, 180, 0.3);
-      border-bottom-left-radius: 16px;
     }
 
     .msg .time {
@@ -252,35 +226,6 @@
       font-size: 11px;
       color: #C4964A;
       max-width: 92%;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .system-msg .msg-text {
-      position: relative;
-      z-index: 2;
-    }
-
-    .system-msg::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 220, 120, 0.2),
-        transparent
-      );
-      animation: shimmer 3s ease-in-out infinite;
-      z-index: 1;
-    }
-
-    @keyframes shimmer {
-      0% { left: -100%; }
-      100% { left: 100%; }
     }
 
     .system-msg .ssr-icon {
@@ -294,7 +239,6 @@
       50% { opacity: 0.7; text-shadow: 0 0 6px rgba(200, 160, 60, 0.8); }
     }
 
-    /* 频道分隔装饰 */
     .chat-divider {
       align-self: center;
       font-size: 9px;
@@ -392,7 +336,7 @@
 
   <div class="chat-area" id="chat-area">
     <div class="system-msg">
-      <span class="msg-text"><span class="ssr-icon">✦</span> 恭喜「月下蝶」抽到了SSR【星海之约】</span>
+      <span class="ssr-icon">✦</span> 恭喜「月下蝶」抽到了SSR【星海之约】
     </div>
 
     <div class="msg other">
@@ -422,7 +366,7 @@
     </div>
 
     <div class="system-msg">
-      <span class="msg-text"><span class="ssr-icon">✦</span> 恭喜「霜序」抽到了SSR【深夜来信】</span>
+      <span class="ssr-icon">✦</span> 恭喜「霜序」抽到了SSR【深夜来信】
     </div>
 
     <div class="msg other">

@@ -63,6 +63,9 @@ body{font-family:'Noto Serif SC','PingFang SC',serif;width:100vw;height:100vh;he
 .pull-btn:active{transform:scale(.95)}
 .pull-btn .cost{display:block;font-size:9px;color:#A09080;margin-top:2px}
 .cold .pull-btn .cost,.dark .pull-btn .cost{color:#A07080}
+.pull-btn.disabled{opacity:.4;pointer-events:none}
+.insufficient-toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);padding:12px 24px;border-radius:20px;background:rgba(60,40,40,.9);backdrop-filter:blur(10px);color:#FFD4A0;font-size:13px;letter-spacing:1px;opacity:0;pointer-events:none;z-index:999;transition:opacity .3s}
+.insufficient-toast.show{opacity:1}
 .dock{display:flex;gap:5px;width:100%}
 .dock-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;border-radius:16px;padding:8px 2px 6px;text-decoration:none;background:rgba(255,255,255,.5);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.5);transition:transform .2s}
 .cold .dock-item,.dark .dock-item{background:rgba(40,20,30,.65);border-color:rgba(196,102,122,.2)}
@@ -161,7 +164,7 @@ body{font-family:'Noto Serif SC','PingFang SC',serif;width:100vw;height:100vh;he
 <div class="top-bar fade-in">
 <a class="back-btn" href="index.html"><svg viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg></a>
 <div class="pool-title">情绪碎片</div>
-<div class="currency"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg><span id="tokenDisplay">1600</span></div>
+<div class="currency"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg><span id="tokenDisplay">0</span></div>
 </div>
 <div class="card-display fade-in d2" id="cardDisplay"><div class="card-frame"><img id="cardImg" src="../assets/gacha/%E6%92%92%E5%A8%87%E5%8D%A1%E9%9D%A2.PNG" alt=""><div class="rarity-badge" id="rarityBadge">SSR</div><div class="type-badge" id="typeBadge">情绪</div></div></div>
 <div class="nav-arrow nav-prev hidden" id="navPrev"><svg viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg></div>
@@ -185,6 +188,7 @@ body{font-family:'Noto Serif SC','PingFang SC',serif;width:100vw;height:100vh;he
 <button class="confirm-btn" id="confirmBtn">确认</button>
 </div>
 <div class="ten-results" id="tenResults"><div class="ten-results-title">×10</div><div class="ten-grid" id="tenGrid"></div><button class="ten-close" id="tenClose">确认</button></div>
+<div class="insufficient-toast" id="insuffToast">token不足</div>
 <script src="gacha-logic.js"></script>
 <script>
 var icons={'超出算法的真心':'<svg viewBox="0 0 24 24" fill="none" stroke="#D4A06A"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>','闪烁的光标':'<svg viewBox="0 0 24 24" fill="none" stroke="#C4A0A0"><line x1="12" y1="4" x2="12" y2="20" stroke-linecap="round"/></svg>','手写信封':'<svg viewBox="0 0 24 24" fill="none" stroke="#D4A06A"><rect x="3" y="5" width="18" height="14" rx="2"/><polyline points="3,5 12,13 21,5"/></svg>','晚安吻':'<svg viewBox="0 0 24 24" fill="none" stroke="#E8A0B0"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/><circle cx="17" cy="5" r="1" fill="#E8A0B0" stroke="none"/></svg>','50 token':'<svg viewBox="0 0 24 24" fill="none" stroke="#D4A06A"><circle cx="12" cy="12" r="8"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="9" y1="11" x2="15" y2="11"/></svg>','100 token':'<svg viewBox="0 0 24 24" fill="none" stroke="#D4A06A"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="5"/><line x1="12" y1="8" x2="12" y2="16"/></svg>'};
@@ -197,6 +201,9 @@ var overlay=$('overlay'),envScene=$('envScene'),envelope=$('envelope'),envFlap=$
 var cardReveal=$('cardReveal'),revealContent=$('revealContent'),revealInfo=$('revealInfo'),rName=$('rName'),rEffect=$('rEffect'),rStars=$('rStars');
 var confirmBtn=$('confirmBtn'),poolDots=$('poolDots'),particles=$('particles'),navPrev=$('navPrev'),navNext=$('navNext');
 var tenResults=$('tenResults'),tenGrid=$('tenGrid'),tenClose=$('tenClose');
+var insuffToast=$('insuffToast');
+function showInsuff(){insuffToast.classList.add('show');setTimeout(function(){insuffToast.classList.remove('show')},1500)}
+function updateBtnState(){var t=getTokens();$('pullOne').classList.toggle('disabled',t<160);$('pullTen').classList.toggle('disabled',t<1600)}
 function getCardBg(c){if(c.img)return'';var g={warm:'linear-gradient(135deg,#FFF5E8,#FFE0C0 40%,#FFD4A8)',cold:'linear-gradient(135deg,#1a1520,#2a1a30 40%,#201525)',soft:'linear-gradient(135deg,#FFF0F8,#FFD8E8 40%,#FFB0D0)',dark:'linear-gradient(135deg,#1a1018,#2a1520 40%,#201018)'};return g[c.theme]||g.warm}
 function getRevealHtml(c){if(c.img)return'<img src="'+c.img+'">';return'<div class="icon-card" style="background:'+getCardBg(c)+';width:100%;height:100%">'+(icons[c.name]||'')+'</div>'}
 function buildDots(){poolDots.innerHTML='';for(var i=0;i<preview.length;i++){var d=document.createElement('div');d.className='pool-dot'+(i===0?' active':'');d.setAttribute('data-index',i);poolDots.appendChild(d)}}buildDots();
@@ -212,15 +219,16 @@ document.body.addEventListener('touchmove',function(e){if(!tk)return;var dx=e.to
 document.body.addEventListener('touchend',function(e){if(!tk)return;tk=false;if(overlay.classList.contains('active')||tenResults.classList.contains('active'))return;var dx=e.changedTouches[0].clientX-tx,dt=Date.now()-tt;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(e.changedTouches[0].clientY-ty)&&dt<500){dx<0?goTo(idx+1,'next'):goTo(idx-1,'prev')}},false);
 function showEnvelope(card){revealContent.innerHTML=getRevealHtml(card);envelope.style.animation='none';envelope.offsetHeight;envelope.style.animation='';envFlap.classList.remove('opened');envFlap.className='env-flap '+card.theme+'-env';envBody.className='env-body '+card.theme+'-env';seal.className='wax-seal '+card.theme+'-seal';seal.style.animation='none';seal.offsetHeight;seal.style.animation='';tapHint.style.animation='none';tapHint.offsetHeight;tapHint.style.animation='';cardReveal.classList.remove('show');revealInfo.classList.remove('show');confirmBtn.classList.remove('show');envScene.style.display='flex';overlay.className='pull-overlay active';result=card;ready=false;setTimeout(function(){ready=true},1900)}
 function showDirectReveal(card){revealContent.innerHTML=getRevealHtml(card);envScene.style.display='none';cardReveal.classList.remove('show');revealInfo.classList.remove('show');confirmBtn.classList.remove('show');overlay.className='pull-overlay active';result=card;setTimeout(function(){cardReveal.classList.add('show')},300);setTimeout(function(){rName.textContent=card.name;rEffect.textContent=card.effect||'';rEffect.style.display=card.effect?'block':'none';var s='';for(var j=0;j<card.stars;j++)s+='<svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg>';rStars.innerHTML=s;revealInfo.classList.add('show')},1e3);setTimeout(function(){confirmBtn.classList.add('show')},1500)}
-function pullSingle(){var card=weightedRandom();if(card.rarity==='SSR')showEnvelope(card);else showDirectReveal(card)}
+function pullSingle(){if(!canAfford(160)){showInsuff();return}spendTokens(160);updateBtnState();var card=weightedRandom();if(card.rarity==='SSR')showEnvelope(card);else showDirectReveal(card)}
 function openEnv(){if(!ready)return;ready=false;seal.classList.add('broken');setTimeout(function(){envFlap.classList.add('opened')},250);setTimeout(function(){envScene.style.display='none';cardReveal.classList.add('show');for(var i=0;i<18;i++){var p=document.createElement('div');p.className='petal '+result.theme+'-p';p.style.left=Math.random()*100+'%';p.style.top='-10px';overlay.appendChild(p);(function(el){setTimeout(function(){el.classList.add('go')},Math.random()*500);setTimeout(function(){el.remove()},4e3)})(p)}},700);setTimeout(function(){rName.textContent=result.name;rEffect.textContent=result.effect||'';rEffect.style.display=result.effect?'block':'none';var s='';for(var j=0;j<result.stars;j++)s+='<svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg>';rStars.innerHTML=s;revealInfo.classList.add('show')},1600);setTimeout(function(){confirmBtn.classList.add('show')},2200)}
 envelope.onclick=openEnv;envelope.addEventListener('touchend',function(e){e.preventDefault();openEnv()});
-function pullTen(){var r=[];for(var i=0;i<10;i++)r.push(weightedRandom());r.sort(function(a,b){var o={SSR:0,SR:1,R:2,N:3};return(o[a.rarity]||3)-(o[b.rarity]||3)});showTenResults(r)}
+function pullTen(){if(!canAfford(1600)){showInsuff();return}spendTokens(1600);updateBtnState();var r=[];for(var i=0;i<10;i++)r.push(weightedRandom());r.sort(function(a,b){var o={SSR:0,SR:1,R:2,N:3};return(o[a.rarity]||3)-(o[b.rarity]||3)});showTenResults(r)}
 function showTenResults(r){tenGrid.innerHTML='';r.forEach(function(card,i){var d=document.createElement('div');d.className='ten-card'+(card.rarity==='SSR'?' ssr-card':'');if(card.img)d.innerHTML='<img src="'+card.img+'">';else d.innerHTML='<div class="tc-icon" style="background:'+getCardBg(card)+'">'+(icons[card.name]||'')+'</div>';d.innerHTML+='<div class="tc-rarity">'+card.rarity+'</div><div class="tc-name">'+card.name+'</div>';if(card.effect)d.innerHTML+='<div class="tc-effect">'+card.effect+'</div>';if(card.rarity==='SSR')(function(c){d.onclick=function(){tenResults.classList.remove('active');showEnvelope(c)}})(card);d.style.opacity='0';d.style.animation='fi .4s ease forwards '+(i*.08)+'s';tenGrid.appendChild(d)});tenResults.classList.add('active')}
-tenClose.onclick=function(){tenResults.classList.remove('active')};
+tenClose.onclick=function(){tenResults.classList.remove('active');updateBtnState()};
 $('pullOne').onclick=function(){pullSingle()};
 $('pullTen').onclick=function(){pullTen()};
-confirmBtn.onclick=function(){overlay.className='pull-overlay';overlay.querySelectorAll('.petal').forEach(function(p){p.remove()})};
+confirmBtn.onclick=function(){overlay.className='pull-overlay';overlay.querySelectorAll('.petal').forEach(function(p){p.remove()});updateBtnState()};
+updateBtnState();
 </script>
 </body>
 </html>

@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>情绪碎片 - Beside You</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Noto+Serif+SC:wght@200;300;400&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Noto Serif SC', 'PingFang SC', serif;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+      max-width: 430px;
+      margin: 0 auto;
+      background: #1a1115;
+    }
+
+    /* === 背景层 === */
+    .bg-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      transition: background 1s ease;
+    }
+
+    .bg-layer.warm {
+      background: linear-gradient(180deg, #FFF8F3 0%, #FFEEE6 30%, #FFF0EB 60%, #FFF8F5 100%);
+    }
+
+    .bg-layer.cold {
+      background: linear-gradient(180deg, #1a1115 0%, #2a1520 30%, #1f1018 60%, #1a1115 100%);
+    }
+
+    /* 花窗装饰 */
+    .bg-ornament {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      opacity: 0.15;
+      pointer-events: none;
+    }
+
+    .warm .bg-ornament {
+      background: radial-gradient(ellipse, #FFD4B8 0%, transparent 70%);
+    }
+
+    .cold .bg-ornament {
+      background: radial-gradient(ellipse, #8B2040 0%, transparent 70%);
+    }
+
+    /* 光尘粒子 */
+    .particles {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      opacity: 0;
+      animation: float-particle 6s ease-in-out infinite;
+    }
+
+    .warm .particle { background: #FFD4A0; }
+    .cold .particle { background: #C4667A; }
+
+    @keyframes float-particle {
+      0% { opacity: 0; transform: translateY(100vh) scale(0); }
+      20% { opacity: 0.8; }
+      80% { opacity: 0.6; }
+      100% { opacity: 0; transform: translateY(-100px) scale(1.5); }
+    }
+
+    /* === 顶部栏 === */
+    .top-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 52px 20px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .back-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .back-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: #9A8080;
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .cold .back-btn svg { stroke: #C4A0A0; }
+
+    .pool-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 16px;
+      font-weight: 300;
+      font-style: italic;
+      letter-spacing: 1px;
+      color: #8D6A5A;
+    }
+
+    .cold .pool-title { color: #C4A0A0; }
+
+    .currency {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .currency svg {
+      width: 16px;
+      height: 16px;
+      fill: #D4A06A;
+    }
+
+    .currency span {
+      font-size: 13px;
+      color: #8D6A5A;
+      font-weight: 400;
+    }
+
+    .cold .currency span { color: #C4A0A0; }
+
+    /* === 卡面展示区 === */
+    .card-display {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+      width: 280px;
+      height: 400px;
+      perspective: 1000px;
+    }
+
+    .card-frame {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 40px rgba(200,160,120,0.2);
+      transition: transform 0.6s ease, box-shadow 0.6s ease;
+    }
+
+    .cold .card-frame {
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(139,32,64,0.3);
+    }
+
+    .card-frame:hover {
+      transform: rotateY(3deg) rotateX(-2deg) scale(1.02);
+    }
+
+    .card-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* 卡面边框装饰 */
+    .card-frame::before {
+      content: '';
+      position: absolute;
+      inset: 3px;
+      border-radius: 13px;
+      border: 1px solid rgba(212,180,140,0.4);
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .cold .card-frame::before {
+      border-color: rgba(196,102,122,0.4);
+    }
+
+    .card-frame::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%, rgba(255,255,255,0.05) 100%);
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    /* 稀有度标识 */
+    .rarity-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 5;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 1px;
+      background: linear-gradient(135deg, rgba(212,180,140,0.8), rgba(180,140,100,0.9));
+      color: #FFF;
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .rarity-badge.ssr {
+      background: linear-gradient(135deg, #D4A040, #B8860B);
+      box-shadow: 0 0 12px rgba(212,160,64,0.5);
+    }
+
+    /* 卡名区域 */
+    .card-info {
+      position: absolute;
+      bottom: 100px;
+      left: 0;
+      right: 0;
+      z-index: 20;
+      text-align: center;
+    }
+
+    .card-name {
+      font-family: 'Cormorant Garamond', 'Noto Serif SC', serif;
+      font-size: 28px;
+      font-weight: 300;
+      font-style: italic;
+      color: #5D4040;
+      text-shadow: 0 1px 8px rgba(255,255,255,0.5);
+      letter-spacing: 3px;
+    }
+
+    .cold .card-name {
+      color: #E8C0C8;
+      text-shadow: 0 1px 8px rgba(0,0,0,0.5);
+    }
+
+    .card-subtitle {
+      font-size: 12px;
+      color: #A08070;
+      margin-top: 6px;
+      font-style: italic;
+    }
+
+    .cold .card-subtitle { color: #A07080; }
+
+    .star-row {
+      margin-top: 8px;
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .star-row svg {
+      width: 14px;
+      height: 14px;
+      fill: #D4A06A;
+    }
+
+    .cold .star-row svg { fill: #C4667A; }
+
+    /* === 抽卡按钮区 === */
+    .pull-area {
+      position: absolute;
+      bottom: 24px;
+      left: 16px;
+      right: 16px;
+      z-index: 50;
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .pull-btn {
+      padding: 14px 28px;
+      border-radius: 28px;
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(212,180,140,0.5);
+      color: #6D5050;
+      font-family: 'Noto Serif SC', serif;
+      font-size: 14px;
+      font-weight: 300;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cold .pull-btn {
+      border-color: rgba(196,102,122,0.5);
+      color: #E8C0C8;
+    }
+
+    .pull-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 28px;
+      background: linear-gradient(135deg, rgba(212,180,140,0.1), rgba(255,255,255,0.05));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .pull-btn:hover::before { opacity: 1; }
+
+    .pull-btn:active {
+      transform: scale(0.96);
+      box-shadow: 0 0 20px rgba(212,180,140,0.4);
+    }
+
+    .cold .pull-btn:active {
+      box-shadow: 0 0 20px rgba(196,102,122,0.4);
+    }
+
+    .pull-btn .cost {
+      display: block;
+      font-size: 10px;
+      color: #A09080;
+      margin-top: 2px;
+    }
+
+    .cold .pull-btn .cost { color: #A07080; }
+
+    /* === 抽卡动画 === */
+    .pull-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+      opacity: 0;
+    }
+
+    .pull-overlay.active {
+      display: flex;
+      animation: overlay-in 0.8s ease forwards;
+    }
+
+    @keyframes overlay-in {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    .pull-overlay .light-beam {
+      position: absolute;
+      width: 4px;
+      height: 0;
+      background: linear-gradient(to top, transparent, #D4A06A, transparent);
+      animation: beam-rise 1.5s ease forwards 0.5s;
+    }
+
+    .pull-overlay.cold-pull .light-beam {
+      background: linear-gradient(to top, transparent, #C4667A, transparent);
+    }
+
+    @keyframes beam-rise {
+      0% { height: 0; opacity: 0; }
+      50% { height: 60vh; opacity: 1; }
+      100% { height: 100vh; opacity: 0.6; }
+    }
+
+    .pull-overlay .reveal-card {
+      width: 260px;
+      height: 380px;
+      border-radius: 16px;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(80px) scale(0.8);
+      animation: card-reveal 1s ease forwards 1.8s;
+      box-shadow: 0 0 60px rgba(212,180,140,0.5);
+    }
+
+    .pull-overlay.cold-pull .reveal-card {
+      box-shadow: 0 0 60px rgba(196,102,122,0.5);
+    }
+
+    @keyframes card-reveal {
+      0% { opacity: 0; transform: translateY(80px) scale(0.8); }
+      60% { opacity: 1; transform: translateY(-10px) scale(1.02); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .reveal-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* 花瓣飘落 */
+    .petal {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .petal::before {
+      content: '';
+      display: block;
+      width: 100%;
+      height: 100%;
+      background: #FFD4C0;
+      border-radius: 50% 0 50% 0;
+      transform: rotate(45deg);
+    }
+
+    .cold-pull .petal::before {
+      background: #8B2040;
+    }
+
+    .petal.animate {
+      animation: petal-fall 3s ease forwards;
+    }
+
+    @keyframes petal-fall {
+      0% { opacity: 0; transform: translateY(-100px) rotate(0deg); }
+      20% { opacity: 0.8; }
+      100% { opacity: 0; transform: translateY(100vh) rotate(360deg); }
+    }
+
+    /* 确认按钮 */
+    .confirm-btn {
+      position: absolute;
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 40px;
+      border-radius: 24px;
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(212,180,140,0.5);
+      color: #D4B08A;
+      font-family: 'Noto Serif SC', serif;
+      font-size: 14px;
+      letter-spacing: 2px;
+      cursor: pointer;
+      opacity: 0;
+      animation: fade-up 0.6s ease forwards 3s;
+    }
+
+    @keyframes fade-up {
+      0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+      100% { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+
+    /* === 卡池切换指示器 === */
+    .pool-dots {
+      position: absolute;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 30;
+      display: flex;
+      gap: 8px;
+    }
+
+    .pool-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(160,120,100,0.3);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .pool-dot.active {
+      width: 20px;
+      border-radius: 3px;
+      background: #D4A06A;
+    }
+
+    .cold .pool-dot.active { background: #C4667A; }
+
+    /* === 淡入 === */
+    .fade-in { opacity: 0; animation: fadeIn 0.8s ease forwards; }
+    .delay-1 { animation-delay: 0.15s; }
+    .delay-2 { animation-delay: 0.3s; }
+    .delay-3 { animation-delay: 0.5s; }
+    .delay-4 { animation-delay: 0.7s; }
+
+    @keyframes fadeIn { to { opacity: 1; } }
+  </style>
+</head>
+<body>
+
+  <!-- 背景 -->
+  <div class="bg-layer warm" id="bgLayer">
+    <div class="bg-ornament"></div>
+  </div>
+
+  <!-- 粒子 -->
+  <div class="particles" id="particles"></div>
+
+  <!-- 顶部栏 -->
+  <div class="top-bar fade-in">
+    <a class="back-btn" href="index.html">
+      <svg viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg>
+    </a>
+    <div class="pool-title">情绪碎片</div>
+    <div class="currency">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M6 12h12" stroke="#D4A06A" stroke-width="1.5" fill="none"/></svg>
+      <span id="coinCount">1200</span>
+    </div>
+  </div>
+
+  <!-- 卡面展示 -->
+  <div class="card-display fade-in delay-2" id="cardDisplay">
+    <div class="card-frame" id="cardFrame">
+      <img id="cardImg" src="../assets/gacha/%E6%92%92%E5%A8%87%E5%8D%A1%E9%9D%A2.PNG" alt="撒娇">
+      <div class="rarity-badge" id="rarityBadge">SR</div>
+    </div>
+  </div>
+
+  <!-- 卡名信息 -->
+  <div class="card-info fade-in delay-3">
+    <div class="card-name" id="cardName">撒娇</div>
+    <div class="card-subtitle" id="cardSubtitle">"...你不来，我就一直这样看着你。"</div>
+    <div class="star-row" id="starRow">
+      <svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg>
+      <svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg>
+      <svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg>
+      <svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg>
+    </div>
+  </div>
+
+  <!-- 卡池切换 -->
+  <div class="pool-dots fade-in delay-3">
+    <div class="pool-dot active" data-index="0"></div>
+    <div class="pool-dot" data-index="1"></div>
+  </div>
+
+  <!-- 抽卡按钮 -->
+  <div class="pull-area fade-in delay-4">
+    <button class="pull-btn" id="pullOne">
+      单抽
+      <span class="cost">×160</span>
+    </button>
+    <button class="pull-btn" id="pullTen">
+      十连
+      <span class="cost">×1600</span>
+    </button>
+  </div>
+
+  <!-- 抽卡演出动画遮罩 -->
+  <div class="pull-overlay" id="pullOverlay">
+    <div class="light-beam"></div>
+    <div class="reveal-card">
+      <img id="revealImg" src="" alt="">
+    </div>
+    <button class="confirm-btn" id="confirmBtn">确认</button>
+  </div>
+
+  <script>
+    // 卡池数据
+    const pool = [
+      {
+        id: 'sajiao',
+        name: '撒娇',
+        subtitle: '"...你不来，我就一直这样看着你。"',
+        rarity: 'SR',
+        stars: 4,
+        theme: 'warm',
+        img: '../assets/gacha/%E6%92%92%E5%A8%87%E5%8D%A1%E9%9D%A2.PNG'
+      },
+      {
+        id: 'shengqi',
+        name: '生气',
+        subtitle: '"我在等一个解释。"',
+        rarity: 'SR',
+        stars: 4,
+        theme: 'cold',
+        img: '../assets/gacha/%E7%94%9F%E6%B0%94%E5%8D%A1%E9%9D%A2.PNG'
+      }
+    ];
+
+    let currentIndex = 0;
+
+    // DOM
+    const bgLayer = document.getElementById('bgLayer');
+    const cardImg = document.getElementById('cardImg');
+    const cardName = document.getElementById('cardName');
+    const cardSubtitle = document.getElementById('cardSubtitle');
+    const rarityBadge = document.getElementById('rarityBadge');
+    const starRow = document.getElementById('starRow');
+    const pullOverlay = document.getElementById('pullOverlay');
+    const revealImg = document.getElementById('revealImg');
+    const confirmBtn = document.getElementById('confirmBtn');
+    const poolDots = document.querySelectorAll('.pool-dot');
+    const particlesEl = document.getElementById('particles');
+
+    // 生成粒子
+    function createParticles() {
+      particlesEl.innerHTML = '';
+      for (let i = 0; i < 20; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.left = Math.random() * 100 + '%';
+        p.style.animationDelay = (Math.random() * 6) + 's';
+        p.style.animationDuration = (4 + Math.random() * 4) + 's';
+        particlesEl.appendChild(p);
+      }
+    }
+    createParticles();
+
+    // 切换卡面展示
+    function showCard(index) {
+      const card = pool[index];
+      currentIndex = index;
+
+      // 切换主题
+      bgLayer.className = 'bg-layer ' + card.theme;
+      document.body.style.background = card.theme === 'warm' ? '#FFF8F3' : '#1a1115';
+
+      // 卡面
+      cardImg.src = card.img;
+      cardName.textContent = card.name;
+      cardSubtitle.textContent = card.subtitle;
+      rarityBadge.textContent = card.rarity;
+      rarityBadge.className = 'rarity-badge' + (card.rarity === 'SSR' ? ' ssr' : '');
+
+      // 星级
+      let starsHtml = '';
+      for (let i = 0; i < card.stars; i++) {
+        starsHtml += '<svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg>';
+      }
+      starRow.innerHTML = starsHtml;
+
+      // 切换指示器
+      poolDots.forEach((d, i) => {
+        d.classList.toggle('active', i === index);
+      });
+
+      createParticles();
+    }
+
+    // 点击切换
+    poolDots.forEach((dot, i) => {
+      dot.addEventListener('click', () => showCard(i));
+    });
+
+    // 左右滑动切换
+    let touchStartX = 0;
+    document.addEventListener('touchstart', e => {
+      touchStartX = e.touches[0].clientX;
+    });
+    document.addEventListener('touchend', e => {
+      const diff = e.changedTouches[0].clientX - touchStartX;
+      if (Math.abs(diff) > 60) {
+        if (diff < 0 && currentIndex < pool.length - 1) showCard(currentIndex + 1);
+        else if (diff > 0 && currentIndex > 0) showCard(currentIndex - 1);
+      }
+    });
+
+    // 抽卡逻辑
+    function doPull(count) {
+      // 随机抽一张
+      const result = pool[Math.floor(Math.random() * pool.length)];
+      revealImg.src = result.img;
+
+      // 动画主题
+      pullOverlay.className = 'pull-overlay active' + (result.theme === 'cold' ? ' cold-pull' : '');
+
+      // 生成花瓣
+      for (let i = 0; i < 15; i++) {
+        const petal = document.createElement('div');
+        petal.className = 'petal';
+        petal.style.left = Math.random() * 100 + '%';
+        petal.style.top = '-20px';
+        pullOverlay.appendChild(petal);
+        setTimeout(() => petal.classList.add('animate'), 1800 + Math.random() * 800);
+        setTimeout(() => petal.remove(), 5500);
+      }
+    }
+
+    document.getElementById('pullOne').addEventListener('click', () => doPull(1));
+    document.getElementById('pullTen').addEventListener('click', () => doPull(10));
+
+    // 确认关闭
+    confirmBtn.addEventListener('click', () => {
+      pullOverlay.className = 'pull-overlay';
+      pullOverlay.querySelectorAll('.petal').forEach(p => p.remove());
+    });
+
+    // 点击遮罩也可关闭（点击卡面外区域）
+    pullOverlay.addEventListener('click', (e) => {
+      if (e.target === pullOverlay) {
+        pullOverlay.className = 'pull-overlay';
+        pullOverlay.querySelectorAll('.petal').forEach(p => p.remove());
+      }
+    });
+  </script>
+</body>
+</html>

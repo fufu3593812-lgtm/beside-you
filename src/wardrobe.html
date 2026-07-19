@@ -359,7 +359,6 @@
       pointer-events: none;
     }
 
-    /* 背景卡样式 */
     .bg-card {
       aspect-ratio: 4/3;
       border-radius: 14px;
@@ -530,26 +529,38 @@
 
   <script>
     (function() {
-      const tabs = document.querySelectorAll('.tab');
-      const outfitCards = document.querySelectorAll('.outfit-card');
-      const wardrobeGrid = document.getElementById('wardrobe-grid');
-      const bgGrid = document.getElementById('bg-grid');
-      const bgCards = document.querySelectorAll('.bg-card');
-      const previewImg = document.getElementById('preview-img');
-      const outfitName = document.getElementById('outfit-name');
-      const btnWear = document.getElementById('btn-wear');
-      const toast = document.getElementById('toast');
+      var tabs = document.querySelectorAll('.tab');
+      var outfitCards = document.querySelectorAll('.outfit-card');
+      var wardrobeGrid = document.getElementById('wardrobe-grid');
+      var bgGrid = document.getElementById('bg-grid');
+      var bgCards = document.querySelectorAll('.bg-card');
+      var previewImg = document.getElementById('preview-img');
+      var outfitName = document.getElementById('outfit-name');
+      var btnWear = document.getElementById('btn-wear');
+      var toast = document.getElementById('toast');
 
-      let currentOutfit = '月光睡裙';
-      let selectedCard = document.querySelector('.outfit-card.active');
-      let mode = 'outfit'; // outfit or bg
+      var currentOutfit = localStorage.getItem('bsy_outfit') || '月光睡裙';
+      var currentOutfitImg = localStorage.getItem('bsy_outfit_img') || '../assets/%E7%9D%A1%E8%A3%99.png';
+      var selectedCard = null;
+      var mode = 'outfit';
+
+      // 初始化：高亮当前穿着
+      outfitCards.forEach(function(card) {
+        card.classList.remove('active');
+        if (card.dataset.name === currentOutfit) {
+          card.classList.add('active');
+          selectedCard = card;
+          previewImg.src = card.dataset.img;
+          outfitName.textContent = card.dataset.name;
+        }
+      });
 
       // tab筛选
-      tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-          tabs.forEach(t => t.classList.remove('active'));
+      tabs.forEach(function(tab) {
+        tab.addEventListener('click', function() {
+          tabs.forEach(function(t) { t.classList.remove('active'); });
           tab.classList.add('active');
-          const cat = tab.dataset.cat;
+          var cat = tab.dataset.cat;
 
           if (cat === 'bg') {
             mode = 'bg';
@@ -561,7 +572,7 @@
             wardrobeGrid.style.display = 'grid';
             bgGrid.style.display = 'none';
             btnWear.textContent = '换上';
-            outfitCards.forEach(card => {
+            outfitCards.forEach(function(card) {
               card.style.display = (cat === 'all' || card.dataset.cat === cat) ? '' : 'none';
             });
           }
@@ -569,32 +580,29 @@
       });
 
       // 点衣服卡片切换预览
-      outfitCards.forEach(card => {
-        card.addEventListener('click', () => {
-          outfitCards.forEach(c => c.classList.remove('active'));
+      outfitCards.forEach(function(card) {
+        card.addEventListener('click', function() {
+          outfitCards.forEach(function(c) { c.classList.remove('active'); });
           card.classList.add('active');
           selectedCard = card;
 
-          const img = card.dataset.img;
-          const name = card.dataset.name;
-
           previewImg.classList.add('switching');
-          setTimeout(() => {
-            previewImg.src = img;
-            outfitName.textContent = name;
+          setTimeout(function() {
+            previewImg.src = card.dataset.img;
+            outfitName.textContent = card.dataset.name;
             previewImg.classList.remove('switching');
           }, 250);
         });
       });
 
       // 点背景卡片
-      bgCards.forEach(card => {
-        card.addEventListener('click', () => {
+      bgCards.forEach(function(card) {
+        card.addEventListener('click', function() {
           if (card.classList.contains('empty')) {
             showToast('还没解锁这个背景');
             return;
           }
-          bgCards.forEach(c => c.classList.remove('active'));
+          bgCards.forEach(function(c) { c.classList.remove('active'); });
           card.classList.add('active');
           selectedCard = card;
           outfitName.textContent = card.dataset.name;
@@ -602,31 +610,34 @@
       });
 
       // 换上/使用按钮
-      btnWear.addEventListener('click', () => {
+      btnWear.addEventListener('click', function() {
         if (!selectedCard) return;
-        const name = selectedCard.dataset.name;
+        var name = selectedCard.dataset.name;
         if (mode === 'outfit') {
           if (name === currentOutfit) {
             showToast('已经穿着这件了');
             return;
           }
           currentOutfit = name;
+          currentOutfitImg = selectedCard.dataset.img;
+          localStorage.setItem('bsy_outfit', name);
+          localStorage.setItem('bsy_outfit_img', currentOutfitImg);
           showToast('✿ 已换上「' + name + '」');
         } else {
-          showToast('✿ 背景已切换为「' + name + '」');
           localStorage.setItem('bsy_bg', selectedCard.dataset.img);
+          showToast('✿ 背景已切换为「' + name + '」');
         }
       });
 
       function showToast(msg) {
         toast.textContent = msg;
         toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 1600);
+        setTimeout(function() { toast.classList.remove('show'); }, 1600);
       }
 
       // 检查已解锁的背景
       var owned = JSON.parse(localStorage.getItem('bsy_collection') || '[]');
-      bgCards.forEach(card => {
+      bgCards.forEach(function(card) {
         if (card.classList.contains('empty') && owned.indexOf(card.dataset.name) !== -1) {
           card.classList.remove('empty');
           card.innerHTML = '<img class="thumb" src="' + card.dataset.img + '" alt=""><div class="name">' + card.dataset.name + '</div>';

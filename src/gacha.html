@@ -13,25 +13,17 @@
       font-family: 'Noto Serif SC', 'PingFang SC', serif;
       width: 100vw;
       height: 100vh;
+      height: 100dvh;
       overflow: hidden;
       position: relative;
       max-width: 430px;
       margin: 0 auto;
       background: #FFF8F3;
-      display: flex;
-      flex-direction: column;
     }
 
-    .bg-layer {
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      transition: background 1s ease;
-    }
-
+    .bg-layer { position: absolute; inset: 0; z-index: 0; transition: background 1s ease; }
     .bg-layer.warm { background: linear-gradient(180deg, #FFF8F3 0%, #FFEEE6 30%, #FFF0EB 60%, #FFF8F5 100%); }
     .bg-layer.cold { background: linear-gradient(180deg, #1a1115 0%, #2a1520 30%, #1f1018 60%, #1a1115 100%); }
-
     .bg-ornament { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 300px; height: 300px; border-radius: 50%; opacity: 0.15; pointer-events: none; }
     .warm .bg-ornament { background: radial-gradient(ellipse, #FFD4B8 0%, transparent 70%); }
     .cold .bg-ornament { background: radial-gradient(ellipse, #8B2040 0%, transparent 70%); }
@@ -40,175 +32,157 @@
     .particle { position: absolute; width: 3px; height: 3px; border-radius: 50%; opacity: 0; animation: float-particle 6s ease-in-out infinite; }
     .warm .particle { background: #FFD4A0; }
     .cold .particle { background: #C4667A; }
-    @keyframes float-particle { 0% { opacity: 0; transform: translateY(100vh) scale(0); } 20% { opacity: 0.8; } 80% { opacity: 0.6; } 100% { opacity: 0; transform: translateY(-100px) scale(1.5); } }
+    @keyframes float-particle { 0%{opacity:0;transform:translateY(100vh) scale(0)} 20%{opacity:.8} 80%{opacity:.6} 100%{opacity:0;transform:translateY(-100px) scale(1.5)} }
 
-    /* === 顶部栏 === */
-    .top-bar { position: absolute; top: 0; left: 0; right: 0; z-index: 100; padding: 52px 20px 12px; display: flex; justify-content: space-between; align-items: center; }
-    .back-btn { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; }
-    .back-btn svg { width: 18px; height: 18px; stroke: #9A8080; stroke-width: 2; fill: none; }
+    /* 顶部 */
+    .top-bar { position: absolute; top: 0; left: 0; right: 0; z-index: 100; padding: 50px 20px 12px; display: flex; justify-content: space-between; align-items: center; }
+    .back-btn { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; text-decoration: none; }
+    .back-btn svg { width: 16px; height: 16px; stroke: #9A8080; stroke-width: 2; fill: none; }
     .cold .back-btn svg { stroke: #C4A0A0; }
-    .pool-title { font-family: 'Cormorant Garamond', serif; font-size: 16px; font-weight: 300; font-style: italic; letter-spacing: 1px; color: #8D6A5A; }
+    .pool-title { font-family: 'Cormorant Garamond', serif; font-size: 15px; font-weight: 300; font-style: italic; letter-spacing: 1px; color: #8D6A5A; }
     .cold .pool-title { color: #C4A0A0; }
-    .currency { display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px; background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); }
-    .currency svg { width: 16px; height: 16px; fill: #D4A06A; }
-    .currency span { font-size: 13px; color: #8D6A5A; font-weight: 400; }
+    .currency { display: flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 16px; background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); }
+    .currency svg { width: 14px; height: 14px; fill: #D4A06A; }
+    .currency span { font-size: 12px; color: #8D6A5A; }
     .cold .currency span { color: #C4A0A0; }
 
-    /* === 卡面展示区 === */
-    .card-display {
-      position: absolute;
-      top: 100px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 10;
-      width: 70vw;
-      max-width: 280px;
-      aspect-ratio: 7/10;
-      perspective: 1000px;
-    }
+    /* 卡面 */
+    .card-display { position: absolute; top: 95px; left: 50%; transform: translateX(-50%); z-index: 10; width: 62vw; max-width: 260px; aspect-ratio: 3/4; }
+    .card-frame { width: 100%; height: 100%; border-radius: 14px; overflow: hidden; box-shadow: 0 16px 50px rgba(0,0,0,0.25), 0 0 30px rgba(200,160,120,0.15); position: relative; }
+    .cold .card-frame { box-shadow: 0 16px 50px rgba(0,0,0,0.4), 0 0 30px rgba(139,32,64,0.25); }
+    .card-frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .card-frame::before { content:''; position: absolute; inset: 3px; border-radius: 11px; border: 1px solid rgba(212,180,140,0.35); z-index: 2; pointer-events: none; }
+    .cold .card-frame::before { border-color: rgba(196,102,122,0.35); }
+    .card-frame::after { content:''; position: absolute; inset: 0; border-radius: 14px; background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 50%); z-index: 3; pointer-events: none; }
+    .rarity-badge { position: absolute; top: 10px; right: 10px; z-index: 5; padding: 3px 8px; border-radius: 10px; font-size: 10px; letter-spacing: 1px; background: linear-gradient(135deg, rgba(212,180,140,0.8), rgba(180,140,100,0.9)); color: #FFF; border: 1px solid rgba(255,255,255,0.3); }
+    .rarity-badge.ssr { background: linear-gradient(135deg, #D4A040, #B8860B); box-shadow: 0 0 10px rgba(212,160,64,0.5); }
 
-    .card-frame { width: 100%; height: 100%; position: relative; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 40px rgba(200,160,120,0.2); }
-    .cold .card-frame { box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(139,32,64,0.3); }
-    .card-frame img { width: 100%; height: 100%; object-fit: cover; }
-    .card-frame::before { content: ''; position: absolute; inset: 3px; border-radius: 13px; border: 1px solid rgba(212,180,140,0.4); z-index: 2; pointer-events: none; }
-    .cold .card-frame::before { border-color: rgba(196,102,122,0.4); }
-    .card-frame::after { content: ''; position: absolute; inset: 0; border-radius: 16px; background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%, rgba(255,255,255,0.05) 100%); z-index: 3; pointer-events: none; }
-    .rarity-badge { position: absolute; top: 12px; right: 12px; z-index: 5; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 400; letter-spacing: 1px; background: linear-gradient(135deg, rgba(212,180,140,0.8), rgba(180,140,100,0.9)); color: #FFF; backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.3); }
-    .rarity-badge.ssr { background: linear-gradient(135deg, #D4A040, #B8860B); box-shadow: 0 0 12px rgba(212,160,64,0.5); }
-
-    /* === 底部内容区（卡名+指示器+按钮+导航）从底部往上排 === */
-    .bottom-stack {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      z-index: 50;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding-bottom: 12px;
-      gap: 10px;
-    }
-
+    /* 底部区域 */
+    .bottom-area { position: absolute; bottom: 0; left: 0; right: 0; z-index: 50; display: flex; flex-direction: column; align-items: center; padding: 0 16px 10px; gap: 8px; }
     .card-info { text-align: center; }
-    .card-name { font-family: 'Cormorant Garamond', 'Noto Serif SC', serif; font-size: 24px; font-weight: 300; font-style: italic; color: #5D4040; text-shadow: 0 1px 8px rgba(255,255,255,0.5); letter-spacing: 3px; }
-    .cold .card-name { color: #E8C0C8; text-shadow: 0 1px 8px rgba(0,0,0,0.5); }
-    .card-subtitle { font-size: 11px; color: #A08070; margin-top: 4px; font-style: italic; }
+    .card-name { font-family: 'Cormorant Garamond', 'Noto Serif SC', serif; font-size: 22px; font-weight: 300; font-style: italic; color: #5D4040; letter-spacing: 2px; }
+    .cold .card-name { color: #E8C0C8; }
+    .card-subtitle { font-size: 11px; color: #A08070; margin-top: 3px; font-style: italic; }
     .cold .card-subtitle { color: #A07080; }
     .star-row { margin-top: 4px; display: flex; justify-content: center; gap: 3px; }
     .star-row svg { width: 12px; height: 12px; fill: #D4A06A; }
     .cold .star-row svg { fill: #C4667A; }
 
     .pool-dots { display: flex; gap: 8px; }
-    .pool-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(160,120,100,0.3); cursor: pointer; transition: all 0.3s ease; }
-    .pool-dot.active { width: 20px; border-radius: 3px; background: #D4A06A; }
+    .pool-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(160,120,100,0.3); cursor: pointer; transition: all .3s; }
+    .pool-dot.active { width: 18px; border-radius: 3px; background: #D4A06A; }
     .cold .pool-dot.active { background: #C4667A; }
 
-    .pull-area { display: flex; justify-content: center; gap: 16px; }
-    .pull-btn { padding: 12px 24px; border-radius: 28px; background: rgba(255,255,255,0.2); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(212,180,140,0.5); color: #6D5050; font-family: 'Noto Serif SC', serif; font-size: 14px; font-weight: 300; letter-spacing: 2px; cursor: pointer; transition: all 0.3s ease; }
+    .pull-area { display: flex; gap: 14px; }
+    .pull-btn { padding: 10px 22px; border-radius: 24px; background: rgba(255,255,255,0.2); backdrop-filter: blur(14px); border: 1px solid rgba(212,180,140,0.5); color: #6D5050; font-family: 'Noto Serif SC', serif; font-size: 13px; font-weight: 300; letter-spacing: 1px; cursor: pointer; transition: all .2s; }
     .cold .pull-btn { border-color: rgba(196,102,122,0.5); color: #E8C0C8; }
-    .pull-btn:active { transform: scale(0.96); box-shadow: 0 0 20px rgba(212,180,140,0.4); }
-    .cold .pull-btn:active { box-shadow: 0 0 20px rgba(196,102,122,0.4); }
-    .pull-btn .cost { display: block; font-size: 10px; color: #A09080; margin-top: 2px; }
+    .pull-btn:active { transform: scale(0.95); }
+    .pull-btn .cost { display: block; font-size: 9px; color: #A09080; margin-top: 2px; }
     .cold .pull-btn .cost { color: #A07080; }
 
-    .dock { display: flex; justify-content: space-between; gap: 6px; width: calc(100% - 32px); }
-    .dock-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; border-radius: 18px; padding: 10px 4px 8px; cursor: pointer; text-decoration: none; background: rgba(255, 255, 255, 0.55); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04); transition: transform 0.2s ease; }
-    .cold .dock-item { background: rgba(40, 20, 30, 0.7); border-color: rgba(196,102,122,0.2); }
+    .dock { display: flex; gap: 5px; width: 100%; }
+    .dock-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; border-radius: 16px; padding: 8px 2px 6px; text-decoration: none; background: rgba(255,255,255,0.5); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.5); transition: transform .2s; }
+    .cold .dock-item { background: rgba(40,20,30,0.65); border-color: rgba(196,102,122,0.2); }
     .dock-item:active { transform: scale(0.95); }
-    .dock-item.active { background: rgba(240, 210, 210, 0.65); border-color: rgba(240, 200, 200, 0.5); }
-    .cold .dock-item.active { background: rgba(139, 32, 64, 0.4); border-color: rgba(196,102,122,0.5); }
-    .dock-item svg { width: 20px; height: 20px; stroke: #7D6666; stroke-width: 1.6; fill: none; }
+    .dock-item.active { background: rgba(240,210,210,0.6); }
+    .cold .dock-item.active { background: rgba(139,32,64,0.35); }
+    .dock-item svg { width: 18px; height: 18px; stroke: #7D6666; stroke-width: 1.6; fill: none; }
     .cold .dock-item svg { stroke: #C4A0A0; }
     .dock-item.active svg { stroke: #C07070; }
-    .cold .dock-item.active svg { stroke: #E8A0B0; }
-    .dock-item .d-en { font-size: 7px; color: #8D7676; }
-    .dock-item .d-cn { font-size: 7px; color: #B8A8A8; }
-    .cold .dock-item .d-en { color: #A08080; }
-    .cold .dock-item .d-cn { color: #806060; }
+    .dock-item .d-label { font-size: 7px; color: #8D7676; }
+    .cold .dock-item .d-label { color: #A08080; }
 
-    /* === 信封抽卡动画 === */
-    .pull-overlay { position: absolute; inset: 0; z-index: 200; display: none; align-items: center; justify-content: center; flex-direction: column; background: #0a0608; opacity: 0; }
-    .pull-overlay.active { display: flex; animation: overlay-in 0.8s ease forwards; }
-    @keyframes overlay-in { 0% { opacity: 0; } 100% { opacity: 1; } }
+    /* ===== 信封抽卡动画 ===== */
+    .pull-overlay { position: absolute; inset: 0; z-index: 300; display: none; background: #0a0608; }
+    .pull-overlay.active { display: block; animation: overlay-in .6s ease forwards; }
+    @keyframes overlay-in { from{opacity:0} to{opacity:1} }
 
-    .envelope-container { position: relative; width: 300px; height: 200px; margin-top: 40px; cursor: pointer; }
-    .envelope-body { position: absolute; bottom: 0; left: 0; width: 300px; height: 180px; border-radius: 4px 4px 12px 12px; overflow: hidden; opacity: 0; transform: translateY(60px); animation: envelope-float-up 1s ease forwards 0.6s; }
-    .envelope-body.warm-env { background: linear-gradient(135deg, #FFF5EE, #FFE8D8); border: 1px solid rgba(212,180,140,0.6); box-shadow: 0 10px 40px rgba(180,140,100,0.3); }
-    .envelope-body.cold-env { background: linear-gradient(135deg, #2a1a22, #1f1018); border: 1px solid rgba(196,102,122,0.4); box-shadow: 0 10px 40px rgba(139,32,64,0.3); }
-    @keyframes envelope-float-up { 0% { opacity: 0; transform: translateY(60px); } 100% { opacity: 1; transform: translateY(0); } }
-    .envelope-body::before { content: ''; position: absolute; inset: 8px; border: 1px dashed rgba(180,140,100,0.3); border-radius: 8px; }
-    .cold-env.envelope-body::before { border-color: rgba(196,102,122,0.2); }
+    .envelope-scene { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; }
 
-    .envelope-flap { position: absolute; top: 0; left: 0; width: 300px; height: 100px; transform-origin: top center; transform: rotateX(0deg); transition: transform 1s ease; z-index: 5; }
-    .envelope-flap::before { content: ''; position: absolute; top: 0; left: 0; width: 0; height: 0; border-left: 150px solid transparent; border-right: 150px solid transparent; border-top: 100px solid #FFE8D8; }
-    .cold-env .envelope-flap::before { border-top-color: #2a1a22; }
-    .envelope-flap.opened { transform: rotateX(180deg); }
+    /* 信封 */
+    .envelope { position: relative; width: 280px; height: 190px; cursor: pointer; opacity: 0; transform: translateY(50px); animation: env-rise 1s ease forwards .5s; }
+    @keyframes env-rise { to { opacity: 1; transform: translateY(0); } }
 
-    .wax-seal { position: absolute; top: 70px; left: 50%; transform: translateX(-50%); width: 44px; height: 44px; border-radius: 50%; z-index: 6; display: flex; align-items: center; justify-content: center; opacity: 0; animation: seal-appear 0.5s ease forwards 1.4s; transition: opacity 0.4s ease, transform 0.4s ease; }
-    .wax-seal.warm-seal { background: radial-gradient(circle, #D4A06A, #B8860B); box-shadow: 0 2px 12px rgba(180,120,60,0.5); }
-    .wax-seal.cold-seal { background: radial-gradient(circle, #C4667A, #8B2040); box-shadow: 0 2px 12px rgba(139,32,64,0.5); }
-    .wax-seal svg { width: 22px; height: 22px; fill: #FFF; opacity: 0.9; }
-    .wax-seal.broken { opacity: 0; transform: translateX(-50%) scale(1.5); }
-    @keyframes seal-appear { 0% { opacity: 0; transform: translateX(-50%) scale(0.5); } 100% { opacity: 1; transform: translateX(-50%) scale(1); } }
+    .env-body { position: absolute; bottom: 0; left: 0; right: 0; height: 160px; border-radius: 6px 6px 14px 14px; }
+    .env-body.warm-env { background: linear-gradient(160deg, #FFFAF5, #FFE8D8 40%, #FFF0E8); border: 1.5px solid rgba(200,160,120,0.5); box-shadow: 0 8px 30px rgba(160,120,80,0.2), inset 0 0 30px rgba(255,240,220,0.5); }
+    .env-body.cold-env { background: linear-gradient(160deg, #2a1a22, #1f1018 40%, #251520); border: 1.5px solid rgba(160,80,100,0.4); box-shadow: 0 8px 30px rgba(100,30,50,0.3), inset 0 0 30px rgba(60,20,40,0.3); }
 
-    .tap-hint { position: absolute; bottom: -40px; left: 50%; transform: translateX(-50%); font-size: 12px; color: #A09080; opacity: 0; animation: hint-fade 0.6s ease forwards 2s; letter-spacing: 1px; }
-    @keyframes hint-fade { 0% { opacity: 0; } 100% { opacity: 0.7; } }
+    /* 信封内侧纹理 */
+    .env-body::before { content:''; position: absolute; inset: 6px; border-radius: 10px; border: 1px solid rgba(200,170,130,0.2); }
+    .cold-env .env-body::before { border-color: rgba(160,80,100,0.15); }
+    .env-body::after { content:''; position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); width: 60px; height: 1px; background: rgba(200,170,130,0.3); }
+    .cold-env .env-body::after { background: rgba(160,80,100,0.2); }
 
-    .card-pull-out { position: absolute; width: 220px; height: 320px; border-radius: 12px; overflow: hidden; opacity: 0; transform: translateY(100px); box-shadow: 0 20px 60px rgba(0,0,0,0.4); z-index: 10; }
-    .card-pull-out.reveal { animation: card-slide-out 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
-    @keyframes card-slide-out { 0% { opacity: 0; transform: translateY(100px) scale(0.9); } 30% { opacity: 1; } 100% { opacity: 1; transform: translateY(-60px) scale(1); } }
-    .card-pull-out img { width: 100%; height: 100%; object-fit: cover; }
+    /* 封口三角 */
+    .env-flap { position: absolute; top: 0; left: 0; width: 280px; height: 90px; transform-origin: top center; transition: transform .8s cubic-bezier(0.4,0,0.2,1); z-index: 2; }
+    .env-flap::before { content:''; position: absolute; top: 0; left: 0; width: 0; height: 0; border-left: 140px solid transparent; border-right: 140px solid transparent; }
+    .env-flap.warm-env::before { border-top: 90px solid #FFF0E8; filter: drop-shadow(0 2px 4px rgba(180,140,100,0.15)); }
+    .env-flap.cold-env::before { border-top: 90px solid #251520; filter: drop-shadow(0 2px 4px rgba(100,30,50,0.2)); }
+    .env-flap.opened { transform: rotateX(180deg); }
 
-    .reveal-info { position: absolute; bottom: 80px; left: 0; right: 0; text-align: center; opacity: 0; z-index: 15; }
-    .reveal-info.show { animation: info-fade-in 0.8s ease forwards; }
-    @keyframes info-fade-in { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
-    .reveal-info .r-name { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 300; font-style: italic; color: #E8D0C0; letter-spacing: 3px; }
-    .reveal-info .r-subtitle { font-size: 12px; color: #A09080; margin-top: 6px; font-style: italic; }
-    .reveal-info .r-stars { margin-top: 8px; display: flex; justify-content: center; gap: 4px; }
-    .reveal-info .r-stars svg { width: 14px; height: 14px; fill: #D4A06A; }
+    /* 蜡封 */
+    .wax-seal { position: absolute; top: 58px; left: 50%; transform: translateX(-50%); width: 52px; height: 52px; border-radius: 50%; z-index: 5; display: flex; align-items: center; justify-content: center; opacity: 0; animation: seal-in .5s ease forwards 1.3s; transition: all .4s ease; }
+    .wax-seal.warm-seal { background: radial-gradient(circle at 35% 35%, #E8B86A, #C4860B 60%, #A06A00); box-shadow: 0 3px 10px rgba(160,100,40,0.5), inset 0 1px 2px rgba(255,220,160,0.4); }
+    .wax-seal.cold-seal { background: radial-gradient(circle at 35% 35%, #D06080, #8B2040 60%, #601030); box-shadow: 0 3px 10px rgba(120,20,50,0.5), inset 0 1px 2px rgba(220,120,140,0.3); }
+    .wax-seal svg { width: 24px; height: 24px; fill: rgba(255,255,255,0.85); filter: drop-shadow(0 1px 1px rgba(0,0,0,0.2)); }
+    .wax-seal::before { content:''; position: absolute; inset: -3px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); }
+    .wax-seal.broken { opacity: 0; transform: translateX(-50%) scale(1.8) rotate(15deg); }
+    @keyframes seal-in { from{opacity:0;transform:translateX(-50%) scale(.4)} to{opacity:1;transform:translateX(-50%) scale(1)} }
 
-    .petal { position: absolute; width: 12px; height: 12px; opacity: 0; pointer-events: none; z-index: 20; }
-    .petal::before { content: ''; display: block; width: 100%; height: 100%; background: #FFD4C0; border-radius: 50% 0 50% 0; transform: rotate(45deg); }
-    .cold-pull .petal::before { background: #8B2040; }
-    .petal.animate { animation: petal-fall 3s ease forwards; }
-    @keyframes petal-fall { 0% { opacity: 0; transform: translateY(-100px) rotate(0deg); } 20% { opacity: 0.8; } 100% { opacity: 0; transform: translateY(100vh) rotate(360deg); } }
+    .tap-hint { margin-top: 30px; font-size: 12px; color: rgba(180,150,130,0.7); letter-spacing: 1px; opacity: 0; animation: hint-in .5s ease forwards 1.8s; }
+    @keyframes hint-in { to { opacity: 1; } }
 
-    .confirm-btn { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); padding: 12px 40px; border-radius: 24px; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(212,180,140,0.4); color: #D4B08A; font-family: 'Noto Serif SC', serif; font-size: 14px; letter-spacing: 2px; cursor: pointer; opacity: 0; z-index: 30; display: none; }
-    .confirm-btn.show { display: block; animation: fade-up 0.6s ease forwards; }
-    @keyframes fade-up { 0% { opacity: 0; transform: translateX(-50%) translateY(20px); } 100% { opacity: 1; transform: translateX(-50%) translateY(0); } }
+    /* 卡面揭示 */
+    .card-reveal { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) translateY(80px) scale(.85); width: 230px; height: 330px; border-radius: 14px; overflow: hidden; opacity: 0; box-shadow: 0 20px 60px rgba(0,0,0,0.5); z-index: 10; pointer-events: none; }
+    .card-reveal.show { animation: card-out 1.2s cubic-bezier(.25,.46,.45,.94) forwards; pointer-events: auto; }
+    @keyframes card-out { 0%{opacity:0;transform:translate(-50%,-50%) translateY(80px) scale(.85)} 40%{opacity:1} 100%{opacity:1;transform:translate(-50%,-50%) translateY(0) scale(1)} }
+    .card-reveal img { width: 100%; height: 100%; object-fit: cover; }
 
-    .fade-in { opacity: 0; animation: fadeIn 0.8s ease forwards; }
-    .delay-1 { animation-delay: 0.15s; }
-    .delay-2 { animation-delay: 0.3s; }
-    .delay-3 { animation-delay: 0.5s; }
-    .delay-4 { animation-delay: 0.7s; }
+    .reveal-info { position: absolute; bottom: 90px; left: 0; right: 0; text-align: center; opacity: 0; z-index: 15; }
+    .reveal-info.show { animation: info-in .7s ease forwards; }
+    @keyframes info-in { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+    .reveal-info .r-name { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 300; font-style: italic; color: #E8D0C0; letter-spacing: 3px; }
+    .reveal-info .r-sub { font-size: 11px; color: #A09080; margin-top: 5px; font-style: italic; }
+    .reveal-info .r-stars { margin-top: 6px; display: flex; justify-content: center; gap: 3px; }
+    .reveal-info .r-stars svg { width: 13px; height: 13px; fill: #D4A06A; }
+
+    .petal { position: absolute; width: 10px; height: 10px; opacity: 0; pointer-events: none; z-index: 20; }
+    .petal::before { content:''; display: block; width: 100%; height: 100%; border-radius: 50% 0 50% 0; transform: rotate(45deg); }
+    .petal.warm-p::before { background: linear-gradient(135deg, #FFD4C0, #FFB8A0); }
+    .petal.cold-p::before { background: linear-gradient(135deg, #C4667A, #8B2040); }
+    .petal.go { animation: petal-go 3.5s ease forwards; }
+    @keyframes petal-go { 0%{opacity:0;transform:translateY(-60px) rotate(0)} 15%{opacity:.8} 100%{opacity:0;transform:translateY(100vh) rotate(400deg)} }
+
+    .confirm-btn { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); padding: 11px 36px; border-radius: 22px; background: rgba(255,255,255,0.08); backdrop-filter: blur(8px); border: 1px solid rgba(212,180,140,0.35); color: #D4B08A; font-family: 'Noto Serif SC', serif; font-size: 13px; letter-spacing: 2px; cursor: pointer; z-index: 30; opacity: 0; pointer-events: none; }
+    .confirm-btn.show { opacity: 1; pointer-events: auto; animation: fade-up .5s ease; }
+    @keyframes fade-up { from{opacity:0;transform:translateX(-50%) translateY(16px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
+
+    .fade-in { opacity: 0; animation: fadeIn .7s ease forwards; }
+    .d1 { animation-delay: .1s; } .d2 { animation-delay: .2s; } .d3 { animation-delay: .35s; } .d4 { animation-delay: .5s; }
     @keyframes fadeIn { to { opacity: 1; } }
   </style>
 </head>
 <body>
-
   <div class="bg-layer warm" id="bgLayer"><div class="bg-ornament"></div></div>
   <div class="particles" id="particles"></div>
 
   <div class="top-bar fade-in">
     <a class="back-btn" href="index.html"><svg viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg></a>
     <div class="pool-title">情绪碎片</div>
-    <div class="currency"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M6 12h12" stroke="#D4A06A" stroke-width="1.5" fill="none"/></svg><span id="coinCount">1200</span></div>
+    <div class="currency"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg><span>1200</span></div>
   </div>
 
-  <div class="card-display fade-in delay-2" id="cardDisplay">
-    <div class="card-frame" id="cardFrame">
-      <img id="cardImg" src="../assets/gacha/%E6%92%92%E5%A8%87%E5%8D%A1%E9%9D%A2.PNG" alt="撒娇">
+  <div class="card-display fade-in d2">
+    <div class="card-frame">
+      <img id="cardImg" src="../assets/gacha/%E6%92%92%E5%A8%87%E5%8D%A1%E9%9D%A2.PNG" alt="">
       <div class="rarity-badge" id="rarityBadge">SR</div>
     </div>
   </div>
 
-  <!-- 底部堆叠区：卡名 → 指示器 → 按钮 → 导航 -->
-  <div class="bottom-stack fade-in delay-3">
+  <div class="bottom-area fade-in d3">
     <div class="card-info">
       <div class="card-name" id="cardName">撒娇</div>
-      <div class="card-subtitle" id="cardSubtitle">"...你不来，我就一直这样看着你。"</div>
+      <div class="card-subtitle" id="cardSub">"...你不来，我就一直这样看着你。"</div>
       <div class="star-row" id="starRow">
         <svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg>
         <svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg>
@@ -225,163 +199,152 @@
       <button class="pull-btn" id="pullTen">十连<span class="cost">×1600</span></button>
     </div>
     <div class="dock">
-      <a class="dock-item" href="chat.html"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="d-en">Chat</span><span class="d-cn">聊天</span></a>
-      <a class="dock-item" href="wardrobe.html"><svg viewBox="0 0 24 24"><path d="M20 21V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v16"/><line x1="12" y1="3" x2="12" y2="21"/><line x1="4" y1="21" x2="20" y2="21"/><circle cx="8" cy="10" r="1"/><circle cx="16" cy="10" r="1"/></svg><span class="d-en">Wardrobe</span><span class="d-cn">衣柜</span></a>
-      <a class="dock-item" href="index.html"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg><span class="d-en">Home</span><span class="d-cn">主页</span></a>
-      <a class="dock-item active" href="gacha.html"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span class="d-en">Heartbeat</span><span class="d-cn">心动</span></a>
-      <div class="dock-item"><svg viewBox="0 0 24 24"><path d="M6 2L3 7v13a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-3-5z"/><line x1="3" y1="7" x2="21" y2="7"/><path d="M16 11a4 4 0 0 1-8 0"/></svg><span class="d-en">Shop</span><span class="d-cn">商店</span></div>
+      <a class="dock-item" href="chat.html"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="d-label">聊天</span></a>
+      <a class="dock-item" href="wardrobe.html"><svg viewBox="0 0 24 24"><path d="M20 21V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v16"/><line x1="12" y1="3" x2="12" y2="21"/></svg><span class="d-label">衣柜</span></a>
+      <a class="dock-item" href="index.html"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg><span class="d-label">主页</span></a>
+      <a class="dock-item active" href="gacha.html"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span class="d-label">心动</span></a>
+      <a class="dock-item" href="#"><svg viewBox="0 0 24 24"><path d="M6 2L3 7v13a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-3-5z"/><line x1="3" y1="7" x2="21" y2="7"/><path d="M16 11a4 4 0 0 1-8 0"/></svg><span class="d-label">商店</span></a>
     </div>
   </div>
 
-  <!-- 信封抽卡遮罩 -->
-  <div class="pull-overlay" id="pullOverlay">
-    <div class="envelope-container" id="envelopeContainer">
-      <div class="envelope-flap" id="envelopeFlap"></div>
-      <div class="wax-seal" id="waxSeal"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
-      <div class="envelope-body" id="envelopeBody"></div>
-      <div class="tap-hint">轻触拆封</div>
+  <!-- 抽卡遮罩 -->
+  <div class="pull-overlay" id="overlay">
+    <div class="envelope-scene" id="envScene">
+      <div class="envelope" id="envelope">
+        <div class="env-flap" id="envFlap"></div>
+        <div class="wax-seal" id="seal"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+        <div class="env-body" id="envBody"></div>
+      </div>
+      <div class="tap-hint" id="tapHint">轻触拆封</div>
     </div>
-    <div class="card-pull-out" id="cardPullOut"><img id="revealImg" src="" alt=""></div>
+    <div class="card-reveal" id="cardReveal"><img id="revealImg" src="" alt=""></div>
     <div class="reveal-info" id="revealInfo">
-      <div class="r-name" id="revealName"></div>
-      <div class="r-subtitle" id="revealSubtitle"></div>
-      <div class="r-stars" id="revealStars"></div>
+      <div class="r-name" id="rName"></div>
+      <div class="r-sub" id="rSub"></div>
+      <div class="r-stars" id="rStars"></div>
     </div>
     <button class="confirm-btn" id="confirmBtn">确认</button>
   </div>
 
   <script>
     const pool = [
-      { id:'sajiao', name:'撒娇', subtitle:'"...你不来，我就一直这样看着你。"', rarity:'SR', stars:4, theme:'warm', img:'../assets/gacha/%E6%92%92%E5%A8%87%E5%8D%A1%E9%9D%A2.PNG' },
-      { id:'shengqi', name:'生气', subtitle:'"我在等一个解释。"', rarity:'SR', stars:4, theme:'cold', img:'../assets/gacha/%E7%94%9F%E6%B0%94%E5%8D%A1%E9%9D%A2.PNG' }
+      { name:'撒娇', sub:'"...你不来，我就一直这样看着你。"', rarity:'SR', stars:4, theme:'warm', img:'../assets/gacha/撒娇卡面.PNG' },
+      { name:'生气', sub:'"我在等一个解释。"', rarity:'SR', stars:4, theme:'cold', img:'../assets/gacha/生气卡面.PNG' }
     ];
 
-    let currentIndex = 0, envelopeReady = false, currentResult = null;
+    let idx = 0, ready = false, result = null;
 
-    const bgLayer = document.getElementById('bgLayer');
-    const cardImg = document.getElementById('cardImg');
-    const cardName = document.getElementById('cardName');
-    const cardSubtitle = document.getElementById('cardSubtitle');
-    const rarityBadge = document.getElementById('rarityBadge');
-    const starRow = document.getElementById('starRow');
-    const pullOverlay = document.getElementById('pullOverlay');
-    const envelopeContainer = document.getElementById('envelopeContainer');
-    const envelopeFlap = document.getElementById('envelopeFlap');
-    const envelopeBody = document.getElementById('envelopeBody');
-    const waxSeal = document.getElementById('waxSeal');
-    const cardPullOut = document.getElementById('cardPullOut');
-    const revealImg = document.getElementById('revealImg');
-    const revealInfo = document.getElementById('revealInfo');
-    const revealName = document.getElementById('revealName');
-    const revealSubtitle = document.getElementById('revealSubtitle');
-    const revealStars = document.getElementById('revealStars');
-    const confirmBtn = document.getElementById('confirmBtn');
-    const poolDots = document.querySelectorAll('.pool-dot');
-    const particlesEl = document.getElementById('particles');
+    const $ = id => document.getElementById(id);
+    const bgLayer = $('bgLayer'), cardImg = $('cardImg'), cardName = $('cardName'), cardSub = $('cardSub');
+    const rarityBadge = $('rarityBadge'), starRow = $('starRow');
+    const overlay = $('overlay'), envScene = $('envScene'), envelope = $('envelope');
+    const envFlap = $('envFlap'), envBody = $('envBody'), seal = $('seal'), tapHint = $('tapHint');
+    const cardReveal = $('cardReveal'), revealImg = $('revealImg');
+    const revealInfo = $('revealInfo'), rName = $('rName'), rSub = $('rSub'), rStars = $('rStars');
+    const confirmBtn = $('confirmBtn');
+    const dots = document.querySelectorAll('.pool-dot');
+    const particles = $('particles');
 
-    function createParticles() {
-      particlesEl.innerHTML = '';
-      for (let i = 0; i < 20; i++) {
+    function mkParticles() {
+      particles.innerHTML = '';
+      for (let i = 0; i < 18; i++) {
         const p = document.createElement('div');
         p.className = 'particle';
-        p.style.left = Math.random() * 100 + '%';
-        p.style.animationDelay = (Math.random() * 6) + 's';
-        p.style.animationDuration = (4 + Math.random() * 4) + 's';
-        particlesEl.appendChild(p);
+        p.style.left = Math.random()*100+'%';
+        p.style.animationDelay = Math.random()*6+'s';
+        p.style.animationDuration = (4+Math.random()*4)+'s';
+        particles.appendChild(p);
       }
     }
-    createParticles();
+    mkParticles();
 
-    function showCard(index) {
-      const card = pool[index];
-      currentIndex = index;
-      bgLayer.className = 'bg-layer ' + card.theme;
-      document.body.style.background = card.theme === 'warm' ? '#FFF8F3' : '#1a1115';
-      cardImg.src = card.img;
-      cardName.textContent = card.name;
-      cardSubtitle.textContent = card.subtitle;
-      rarityBadge.textContent = card.rarity;
-      rarityBadge.className = 'rarity-badge' + (card.rarity === 'SSR' ? ' ssr' : '');
-      let s = '';
-      for (let i = 0; i < card.stars; i++) s += '<svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg>';
+    function show(i) {
+      const c = pool[i]; idx = i;
+      bgLayer.className = 'bg-layer ' + c.theme;
+      document.body.style.background = c.theme==='warm'?'#FFF8F3':'#1a1115';
+      cardImg.src = c.img;
+      cardName.textContent = c.name;
+      cardSub.textContent = c.sub;
+      rarityBadge.textContent = c.rarity;
+      rarityBadge.className = 'rarity-badge'+(c.rarity==='SSR'?' ssr':'');
+      let s=''; for(let j=0;j<c.stars;j++) s+='<svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg>';
       starRow.innerHTML = s;
-      poolDots.forEach((d,i) => d.classList.toggle('active', i === index));
-      createParticles();
+      dots.forEach((d,j) => d.classList.toggle('active', j===i));
+      mkParticles();
     }
 
-    poolDots.forEach((dot,i) => dot.addEventListener('click', () => showCard(i)));
+    dots.forEach((d,i) => d.addEventListener('click', () => show(i)));
 
-    let touchStartX = 0;
-    document.addEventListener('touchstart', e => { if (!pullOverlay.classList.contains('active')) touchStartX = e.touches[0].clientX; });
+    // 滑动
+    let sx=0;
+    document.addEventListener('touchstart', e => { if(!overlay.classList.contains('active')) sx=e.touches[0].clientX; });
     document.addEventListener('touchend', e => {
-      if (pullOverlay.classList.contains('active')) return;
-      const diff = e.changedTouches[0].clientX - touchStartX;
-      if (Math.abs(diff) > 60) {
-        if (diff < 0 && currentIndex < pool.length - 1) showCard(currentIndex + 1);
-        else if (diff > 0 && currentIndex > 0) showCard(currentIndex - 1);
-      }
+      if(overlay.classList.contains('active')) return;
+      const d = e.changedTouches[0].clientX - sx;
+      if(Math.abs(d)>50){ if(d<0&&idx<pool.length-1) show(idx+1); else if(d>0&&idx>0) show(idx-1); }
     });
 
-    function resetEnvelope() {
-      envelopeFlap.className = 'envelope-flap';
-      envelopeBody.className = 'envelope-body';
-      waxSeal.className = 'wax-seal';
-      waxSeal.style.animation = '';
-      cardPullOut.classList.remove('reveal');
-      cardPullOut.style.opacity = '0';
+    // 抽卡
+    function pull() {
+      result = pool[Math.floor(Math.random()*pool.length)];
+      revealImg.src = result.img;
+
+      // 重置
+      envelope.style.animation = 'none'; envelope.offsetHeight; envelope.style.animation = '';
+      envFlap.classList.remove('opened');
+      envFlap.className = 'env-flap ' + (result.theme==='warm'?'warm-env':'cold-env');
+      envBody.className = 'env-body ' + (result.theme==='warm'?'warm-env':'cold-env');
+      seal.className = 'wax-seal ' + (result.theme==='warm'?'warm-seal':'cold-seal');
+      seal.style.animation = 'none'; seal.offsetHeight; seal.style.animation = '';
+      tapHint.style.animation = 'none'; tapHint.offsetHeight; tapHint.style.animation = '';
+      cardReveal.classList.remove('show');
       revealInfo.classList.remove('show');
       confirmBtn.classList.remove('show');
-      envelopeReady = false;
-      envelopeContainer.style.display = 'block';
+      envScene.style.display = 'flex';
+
+      overlay.className = 'pull-overlay active';
+      ready = false;
+      setTimeout(() => { ready = true; }, 1900);
     }
 
-    function doPull(count) {
-      currentResult = pool[Math.floor(Math.random() * pool.length)];
-      revealImg.src = currentResult.img;
-      resetEnvelope();
-      const isWarm = currentResult.theme === 'warm';
-      envelopeBody.classList.add(isWarm ? 'warm-env' : 'cold-env');
-      envelopeFlap.classList.add(isWarm ? 'warm-env' : 'cold-env');
-      waxSeal.classList.add(isWarm ? 'warm-seal' : 'cold-seal');
-      pullOverlay.className = 'pull-overlay active' + (isWarm ? '' : ' cold-pull');
-      setTimeout(() => { envelopeReady = true; }, 2000);
-    }
-
-    function openEnvelope() {
-      if (!envelopeReady) return;
-      envelopeReady = false;
-      waxSeal.classList.add('broken');
-      setTimeout(() => { envelopeFlap.classList.add('opened'); }, 300);
+    function openEnv() {
+      if(!ready) return;
+      ready = false;
+      seal.classList.add('broken');
+      setTimeout(() => envFlap.classList.add('opened'), 250);
       setTimeout(() => {
-        envelopeContainer.style.display = 'none';
-        cardPullOut.classList.add('reveal');
-        for (let i = 0; i < 15; i++) {
-          const petal = document.createElement('div');
-          petal.className = 'petal';
-          petal.style.left = Math.random() * 100 + '%';
-          petal.style.top = '-20px';
-          pullOverlay.appendChild(petal);
-          setTimeout(() => petal.classList.add('animate'), Math.random() * 600);
-          setTimeout(() => petal.remove(), 4000);
+        envScene.style.display = 'none';
+        cardReveal.classList.add('show');
+        // 花瓣
+        for(let i=0;i<18;i++){
+          const p = document.createElement('div');
+          p.className = 'petal '+(result.theme==='warm'?'warm-p':'cold-p');
+          p.style.left = Math.random()*100+'%';
+          p.style.top = '-10px';
+          overlay.appendChild(p);
+          setTimeout(()=>p.classList.add('go'), Math.random()*500);
+          setTimeout(()=>p.remove(), 4000);
         }
-      }, 800);
+      }, 700);
       setTimeout(() => {
-        revealName.textContent = currentResult.name;
-        revealSubtitle.textContent = currentResult.subtitle;
-        let s = '';
-        for (let i = 0; i < currentResult.stars; i++) s += '<svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg>';
-        revealStars.innerHTML = s;
+        rName.textContent = result.name;
+        rSub.textContent = result.sub;
+        let s=''; for(let j=0;j<result.stars;j++) s+='<svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg>';
+        rStars.innerHTML = s;
         revealInfo.classList.add('show');
-      }, 1800);
-      setTimeout(() => { confirmBtn.classList.add('show'); }, 2400);
+      }, 1600);
+      setTimeout(() => confirmBtn.classList.add('show'), 2200);
     }
 
-    envelopeContainer.addEventListener('click', openEnvelope);
-    document.getElementById('pullOne').addEventListener('click', () => doPull(1));
-    document.getElementById('pullTen').addEventListener('click', () => doPull(10));
+    envelope.addEventListener('click', openEnv);
+    envelope.addEventListener('touchend', e => { e.preventDefault(); openEnv(); });
+
+    $('pullOne').addEventListener('click', () => pull());
+    $('pullTen').addEventListener('click', () => pull());
+
     confirmBtn.addEventListener('click', () => {
-      pullOverlay.className = 'pull-overlay';
-      pullOverlay.querySelectorAll('.petal').forEach(p => p.remove());
+      overlay.className = 'pull-overlay';
+      overlay.querySelectorAll('.petal').forEach(p=>p.remove());
     });
   </script>
 </body>

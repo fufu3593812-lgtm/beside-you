@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Beside You - 衣柜</title>
+  <title>Beside You - 装扮</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -359,6 +359,36 @@
       pointer-events: none;
     }
 
+    /* 背景卡样式 */
+    .bg-card {
+      aspect-ratio: 4/3;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.65);
+      backdrop-filter: blur(8px);
+      border: 1.5px solid rgba(232, 190, 190, 0.35);
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.3s, box-shadow 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bg-card:active { transform: scale(0.95); }
+    .bg-card.active { border-color: rgba(232, 150, 150, 0.6); box-shadow: 0 0 12px rgba(232, 160, 160, 0.2); }
+    .bg-card .thumb { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .bg-card .name { position: absolute; bottom: 0; left: 0; right: 0; padding: 4px 6px; text-align: center; font-size: 9px; color: #FFF; background: linear-gradient(transparent, rgba(0,0,0,0.5)); }
+    .bg-card.empty { display: flex; align-items: center; justify-content: center; background: rgba(200,180,170,0.1); border: 1.5px dashed rgba(200,180,170,0.35); }
+    .bg-card.empty::after { content: '?'; font-size: 24px; color: rgba(180,160,150,0.3); font-style: italic; }
+
+    .bg-grid {
+      padding: 12px 16px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      overflow-y: auto;
+      flex: 1;
+      display: none;
+    }
+
     .bottom-bar {
       padding: 10px 16px;
       padding-bottom: max(10px, env(safe-area-inset-bottom));
@@ -431,7 +461,7 @@
     <a class="back" href="index.html">
       <svg viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg>
     </a>
-    <div class="title">Wardrobe</div>
+    <div class="title">Style</div>
     <div class="ornament">
       <div class="center-gem"></div>
     </div>
@@ -455,6 +485,7 @@
       <div class="tab" data-cat="daily">日常</div>
       <div class="tab" data-cat="formal">正装</div>
       <div class="tab" data-cat="limited">限定</div>
+      <div class="tab" data-cat="bg">背景</div>
     </div>
 
     <div class="wardrobe-grid" id="wardrobe-grid">
@@ -479,6 +510,15 @@
         <div class="name">碎花裙</div>
       </div>
     </div>
+
+    <div class="bg-grid" id="bg-grid">
+      <div class="bg-card active" data-name="默认卧室" data-img="../assets/%E5%8D%A7%E5%AE%A4.png">
+        <img class="thumb" src="../assets/%E5%8D%A7%E5%AE%A4.png" alt="卧室">
+        <div class="name">默认卧室</div>
+      </div>
+      <div class="bg-card empty" data-name="撒娇背景" data-img="../assets/background/%E6%92%92%E5%A8%87%E8%83%8C%E6%99%AF.jpg"></div>
+      <div class="bg-card empty" data-name="生气背景" data-img="../assets/background/%E7%94%9F%E6%B0%94%E8%83%8C%E6%99%AF.PNG"></div>
+    </div>
   </div>
 
   <div class="bottom-bar">
@@ -491,7 +531,10 @@
   <script>
     (function() {
       const tabs = document.querySelectorAll('.tab');
-      const cards = document.querySelectorAll('.outfit-card');
+      const outfitCards = document.querySelectorAll('.outfit-card');
+      const wardrobeGrid = document.getElementById('wardrobe-grid');
+      const bgGrid = document.getElementById('bg-grid');
+      const bgCards = document.querySelectorAll('.bg-card');
       const previewImg = document.getElementById('preview-img');
       const outfitName = document.getElementById('outfit-name');
       const btnWear = document.getElementById('btn-wear');
@@ -499,6 +542,7 @@
 
       let currentOutfit = '月光睡裙';
       let selectedCard = document.querySelector('.outfit-card.active');
+      let mode = 'outfit'; // outfit or bg
 
       // tab筛选
       tabs.forEach(tab => {
@@ -506,16 +550,28 @@
           tabs.forEach(t => t.classList.remove('active'));
           tab.classList.add('active');
           const cat = tab.dataset.cat;
-          cards.forEach(card => {
-            card.style.display = (cat === 'all' || card.dataset.cat === cat) ? '' : 'none';
-          });
+
+          if (cat === 'bg') {
+            mode = 'bg';
+            wardrobeGrid.style.display = 'none';
+            bgGrid.style.display = 'grid';
+            btnWear.textContent = '使用';
+          } else {
+            mode = 'outfit';
+            wardrobeGrid.style.display = 'grid';
+            bgGrid.style.display = 'none';
+            btnWear.textContent = '换上';
+            outfitCards.forEach(card => {
+              card.style.display = (cat === 'all' || card.dataset.cat === cat) ? '' : 'none';
+            });
+          }
         });
       });
 
-      // 点卡片切换预览
-      cards.forEach(card => {
+      // 点衣服卡片切换预览
+      outfitCards.forEach(card => {
         card.addEventListener('click', () => {
-          cards.forEach(c => c.classList.remove('active'));
+          outfitCards.forEach(c => c.classList.remove('active'));
           card.classList.add('active');
           selectedCard = card;
 
@@ -531,16 +587,35 @@
         });
       });
 
-      // 换上按钮
+      // 点背景卡片
+      bgCards.forEach(card => {
+        card.addEventListener('click', () => {
+          if (card.classList.contains('empty')) {
+            showToast('还没解锁这个背景');
+            return;
+          }
+          bgCards.forEach(c => c.classList.remove('active'));
+          card.classList.add('active');
+          selectedCard = card;
+          outfitName.textContent = card.dataset.name;
+        });
+      });
+
+      // 换上/使用按钮
       btnWear.addEventListener('click', () => {
         if (!selectedCard) return;
         const name = selectedCard.dataset.name;
-        if (name === currentOutfit) {
-          showToast('已经穿着这件了');
-          return;
+        if (mode === 'outfit') {
+          if (name === currentOutfit) {
+            showToast('已经穿着这件了');
+            return;
+          }
+          currentOutfit = name;
+          showToast('✿ 已换上「' + name + '」');
+        } else {
+          showToast('✿ 背景已切换为「' + name + '」');
+          localStorage.setItem('bsy_bg', selectedCard.dataset.img);
         }
-        currentOutfit = name;
-        showToast('✿ 已换上「' + name + '」');
       });
 
       function showToast(msg) {
@@ -548,6 +623,15 @@
         toast.classList.add('show');
         setTimeout(() => toast.classList.remove('show'), 1600);
       }
+
+      // 检查已解锁的背景
+      var owned = JSON.parse(localStorage.getItem('bsy_collection') || '[]');
+      bgCards.forEach(card => {
+        if (card.classList.contains('empty') && owned.indexOf(card.dataset.name) !== -1) {
+          card.classList.remove('empty');
+          card.innerHTML = '<img class="thumb" src="' + card.dataset.img + '" alt=""><div class="name">' + card.dataset.name + '</div>';
+        }
+      });
     })();
   </script>
 </body>

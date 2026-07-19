@@ -26,80 +26,94 @@
     .bg-layer { position: absolute; inset: 0; z-index: 0; transition: background 1s ease; }
     .bg-layer.warm { background: linear-gradient(180deg, #FFF8F3 0%, #FFEEE6 30%, #FFF0EB 60%, #FFF8F5 100%); }
     .bg-layer.cold { background: linear-gradient(180deg, #1a1115 0%, #2a1520 30%, #1f1018 60%, #1a1115 100%); }
+    .bg-layer.soft { background: linear-gradient(180deg, #FFF5F8 0%, #FFE8F0 30%, #FFF0F5 60%, #FFFAF8 100%); }
+    .bg-layer.dark { background: linear-gradient(180deg, #1a1018 0%, #261520 30%, #1f1218 60%, #1a1018 100%); }
     .bg-ornament { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 300px; height: 300px; border-radius: 50%; opacity: 0.15; pointer-events: none; }
     .warm .bg-ornament { background: radial-gradient(ellipse, #FFD4B8 0%, transparent 70%); }
     .cold .bg-ornament { background: radial-gradient(ellipse, #8B2040 0%, transparent 70%); }
+    .soft .bg-ornament { background: radial-gradient(ellipse, #FFB8D0 0%, transparent 70%); }
+    .dark .bg-ornament { background: radial-gradient(ellipse, #6B3050 0%, transparent 70%); }
 
     .particles { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
     .particle { position: absolute; width: 3px; height: 3px; border-radius: 50%; opacity: 0; animation: float-particle 6s ease-in-out infinite; }
     .warm .particle { background: #FFD4A0; }
     .cold .particle { background: #C4667A; }
+    .soft .particle { background: #FFB0D0; }
+    .dark .particle { background: #A05070; }
     @keyframes float-particle { 0%{opacity:0;transform:translateY(100vh) scale(0)} 20%{opacity:.8} 80%{opacity:.6} 100%{opacity:0;transform:translateY(-100px) scale(1.5)} }
 
     .top-bar { position: absolute; top: 0; left: 0; right: 0; z-index: 100; padding: 50px 20px 12px; display: flex; justify-content: space-between; align-items: center; }
     .back-btn { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; text-decoration: none; }
     .back-btn svg { width: 16px; height: 16px; stroke: #9A8080; stroke-width: 2; fill: none; }
-    .cold .back-btn svg { stroke: #C4A0A0; }
+    .cold .back-btn svg, .dark .back-btn svg { stroke: #C4A0A0; }
     .pool-title { font-family: 'Cormorant Garamond', serif; font-size: 15px; font-weight: 300; font-style: italic; letter-spacing: 1px; color: #8D6A5A; }
-    .cold .pool-title { color: #C4A0A0; }
+    .cold .pool-title, .dark .pool-title { color: #C4A0A0; }
     .currency { display: flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 16px; background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); }
     .currency svg { width: 14px; height: 14px; fill: #D4A06A; }
     .currency span { font-size: 12px; color: #8D6A5A; }
-    .cold .currency span { color: #C4A0A0; }
+    .cold .currency span, .dark .currency span { color: #C4A0A0; }
 
     .card-display { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -58%); z-index: 10; width: 62vw; max-width: 260px; aspect-ratio: 3/4; pointer-events: none; transition: transform .35s cubic-bezier(.4,0,.2,1), opacity .35s ease; }
     .card-display.slide-left { transform: translate(-50%, -58%) translateX(-40px); opacity: 0; }
     .card-display.slide-right { transform: translate(-50%, -58%) translateX(40px); opacity: 0; }
     .card-frame { width: 100%; height: 100%; border-radius: 14px; overflow: hidden; box-shadow: 0 16px 50px rgba(0,0,0,0.25), 0 0 30px rgba(200,160,120,0.15); position: relative; }
-    .cold .card-frame { box-shadow: 0 16px 50px rgba(0,0,0,0.4), 0 0 30px rgba(139,32,64,0.25); }
+    .cold .card-frame, .dark .card-frame { box-shadow: 0 16px 50px rgba(0,0,0,0.4), 0 0 30px rgba(139,32,64,0.25); }
     .card-frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .card-frame::before { content:''; position: absolute; inset: 3px; border-radius: 11px; border: 1px solid rgba(212,180,140,0.35); z-index: 2; pointer-events: none; }
-    .cold .card-frame::before { border-color: rgba(196,102,122,0.35); }
+    .cold .card-frame::before, .dark .card-frame::before { border-color: rgba(196,102,122,0.35); }
     .card-frame::after { content:''; position: absolute; inset: 0; border-radius: 14px; background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 50%); z-index: 3; pointer-events: none; }
-    .rarity-badge { position: absolute; top: 10px; right: 10px; z-index: 5; padding: 3px 8px; border-radius: 10px; font-size: 10px; letter-spacing: 1px; background: linear-gradient(135deg, rgba(212,180,140,0.8), rgba(180,140,100,0.9)); color: #FFF; border: 1px solid rgba(255,255,255,0.3); }
+    .rarity-badge { position: absolute; top: 10px; right: 10px; z-index: 5; padding: 3px 8px; border-radius: 10px; font-size: 10px; letter-spacing: 1px; color: #FFF; border: 1px solid rgba(255,255,255,0.3); }
     .rarity-badge.ssr { background: linear-gradient(135deg, #D4A040, #B8860B); box-shadow: 0 0 10px rgba(212,160,64,0.5); }
+    .rarity-badge.sr { background: linear-gradient(135deg, #9B59B6, #6C3483); box-shadow: 0 0 8px rgba(155,89,182,0.4); }
+    .rarity-badge.r { background: linear-gradient(135deg, #3498DB, #2471A3); box-shadow: 0 0 6px rgba(52,152,219,0.4); }
+    .rarity-badge.n { background: linear-gradient(135deg, rgba(212,180,140,0.8), rgba(180,140,100,0.9)); }
+
+    /* 卡面类型标签 */
+    .type-badge { position: absolute; top: 10px; left: 10px; z-index: 5; padding: 3px 7px; border-radius: 8px; font-size: 9px; letter-spacing: 0.5px; color: #FFF; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.15); }
 
     .bottom-area { position: absolute; bottom: 0; left: 0; right: 0; z-index: 50; display: flex; flex-direction: column; align-items: center; padding: 0 16px 10px; gap: 8px; }
     .card-info { text-align: center; }
     .card-name { font-family: 'Cormorant Garamond', 'Noto Serif SC', serif; font-size: 22px; font-weight: 300; font-style: italic; color: #5D4040; letter-spacing: 2px; }
-    .cold .card-name { color: #E8C0C8; }
+    .cold .card-name, .dark .card-name { color: #E8C0C8; }
     .card-subtitle { font-size: 11px; color: #A08070; margin-top: 3px; font-style: italic; }
-    .cold .card-subtitle { color: #A07080; }
+    .cold .card-subtitle, .dark .card-subtitle { color: #A07080; }
+    .card-effect { font-size: 10px; color: #B08060; margin-top: 4px; padding: 2px 8px; border-radius: 10px; background: rgba(200,160,120,0.1); border: 1px solid rgba(200,160,120,0.2); display: inline-block; }
+    .cold .card-effect, .dark .card-effect { color: #C08090; background: rgba(160,80,100,0.1); border-color: rgba(160,80,100,0.2); }
     .star-row { margin-top: 4px; display: flex; justify-content: center; gap: 3px; }
     .star-row svg { width: 12px; height: 12px; fill: #D4A06A; }
-    .cold .star-row svg { fill: #C4667A; }
+    .cold .star-row svg, .dark .star-row svg { fill: #C4667A; }
 
-    .pool-dots { display: flex; gap: 8px; }
+    .pool-dots { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; max-width: 200px; }
     .pool-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(160,120,100,0.3); cursor: pointer; transition: all .3s; }
     .pool-dot.active { width: 18px; border-radius: 3px; background: #D4A06A; }
-    .cold .pool-dot.active { background: #C4667A; }
+    .cold .pool-dot.active, .dark .pool-dot.active { background: #C4667A; }
 
     .pull-area { display: flex; gap: 14px; }
     .pull-btn { padding: 10px 22px; border-radius: 24px; background: rgba(255,255,255,0.2); backdrop-filter: blur(14px); border: 1px solid rgba(212,180,140,0.5); color: #6D5050; font-family: 'Noto Serif SC', serif; font-size: 13px; font-weight: 300; letter-spacing: 1px; cursor: pointer; transition: all .2s; }
-    .cold .pull-btn { border-color: rgba(196,102,122,0.5); color: #E8C0C8; }
+    .cold .pull-btn, .dark .pull-btn { border-color: rgba(196,102,122,0.5); color: #E8C0C8; }
     .pull-btn:active { transform: scale(0.95); }
     .pull-btn .cost { display: block; font-size: 9px; color: #A09080; margin-top: 2px; }
-    .cold .pull-btn .cost { color: #A07080; }
+    .cold .pull-btn .cost, .dark .pull-btn .cost { color: #A07080; }
 
     .dock { display: flex; gap: 5px; width: 100%; }
     .dock-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; border-radius: 16px; padding: 8px 2px 6px; text-decoration: none; background: rgba(255,255,255,0.5); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.5); transition: transform .2s; }
-    .cold .dock-item { background: rgba(40,20,30,0.65); border-color: rgba(196,102,122,0.2); }
+    .cold .dock-item, .dark .dock-item { background: rgba(40,20,30,0.65); border-color: rgba(196,102,122,0.2); }
     .dock-item:active { transform: scale(0.95); }
     .dock-item.active { background: rgba(240,210,210,0.6); }
-    .cold .dock-item.active { background: rgba(139,32,64,0.35); }
+    .cold .dock-item.active, .dark .dock-item.active { background: rgba(139,32,64,0.35); }
     .dock-item svg { width: 18px; height: 18px; stroke: #7D6666; stroke-width: 1.6; fill: none; }
-    .cold .dock-item svg { stroke: #C4A0A0; }
+    .cold .dock-item svg, .dark .dock-item svg { stroke: #C4A0A0; }
     .dock-item.active svg { stroke: #C07070; }
     .dock-item .d-label { font-size: 7px; color: #8D7676; }
-    .cold .dock-item .d-label { color: #A08080; }
+    .cold .dock-item .d-label, .dark .dock-item .d-label { color: #A08080; }
 
     /* 左右箭头按钮 */
     .nav-arrow { position: absolute; top: 50%; transform: translateY(-58%); z-index: 30; width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.25); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: opacity .3s, transform .2s; }
     .nav-arrow:active { transform: translateY(-58%) scale(0.9); }
     .nav-arrow.hidden { opacity: 0; pointer-events: none; }
     .nav-arrow svg { width: 16px; height: 16px; stroke: #8D6A5A; stroke-width: 2; fill: none; }
-    .cold .nav-arrow svg { stroke: #C4A0A0; }
-    .cold .nav-arrow { background: rgba(40,20,30,0.4); border-color: rgba(196,102,122,0.3); }
+    .cold .nav-arrow svg, .dark .nav-arrow svg { stroke: #C4A0A0; }
+    .cold .nav-arrow, .dark .nav-arrow { background: rgba(40,20,30,0.4); border-color: rgba(196,102,122,0.3); }
     .nav-prev { left: 12px; }
     .nav-next { right: 12px; }
 
@@ -116,20 +130,24 @@
     .env-body { position: absolute; bottom: 0; left: 0; right: 0; height: 160px; border-radius: 6px 6px 14px 14px; }
     .env-body.warm-env { background: linear-gradient(160deg, #FFFAF5, #FFE8D8 40%, #FFF0E8); border: 1.5px solid rgba(200,160,120,0.5); box-shadow: 0 8px 30px rgba(160,120,80,0.2), inset 0 0 30px rgba(255,240,220,0.5); }
     .env-body.cold-env { background: linear-gradient(160deg, #2a1a22, #1f1018 40%, #251520); border: 1.5px solid rgba(160,80,100,0.4); box-shadow: 0 8px 30px rgba(100,30,50,0.3), inset 0 0 30px rgba(60,20,40,0.3); }
+    .env-body.soft-env { background: linear-gradient(160deg, #FFF8FA, #FFE0EE 40%, #FFF0F5); border: 1.5px solid rgba(200,140,170,0.5); box-shadow: 0 8px 30px rgba(200,120,150,0.2), inset 0 0 30px rgba(255,220,240,0.5); }
+    .env-body.dark-env { background: linear-gradient(160deg, #2a1820, #1f1018 40%, #251520); border: 1.5px solid rgba(140,60,90,0.4); box-shadow: 0 8px 30px rgba(80,20,40,0.3), inset 0 0 30px rgba(60,20,40,0.3); }
     .env-body::before { content:''; position: absolute; inset: 6px; border-radius: 10px; border: 1px solid rgba(200,170,130,0.2); }
-    .cold-env .env-body::before { border-color: rgba(160,80,100,0.15); }
     .env-body::after { content:''; position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); width: 60px; height: 1px; background: rgba(200,170,130,0.3); }
-    .cold-env .env-body::after { background: rgba(160,80,100,0.2); }
 
     .env-flap { position: absolute; top: 0; left: 0; width: 280px; height: 90px; transform-origin: top center; transition: transform .8s cubic-bezier(0.4,0,0.2,1); z-index: 2; }
     .env-flap::before { content:''; position: absolute; top: 0; left: 0; width: 0; height: 0; border-left: 140px solid transparent; border-right: 140px solid transparent; }
     .env-flap.warm-env::before { border-top: 90px solid #FFF0E8; filter: drop-shadow(0 2px 4px rgba(180,140,100,0.15)); }
     .env-flap.cold-env::before { border-top: 90px solid #251520; filter: drop-shadow(0 2px 4px rgba(100,30,50,0.2)); }
+    .env-flap.soft-env::before { border-top: 90px solid #FFF0F5; filter: drop-shadow(0 2px 4px rgba(200,140,170,0.15)); }
+    .env-flap.dark-env::before { border-top: 90px solid #251520; filter: drop-shadow(0 2px 4px rgba(80,20,40,0.2)); }
     .env-flap.opened { transform: rotateX(180deg); }
 
     .wax-seal { position: absolute; top: 58px; left: 50%; transform: translateX(-50%); width: 52px; height: 52px; border-radius: 50%; z-index: 5; display: flex; align-items: center; justify-content: center; opacity: 0; animation: seal-in .5s ease forwards 1.3s; transition: all .4s ease; }
     .wax-seal.warm-seal { background: radial-gradient(circle at 35% 35%, #E8B86A, #C4860B 60%, #A06A00); box-shadow: 0 3px 10px rgba(160,100,40,0.5), inset 0 1px 2px rgba(255,220,160,0.4); }
     .wax-seal.cold-seal { background: radial-gradient(circle at 35% 35%, #D06080, #8B2040 60%, #601030); box-shadow: 0 3px 10px rgba(120,20,50,0.5), inset 0 1px 2px rgba(220,120,140,0.3); }
+    .wax-seal.soft-seal { background: radial-gradient(circle at 35% 35%, #F0A0C0, #D06090 60%, #A04070); box-shadow: 0 3px 10px rgba(200,80,120,0.5), inset 0 1px 2px rgba(255,180,200,0.4); }
+    .wax-seal.dark-seal { background: radial-gradient(circle at 35% 35%, #A06080, #6B2040 60%, #401030); box-shadow: 0 3px 10px rgba(80,20,40,0.5), inset 0 1px 2px rgba(160,80,120,0.3); }
     .wax-seal svg { width: 24px; height: 24px; fill: rgba(255,255,255,0.85); filter: drop-shadow(0 1px 1px rgba(0,0,0,0.2)); }
     .wax-seal::before { content:''; position: absolute; inset: -3px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); }
     .wax-seal.broken { opacity: 0; transform: translateX(-50%) scale(1.8) rotate(15deg); }
@@ -148,6 +166,7 @@
     @keyframes info-in { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
     .reveal-info .r-name { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 300; font-style: italic; color: #E8D0C0; letter-spacing: 3px; }
     .reveal-info .r-sub { font-size: 11px; color: #A09080; margin-top: 5px; font-style: italic; }
+    .reveal-info .r-effect { font-size: 10px; color: #D4A080; margin-top: 6px; }
     .reveal-info .r-stars { margin-top: 6px; display: flex; justify-content: center; gap: 3px; }
     .reveal-info .r-stars svg { width: 13px; height: 13px; fill: #D4A06A; }
 
@@ -155,6 +174,8 @@
     .petal::before { content:''; display: block; width: 100%; height: 100%; border-radius: 50% 0 50% 0; transform: rotate(45deg); }
     .petal.warm-p::before { background: linear-gradient(135deg, #FFD4C0, #FFB8A0); }
     .petal.cold-p::before { background: linear-gradient(135deg, #C4667A, #8B2040); }
+    .petal.soft-p::before { background: linear-gradient(135deg, #FFB8D8, #FF90B8); }
+    .petal.dark-p::before { background: linear-gradient(135deg, #A06080, #6B2040); }
     .petal.go { animation: petal-go 3.5s ease forwards; }
     @keyframes petal-go { 0%{opacity:0;transform:translateY(-60px) rotate(0)} 15%{opacity:.8} 100%{opacity:0;transform:translateY(100vh) rotate(400deg)} }
 
@@ -180,7 +201,8 @@
   <div class="card-display fade-in d2" id="cardDisplay">
     <div class="card-frame">
       <img id="cardImg" src="../assets/gacha/%E6%92%92%E5%A8%87%E5%8D%A1%E9%9D%A2.PNG" alt="">
-      <div class="rarity-badge" id="rarityBadge">SR</div>
+      <div class="rarity-badge sr" id="rarityBadge">SR</div>
+      <div class="type-badge" id="typeBadge">情绪</div>
     </div>
   </div>
 
@@ -192,6 +214,7 @@
     <div class="card-info">
       <div class="card-name" id="cardName">撒娇</div>
       <div class="card-subtitle" id="cardSub">"...你不来，我就一直这样看着你。"</div>
+      <div class="card-effect" id="cardEffect" style="display:none;"></div>
       <div class="star-row" id="starRow">
         <svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg>
         <svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg>
@@ -199,13 +222,10 @@
         <svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg>
       </div>
     </div>
-    <div class="pool-dots">
-      <div class="pool-dot active" data-index="0"></div>
-      <div class="pool-dot" data-index="1"></div>
-    </div>
+    <div class="pool-dots" id="poolDots"></div>
     <div class="pull-area">
-      <button class="pull-btn" id="pullOne">单抽<span class="cost">×160</span></button>
-      <button class="pull-btn" id="pullTen">十连<span class="cost">×1600</span></button>
+      <button class="pull-btn" id="pullOne">单抽<span class="cost">\u00d7160</span></button>
+      <button class="pull-btn" id="pullTen">十连<span class="cost">\u00d71600</span></button>
     </div>
     <div class="dock">
       <a class="dock-item" href="chat.html"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="d-label">聊天</span></a>
@@ -230,31 +250,61 @@
     <div class="reveal-info" id="revealInfo">
       <div class="r-name" id="rName"></div>
       <div class="r-sub" id="rSub"></div>
+      <div class="r-effect" id="rEffect"></div>
       <div class="r-stars" id="rStars"></div>
     </div>
     <button class="confirm-btn" id="confirmBtn">确认</button>
   </div>
 
   <script>
-    // 图片路径统一URL编码
+    // ===== 卡池数据 =====
+    // type: emotion=情绪卡, bg=背景, prop=道具
+    // weight: 出率权重（越高越容易抽到）
     var pool = [
-      { name:'撒娇', sub:'\u201c...你不来，我就一直这样看着你。\u201d', rarity:'SR', stars:4, theme:'warm', img:'../assets/gacha/%E6%92%92%E5%A8%87%E5%8D%A1%E9%9D%A2.PNG' },
-      { name:'生气', sub:'\u201c我在等一个解释。\u201d', rarity:'SR', stars:4, theme:'cold', img:'../assets/gacha/%E7%94%9F%E6%B0%94%E5%8D%A1%E9%9D%A2.PNG' }
+      // 情绪卡 - SSR/SR
+      { name:'撒娇', type:'emotion', sub:'\u201c...你不来，我就一直这样看着你。\u201d', rarity:'SR', stars:4, theme:'warm', img:'../assets/gacha/%E6%92%92%E5%A8%87%E5%8D%A1%E9%9D%A2.PNG', weight:8 },
+      { name:'生气', type:'emotion', sub:'\u201c我在等一个解释。\u201d', rarity:'SR', stars:4, theme:'cold', img:'../assets/gacha/%E7%94%9F%E6%B0%94%E5%8D%A1%E9%9D%A2.PNG', weight:8 },
+      // 背景卡 - SR
+      { name:'撒娇背景', type:'bg', sub:'解锁首页背景', rarity:'SR', stars:4, theme:'soft', img:'../assets/background/%E6%92%92%E5%A8%87%E8%83%8C%E6%99%AF.jpg', effect:'解锁首页背景', weight:10 },
+      { name:'生气背景', type:'bg', sub:'解锁首页背景', rarity:'SR', stars:4, theme:'dark', img:'../assets/background/%E7%94%9F%E6%B0%94%E8%83%8C%E6%99%AF.PNG', effect:'解锁首页背景', weight:10 },
+      // 道具卡 - R/N
+      { name:'爱心巧克力', type:'prop', sub:'偷偷塞进你口袋里的', rarity:'R', stars:3, theme:'warm', img:'', effect:'亲密度 +5', weight:20 },
+      { name:'晚安吻', type:'prop', sub:'今天也要做个好梦', rarity:'R', stars:3, theme:'soft', img:'', effect:'亲密度 +3', weight:25 },
+      { name:'绿墨水瓶', type:'prop', sub:'0.38mm，写给你的', rarity:'SR', stars:4, theme:'cold', img:'', effect:'亲密度 +8', weight:12 },
+      { name:'手写信封', type:'prop', sub:'没有收件人的信', rarity:'SR', stars:4, theme:'warm', img:'', effect:'亲密度 +10', weight:8 },
+      { name:'一杯热可可', type:'prop', sub:'温度刚好的那种', rarity:'N', stars:2, theme:'warm', img:'', effect:'亲密度 +2', weight:30 },
+      { name:'头顶小花', type:'prop', sub:'今天也很可爱', rarity:'N', stars:2, theme:'soft', img:'', effect:'装饰 · 持续1天', weight:30 }
     ];
+
+    // 类型中文映射
+    var typeLabels = { emotion:'情绪', bg:'背景', prop:'道具' };
 
     var idx = 0, ready = false, result = null, switching = false;
 
     function $(id) { return document.getElementById(id); }
     var bgLayer = $('bgLayer'), cardImg = $('cardImg'), cardName = $('cardName'), cardSub = $('cardSub');
-    var rarityBadge = $('rarityBadge'), starRow = $('starRow'), cardDisplay = $('cardDisplay');
+    var rarityBadge = $('rarityBadge'), typeBadge = $('typeBadge'), starRow = $('starRow'), cardDisplay = $('cardDisplay');
+    var cardEffect = $('cardEffect');
     var overlay = $('overlay'), envScene = $('envScene'), envelope = $('envelope');
     var envFlap = $('envFlap'), envBody = $('envBody'), seal = $('seal'), tapHint = $('tapHint');
     var cardReveal = $('cardReveal'), revealImg = $('revealImg');
-    var revealInfo = $('revealInfo'), rName = $('rName'), rSub = $('rSub'), rStars = $('rStars');
+    var revealInfo = $('revealInfo'), rName = $('rName'), rSub = $('rSub'), rEffect = $('rEffect'), rStars = $('rStars');
     var confirmBtn = $('confirmBtn');
-    var dots = document.querySelectorAll('.pool-dot');
+    var poolDots = $('poolDots');
     var particles = $('particles');
     var navPrev = $('navPrev'), navNext = $('navNext');
+
+    // 生成指示点
+    function buildDots() {
+      poolDots.innerHTML = '';
+      for (var i = 0; i < pool.length; i++) {
+        var d = document.createElement('div');
+        d.className = 'pool-dot' + (i === 0 ? ' active' : '');
+        d.setAttribute('data-index', i);
+        poolDots.appendChild(d);
+      }
+    }
+    buildDots();
 
     function mkParticles() {
       particles.innerHTML = '';
@@ -274,17 +324,51 @@
       navNext.classList.toggle('hidden', idx === pool.length - 1);
     }
 
+    // 道具卡没有图片时用CSS渐变占位
+    function getCardBg(c) {
+      if (c.img) return '';
+      var gradients = {
+        warm: 'linear-gradient(135deg, #FFF5E8, #FFE0C0 40%, #FFD4A8 80%, #FFC890)',
+        cold: 'linear-gradient(135deg, #1a1520, #2a1a30 40%, #351a35 80%, #201525)',
+        soft: 'linear-gradient(135deg, #FFF0F8, #FFD8E8 40%, #FFC0D8 80%, #FFB0D0)',
+        dark: 'linear-gradient(135deg, #1a1018, #2a1520 40%, #351828 80%, #201018)'
+      };
+      return gradients[c.theme] || gradients.warm;
+    }
+
     function show(i) {
       var c = pool[i]; idx = i;
       bgLayer.className = 'bg-layer ' + c.theme;
-      document.body.style.background = c.theme==='warm'?'#FFF8F3':'#1a1115';
-      cardImg.src = c.img;
+      var bgColors = { warm:'#FFF8F3', cold:'#1a1115', soft:'#FFF5F8', dark:'#1a1018' };
+      document.body.style.background = bgColors[c.theme] || '#FFF8F3';
+
+      if (c.img) {
+        cardImg.src = c.img;
+        cardImg.style.display = 'block';
+        cardImg.style.background = '';
+      } else {
+        cardImg.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+        cardImg.style.background = getCardBg(c);
+        cardImg.style.display = 'block';
+      }
+
       cardName.textContent = c.name;
       cardSub.textContent = c.sub;
+      typeBadge.textContent = typeLabels[c.type] || '';
       rarityBadge.textContent = c.rarity;
-      rarityBadge.className = 'rarity-badge'+(c.rarity==='SSR'?' ssr':'');
+      rarityBadge.className = 'rarity-badge ' + c.rarity.toLowerCase();
+
+      if (c.effect) {
+        cardEffect.textContent = c.effect;
+        cardEffect.style.display = 'inline-block';
+      } else {
+        cardEffect.style.display = 'none';
+      }
+
       var s=''; for(var j=0;j<c.stars;j++) s+='<svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg>';
       starRow.innerHTML = s;
+
+      var dots = poolDots.querySelectorAll('.pool-dot');
       dots.forEach(function(d,j) { d.classList.toggle('active', j===i); });
       updateArrows();
       mkParticles();
@@ -293,18 +377,13 @@
     function goTo(nextIdx, direction) {
       if (switching || nextIdx < 0 || nextIdx >= pool.length) return;
       switching = true;
-      // 滑出
       cardDisplay.classList.add(direction === 'next' ? 'slide-left' : 'slide-right');
       setTimeout(function() {
-        // 换数据
         show(nextIdx);
-        // 从另一边准备滑入
         cardDisplay.classList.remove('slide-left', 'slide-right');
         cardDisplay.style.transition = 'none';
         cardDisplay.classList.add(direction === 'next' ? 'slide-right' : 'slide-left');
-        // 强制reflow
         void cardDisplay.offsetWidth;
-        // 恢复过渡并滑入
         cardDisplay.style.transition = '';
         cardDisplay.classList.remove('slide-left', 'slide-right');
         setTimeout(function() { switching = false; }, 350);
@@ -315,12 +394,13 @@
     navPrev.addEventListener('click', function() { goTo(idx - 1, 'prev'); });
     navNext.addEventListener('click', function() { goTo(idx + 1, 'next'); });
 
-    // 指示点点击
-    dots.forEach(function(d, i) {
-      d.addEventListener('click', function() {
-        if (i === idx) return;
-        goTo(i, i > idx ? 'next' : 'prev');
-      });
+    // 指示点点击（事件委托）
+    poolDots.addEventListener('click', function(e) {
+      var dot = e.target.closest('.pool-dot');
+      if (!dot) return;
+      var i = parseInt(dot.getAttribute('data-index'));
+      if (i === idx) return;
+      goTo(i, i > idx ? 'next' : 'prev');
     });
 
     // body级别滑动手势
@@ -328,7 +408,6 @@
 
     document.body.addEventListener('touchstart', function(e) {
       if (overlay.classList.contains('active')) return;
-      // 不拦截底部按钮区域的触摸
       var t = e.target;
       if (t.closest && (t.closest('.pull-btn') || t.closest('.dock-item') || t.closest('.back-btn') || t.closest('.nav-arrow'))) return;
       touchStartX = e.touches[0].clientX;
@@ -341,7 +420,6 @@
       if (!touchTracking) return;
       var dx = e.touches[0].clientX - touchStartX;
       var dy = e.touches[0].clientY - touchStartY;
-      // 水平滑动时阻止页面滚动
       if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 15) {
         e.preventDefault();
       }
@@ -354,23 +432,41 @@
       var dx = e.changedTouches[0].clientX - touchStartX;
       var dy = e.changedTouches[0].clientY - touchStartY;
       var dt = Date.now() - touchStartTime;
-      // 水平位移 > 50px，且水平 > 垂直，时间 < 500ms
       if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) && dt < 500) {
         if (dx < 0) goTo(idx + 1, 'next');
         else goTo(idx - 1, 'prev');
       }
     }, false);
 
+    // ===== 加权随机抽卡 =====
+    function weightedRandom() {
+      var total = 0;
+      for (var i = 0; i < pool.length; i++) total += pool[i].weight;
+      var r = Math.random() * total;
+      for (var i = 0; i < pool.length; i++) {
+        r -= pool[i].weight;
+        if (r <= 0) return pool[i];
+      }
+      return pool[pool.length - 1];
+    }
+
     // 抽卡
     function pull() {
-      result = pool[Math.floor(Math.random()*pool.length)];
-      revealImg.src = result.img;
+      result = weightedRandom();
+
+      if (result.img) {
+        revealImg.src = result.img;
+        revealImg.style.background = '';
+      } else {
+        revealImg.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+        revealImg.style.background = getCardBg(result);
+      }
 
       envelope.style.animation = 'none'; envelope.offsetHeight; envelope.style.animation = '';
       envFlap.classList.remove('opened');
-      envFlap.className = 'env-flap ' + (result.theme==='warm'?'warm-env':'cold-env');
-      envBody.className = 'env-body ' + (result.theme==='warm'?'warm-env':'cold-env');
-      seal.className = 'wax-seal ' + (result.theme==='warm'?'warm-seal':'cold-seal');
+      envFlap.className = 'env-flap ' + result.theme + '-env';
+      envBody.className = 'env-body ' + result.theme + '-env';
+      seal.className = 'wax-seal ' + result.theme + '-seal';
       seal.style.animation = 'none'; seal.offsetHeight; seal.style.animation = '';
       tapHint.style.animation = 'none'; tapHint.offsetHeight; tapHint.style.animation = '';
       cardReveal.classList.remove('show');
@@ -393,7 +489,7 @@
         cardReveal.classList.add('show');
         for(var i=0;i<18;i++){
           var p = document.createElement('div');
-          p.className = 'petal '+(result.theme==='warm'?'warm-p':'cold-p');
+          p.className = 'petal '+result.theme+'-p';
           p.style.left = Math.random()*100+'%';
           p.style.top = '-10px';
           overlay.appendChild(p);
@@ -403,6 +499,8 @@
       setTimeout(function() {
         rName.textContent = result.name;
         rSub.textContent = result.sub;
+        rEffect.textContent = result.effect || '';
+        rEffect.style.display = result.effect ? 'block' : 'none';
         var s=''; for(var j=0;j<result.stars;j++) s+='<svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg>';
         rStars.innerHTML = s;
         revealInfo.classList.add('show');

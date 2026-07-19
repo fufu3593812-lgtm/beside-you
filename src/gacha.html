@@ -6,23 +6,8 @@
   <title>情绪碎片 - Beside You</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Noto+Serif+SC:wght@200;300;400&display=swap');
-
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: 'Noto Serif SC', 'PingFang SC', serif;
-      width: 100vw;
-      height: 100vh;
-      height: 100dvh;
-      overflow: hidden;
-      position: relative;
-      max-width: 430px;
-      margin: 0 auto;
-      background: #FFF8F3;
-      -webkit-user-select: none;
-      user-select: none;
-    }
-
+    body { font-family: 'Noto Serif SC', 'PingFang SC', serif; width: 100vw; height: 100vh; height: 100dvh; overflow: hidden; position: relative; max-width: 430px; margin: 0 auto; background: #FFF8F3; -webkit-user-select: none; user-select: none; }
     .bg-layer { position: absolute; inset: 0; z-index: 0; transition: background 1s ease; }
     .bg-layer.warm { background: linear-gradient(180deg, #FFF8F3 0%, #FFEEE6 30%, #FFF0EB 60%, #FFF8F5 100%); }
     .bg-layer.cold { background: linear-gradient(180deg, #1a1115 0%, #2a1520 30%, #1f1018 60%, #1a1115 100%); }
@@ -33,7 +18,6 @@
     .cold .bg-ornament { background: radial-gradient(ellipse, #8B2040 0%, transparent 70%); }
     .soft .bg-ornament { background: radial-gradient(ellipse, #FFB8D0 0%, transparent 70%); }
     .dark .bg-ornament { background: radial-gradient(ellipse, #6B3050 0%, transparent 70%); }
-
     .particles { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
     .particle { position: absolute; width: 3px; height: 3px; border-radius: 50%; opacity: 0; animation: float-particle 6s ease-in-out infinite; }
     .warm .particle { background: #FFD4A0; }
@@ -41,7 +25,6 @@
     .soft .particle { background: #FFB0D0; }
     .dark .particle { background: #A05070; }
     @keyframes float-particle { 0%{opacity:0;transform:translateY(100vh) scale(0)} 20%{opacity:.8} 80%{opacity:.6} 100%{opacity:0;transform:translateY(-100px) scale(1.5)} }
-
     .top-bar { position: absolute; top: 0; left: 0; right: 0; z-index: 100; padding: 50px 20px 12px; display: flex; justify-content: space-between; align-items: center; }
     .back-btn { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; text-decoration: none; }
     .back-btn svg { width: 16px; height: 16px; stroke: #9A8080; stroke-width: 2; fill: none; }
@@ -52,7 +35,6 @@
     .currency svg { width: 14px; height: 14px; fill: #D4A06A; }
     .currency span { font-size: 12px; color: #8D6A5A; }
     .cold .currency span, .dark .currency span { color: #C4A0A0; }
-
     .card-display { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -58%); z-index: 10; width: 62vw; max-width: 260px; aspect-ratio: 3/4; pointer-events: none; transition: transform .35s cubic-bezier(.4,0,.2,1), opacity .35s ease; }
     .card-display.slide-left { transform: translate(-50%, -58%) translateX(-40px); opacity: 0; }
     .card-display.slide-right { transform: translate(-50%, -58%) translateX(40px); opacity: 0; }
@@ -67,10 +49,7 @@
     .rarity-badge.sr { background: linear-gradient(135deg, #9B59B6, #6C3483); box-shadow: 0 0 8px rgba(155,89,182,0.4); }
     .rarity-badge.r { background: linear-gradient(135deg, #3498DB, #2471A3); box-shadow: 0 0 6px rgba(52,152,219,0.4); }
     .rarity-badge.n { background: linear-gradient(135deg, rgba(212,180,140,0.8), rgba(180,140,100,0.9)); }
-
-    /* 卡面类型标签 */
     .type-badge { position: absolute; top: 10px; left: 10px; z-index: 5; padding: 3px 7px; border-radius: 8px; font-size: 9px; letter-spacing: 0.5px; color: #FFF; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.15); }
-
     .bottom-area { position: absolute; bottom: 0; left: 0; right: 0; z-index: 50; display: flex; flex-direction: column; align-items: center; padding: 0 16px 10px; gap: 8px; }
     .card-info { text-align: center; }
     .card-name { font-family: 'Cormorant Garamond', 'Noto Serif SC', serif; font-size: 22px; font-weight: 300; font-style: italic; color: #5D4040; letter-spacing: 2px; }
@@ -82,19 +61,16 @@
     .star-row { margin-top: 4px; display: flex; justify-content: center; gap: 3px; }
     .star-row svg { width: 12px; height: 12px; fill: #D4A06A; }
     .cold .star-row svg, .dark .star-row svg { fill: #C4667A; }
-
     .pool-dots { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; max-width: 200px; }
     .pool-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(160,120,100,0.3); cursor: pointer; transition: all .3s; }
     .pool-dot.active { width: 18px; border-radius: 3px; background: #D4A06A; }
     .cold .pool-dot.active, .dark .pool-dot.active { background: #C4667A; }
-
     .pull-area { display: flex; gap: 14px; }
     .pull-btn { padding: 10px 22px; border-radius: 24px; background: rgba(255,255,255,0.2); backdrop-filter: blur(14px); border: 1px solid rgba(212,180,140,0.5); color: #6D5050; font-family: 'Noto Serif SC', serif; font-size: 13px; font-weight: 300; letter-spacing: 1px; cursor: pointer; transition: all .2s; }
     .cold .pull-btn, .dark .pull-btn { border-color: rgba(196,102,122,0.5); color: #E8C0C8; }
     .pull-btn:active { transform: scale(0.95); }
     .pull-btn .cost { display: block; font-size: 9px; color: #A09080; margin-top: 2px; }
     .cold .pull-btn .cost, .dark .pull-btn .cost { color: #A07080; }
-
     .dock { display: flex; gap: 5px; width: 100%; }
     .dock-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; border-radius: 16px; padding: 8px 2px 6px; text-decoration: none; background: rgba(255,255,255,0.5); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.5); transition: transform .2s; }
     .cold .dock-item, .dark .dock-item { background: rgba(40,20,30,0.65); border-color: rgba(196,102,122,0.2); }
@@ -106,8 +82,6 @@
     .dock-item.active svg { stroke: #C07070; }
     .dock-item .d-label { font-size: 7px; color: #8D7676; }
     .cold .dock-item .d-label, .dark .dock-item .d-label { color: #A08080; }
-
-    /* 左右箭头按钮 */
     .nav-arrow { position: absolute; top: 50%; transform: translateY(-58%); z-index: 30; width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.25); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: opacity .3s, transform .2s; }
     .nav-arrow:active { transform: translateY(-58%) scale(0.9); }
     .nav-arrow.hidden { opacity: 0; pointer-events: none; }
@@ -116,17 +90,12 @@
     .cold .nav-arrow, .dark .nav-arrow { background: rgba(40,20,30,0.4); border-color: rgba(196,102,122,0.3); }
     .nav-prev { left: 12px; }
     .nav-next { right: 12px; }
-
-    /* 信封抽卡动画 */
     .pull-overlay { position: absolute; inset: 0; z-index: 300; display: none; background: #0a0608; }
     .pull-overlay.active { display: block; animation: overlay-in .6s ease forwards; }
     @keyframes overlay-in { from{opacity:0} to{opacity:1} }
-
     .envelope-scene { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; }
-
     .envelope { position: relative; width: 280px; height: 190px; cursor: pointer; opacity: 0; transform: translateY(50px); animation: env-rise 1s ease forwards .5s; }
     @keyframes env-rise { to { opacity: 1; transform: translateY(0); } }
-
     .env-body { position: absolute; bottom: 0; left: 0; right: 0; height: 160px; border-radius: 6px 6px 14px 14px; }
     .env-body.warm-env { background: linear-gradient(160deg, #FFFAF5, #FFE8D8 40%, #FFF0E8); border: 1.5px solid rgba(200,160,120,0.5); box-shadow: 0 8px 30px rgba(160,120,80,0.2), inset 0 0 30px rgba(255,240,220,0.5); }
     .env-body.cold-env { background: linear-gradient(160deg, #2a1a22, #1f1018 40%, #251520); border: 1.5px solid rgba(160,80,100,0.4); box-shadow: 0 8px 30px rgba(100,30,50,0.3), inset 0 0 30px rgba(60,20,40,0.3); }
@@ -134,33 +103,28 @@
     .env-body.dark-env { background: linear-gradient(160deg, #2a1820, #1f1018 40%, #251520); border: 1.5px solid rgba(140,60,90,0.4); box-shadow: 0 8px 30px rgba(80,20,40,0.3), inset 0 0 30px rgba(60,20,40,0.3); }
     .env-body::before { content:''; position: absolute; inset: 6px; border-radius: 10px; border: 1px solid rgba(200,170,130,0.2); }
     .env-body::after { content:''; position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); width: 60px; height: 1px; background: rgba(200,170,130,0.3); }
-
     .env-flap { position: absolute; top: 0; left: 0; width: 280px; height: 90px; transform-origin: top center; transition: transform .8s cubic-bezier(0.4,0,0.2,1); z-index: 2; }
     .env-flap::before { content:''; position: absolute; top: 0; left: 0; width: 0; height: 0; border-left: 140px solid transparent; border-right: 140px solid transparent; }
-    .env-flap.warm-env::before { border-top: 90px solid #FFF0E8; filter: drop-shadow(0 2px 4px rgba(180,140,100,0.15)); }
-    .env-flap.cold-env::before { border-top: 90px solid #251520; filter: drop-shadow(0 2px 4px rgba(100,30,50,0.2)); }
-    .env-flap.soft-env::before { border-top: 90px solid #FFF0F5; filter: drop-shadow(0 2px 4px rgba(200,140,170,0.15)); }
-    .env-flap.dark-env::before { border-top: 90px solid #251520; filter: drop-shadow(0 2px 4px rgba(80,20,40,0.2)); }
+    .env-flap.warm-env::before { border-top: 90px solid #FFF0E8; }
+    .env-flap.cold-env::before { border-top: 90px solid #251520; }
+    .env-flap.soft-env::before { border-top: 90px solid #FFF0F5; }
+    .env-flap.dark-env::before { border-top: 90px solid #251520; }
     .env-flap.opened { transform: rotateX(180deg); }
-
     .wax-seal { position: absolute; top: 58px; left: 50%; transform: translateX(-50%); width: 52px; height: 52px; border-radius: 50%; z-index: 5; display: flex; align-items: center; justify-content: center; opacity: 0; animation: seal-in .5s ease forwards 1.3s; transition: all .4s ease; }
-    .wax-seal.warm-seal { background: radial-gradient(circle at 35% 35%, #E8B86A, #C4860B 60%, #A06A00); box-shadow: 0 3px 10px rgba(160,100,40,0.5), inset 0 1px 2px rgba(255,220,160,0.4); }
-    .wax-seal.cold-seal { background: radial-gradient(circle at 35% 35%, #D06080, #8B2040 60%, #601030); box-shadow: 0 3px 10px rgba(120,20,50,0.5), inset 0 1px 2px rgba(220,120,140,0.3); }
-    .wax-seal.soft-seal { background: radial-gradient(circle at 35% 35%, #F0A0C0, #D06090 60%, #A04070); box-shadow: 0 3px 10px rgba(200,80,120,0.5), inset 0 1px 2px rgba(255,180,200,0.4); }
-    .wax-seal.dark-seal { background: radial-gradient(circle at 35% 35%, #A06080, #6B2040 60%, #401030); box-shadow: 0 3px 10px rgba(80,20,40,0.5), inset 0 1px 2px rgba(160,80,120,0.3); }
-    .wax-seal svg { width: 24px; height: 24px; fill: rgba(255,255,255,0.85); filter: drop-shadow(0 1px 1px rgba(0,0,0,0.2)); }
+    .wax-seal.warm-seal { background: radial-gradient(circle at 35% 35%, #E8B86A, #C4860B 60%, #A06A00); box-shadow: 0 3px 10px rgba(160,100,40,0.5); }
+    .wax-seal.cold-seal { background: radial-gradient(circle at 35% 35%, #D06080, #8B2040 60%, #601030); box-shadow: 0 3px 10px rgba(120,20,50,0.5); }
+    .wax-seal.soft-seal { background: radial-gradient(circle at 35% 35%, #F0A0C0, #D06090 60%, #A04070); box-shadow: 0 3px 10px rgba(200,80,120,0.5); }
+    .wax-seal.dark-seal { background: radial-gradient(circle at 35% 35%, #A06080, #6B2040 60%, #401030); box-shadow: 0 3px 10px rgba(80,20,40,0.5); }
+    .wax-seal svg { width: 24px; height: 24px; fill: rgba(255,255,255,0.85); }
     .wax-seal::before { content:''; position: absolute; inset: -3px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); }
     .wax-seal.broken { opacity: 0; transform: translateX(-50%) scale(1.8) rotate(15deg); }
     @keyframes seal-in { from{opacity:0;transform:translateX(-50%) scale(.4)} to{opacity:1;transform:translateX(-50%) scale(1)} }
-
     .tap-hint { margin-top: 30px; font-size: 12px; color: rgba(180,150,130,0.7); letter-spacing: 1px; opacity: 0; animation: hint-in .5s ease forwards 1.8s; }
     @keyframes hint-in { to { opacity: 1; } }
-
     .card-reveal { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) translateY(80px) scale(.85); width: 230px; height: 330px; border-radius: 14px; overflow: hidden; opacity: 0; box-shadow: 0 20px 60px rgba(0,0,0,0.5); z-index: 10; pointer-events: none; }
     .card-reveal.show { animation: card-out 1.2s cubic-bezier(.25,.46,.45,.94) forwards; pointer-events: auto; }
     @keyframes card-out { 0%{opacity:0;transform:translate(-50%,-50%) translateY(80px) scale(.85)} 40%{opacity:1} 100%{opacity:1;transform:translate(-50%,-50%) translateY(0) scale(1)} }
     .card-reveal img { width: 100%; height: 100%; object-fit: cover; }
-
     .reveal-info { position: absolute; bottom: 90px; left: 0; right: 0; text-align: center; opacity: 0; z-index: 15; }
     .reveal-info.show { animation: info-in .7s ease forwards; }
     @keyframes info-in { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
@@ -169,7 +133,6 @@
     .reveal-info .r-effect { font-size: 10px; color: #D4A080; margin-top: 6px; }
     .reveal-info .r-stars { margin-top: 6px; display: flex; justify-content: center; gap: 3px; }
     .reveal-info .r-stars svg { width: 13px; height: 13px; fill: #D4A06A; }
-
     .petal { position: absolute; width: 10px; height: 10px; opacity: 0; pointer-events: none; z-index: 20; }
     .petal::before { content:''; display: block; width: 100%; height: 100%; border-radius: 50% 0 50% 0; transform: rotate(45deg); }
     .petal.warm-p::before { background: linear-gradient(135deg, #FFD4C0, #FFB8A0); }
@@ -178,11 +141,9 @@
     .petal.dark-p::before { background: linear-gradient(135deg, #A06080, #6B2040); }
     .petal.go { animation: petal-go 3.5s ease forwards; }
     @keyframes petal-go { 0%{opacity:0;transform:translateY(-60px) rotate(0)} 15%{opacity:.8} 100%{opacity:0;transform:translateY(100vh) rotate(400deg)} }
-
     .confirm-btn { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); padding: 11px 36px; border-radius: 22px; background: rgba(255,255,255,0.08); backdrop-filter: blur(8px); border: 1px solid rgba(212,180,140,0.35); color: #D4B08A; font-family: 'Noto Serif SC', serif; font-size: 13px; letter-spacing: 2px; cursor: pointer; z-index: 30; opacity: 0; pointer-events: none; }
     .confirm-btn.show { opacity: 1; pointer-events: auto; animation: fade-up .5s ease; }
     @keyframes fade-up { from{opacity:0;transform:translateX(-50%) translateY(16px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
-
     .fade-in { opacity: 0; animation: fadeIn .7s ease forwards; }
     .d1 { animation-delay: .1s; } .d2 { animation-delay: .2s; } .d3 { animation-delay: .35s; }
     @keyframes fadeIn { to { opacity: 1; } }
@@ -191,13 +152,11 @@
 <body>
   <div class="bg-layer warm" id="bgLayer"><div class="bg-ornament"></div></div>
   <div class="particles" id="particles"></div>
-
   <div class="top-bar fade-in">
     <a class="back-btn" href="index.html"><svg viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg></a>
     <div class="pool-title">情绪碎片</div>
     <div class="currency"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg><span>1200</span></div>
   </div>
-
   <div class="card-display fade-in d2" id="cardDisplay">
     <div class="card-frame">
       <img id="cardImg" src="../assets/gacha/%E6%92%92%E5%A8%87%E5%8D%A1%E9%9D%A2.PNG" alt="">
@@ -205,27 +164,19 @@
       <div class="type-badge" id="typeBadge">情绪</div>
     </div>
   </div>
-
-  <!-- 左右切换箭头 -->
   <div class="nav-arrow nav-prev hidden" id="navPrev"><svg viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg></div>
   <div class="nav-arrow nav-next" id="navNext"><svg viewBox="0 0 24 24"><polyline points="9,6 15,12 9,18"/></svg></div>
-
   <div class="bottom-area fade-in d3">
     <div class="card-info">
       <div class="card-name" id="cardName">撒娇</div>
       <div class="card-subtitle" id="cardSub">"...你不来，我就一直这样看着你。"</div>
       <div class="card-effect" id="cardEffect" style="display:none;"></div>
-      <div class="star-row" id="starRow">
-        <svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg>
-        <svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg>
-        <svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg>
-        <svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg>
-      </div>
+      <div class="star-row" id="starRow"><svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg><svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg><svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg><svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg></div>
     </div>
     <div class="pool-dots" id="poolDots"></div>
     <div class="pull-area">
-      <button class="pull-btn" id="pullOne">单抽<span class="cost">\u00d7160</span></button>
-      <button class="pull-btn" id="pullTen">十连<span class="cost">\u00d71600</span></button>
+      <button class="pull-btn" id="pullOne">单抽<span class="cost">×160</span></button>
+      <button class="pull-btn" id="pullTen">十连<span class="cost">×1600</span></button>
     </div>
     <div class="dock">
       <a class="dock-item" href="chat.html"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="d-label">聊天</span></a>
@@ -235,8 +186,6 @@
       <a class="dock-item" href="#"><svg viewBox="0 0 24 24"><path d="M6 2L3 7v13a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-3-5z"/><line x1="3" y1="7" x2="21" y2="7"/><path d="M16 11a4 4 0 0 1-8 0"/></svg><span class="d-label">商店</span></a>
     </div>
   </div>
-
-  <!-- 抽卡遮罩 -->
   <div class="pull-overlay" id="overlay">
     <div class="envelope-scene" id="envScene">
       <div class="envelope" id="envelope">
@@ -255,32 +204,21 @@
     </div>
     <button class="confirm-btn" id="confirmBtn">确认</button>
   </div>
-
   <script>
-    // ===== 卡池数据 =====
-    // type: emotion=情绪卡, bg=背景, prop=道具
-    // weight: 出率权重（越高越容易抽到）
     var pool = [
-      // 情绪卡 - SSR/SR
       { name:'撒娇', type:'emotion', sub:'\u201c...你不来，我就一直这样看着你。\u201d', rarity:'SR', stars:4, theme:'warm', img:'../assets/gacha/%E6%92%92%E5%A8%87%E5%8D%A1%E9%9D%A2.PNG', weight:8 },
       { name:'生气', type:'emotion', sub:'\u201c我在等一个解释。\u201d', rarity:'SR', stars:4, theme:'cold', img:'../assets/gacha/%E7%94%9F%E6%B0%94%E5%8D%A1%E9%9D%A2.PNG', weight:8 },
-      // 背景卡 - SR
       { name:'撒娇背景', type:'bg', sub:'解锁首页背景', rarity:'SR', stars:4, theme:'soft', img:'../assets/background/%E6%92%92%E5%A8%87%E8%83%8C%E6%99%AF.jpg', effect:'解锁首页背景', weight:10 },
       { name:'生气背景', type:'bg', sub:'解锁首页背景', rarity:'SR', stars:4, theme:'dark', img:'../assets/background/%E7%94%9F%E6%B0%94%E8%83%8C%E6%99%AF.PNG', effect:'解锁首页背景', weight:10 },
-      // 道具卡 - R/N
       { name:'爱心巧克力', type:'prop', sub:'偷偷塞进你口袋里的', rarity:'R', stars:3, theme:'warm', img:'', effect:'亲密度 +5', weight:20 },
       { name:'晚安吻', type:'prop', sub:'今天也要做个好梦', rarity:'R', stars:3, theme:'soft', img:'', effect:'亲密度 +3', weight:25 },
       { name:'绿墨水瓶', type:'prop', sub:'0.38mm，写给你的', rarity:'SR', stars:4, theme:'cold', img:'', effect:'亲密度 +8', weight:12 },
       { name:'手写信封', type:'prop', sub:'没有收件人的信', rarity:'SR', stars:4, theme:'warm', img:'', effect:'亲密度 +10', weight:8 },
       { name:'一杯热可可', type:'prop', sub:'温度刚好的那种', rarity:'N', stars:2, theme:'warm', img:'', effect:'亲密度 +2', weight:30 },
-      { name:'头顶小花', type:'prop', sub:'今天也很可爱', rarity:'N', stars:2, theme:'soft', img:'', effect:'装饰 · 持续1天', weight:30 }
+      { name:'头顶小花', type:'prop', sub:'今天也很可爱', rarity:'N', stars:2, theme:'soft', img:'', effect:'装饰 \u00b7 持续1天', weight:30 }
     ];
-
-    // 类型中文映射
     var typeLabels = { emotion:'情绪', bg:'背景', prop:'道具' };
-
     var idx = 0, ready = false, result = null, switching = false;
-
     function $(id) { return document.getElementById(id); }
     var bgLayer = $('bgLayer'), cardImg = $('cardImg'), cardName = $('cardName'), cardSub = $('cardSub');
     var rarityBadge = $('rarityBadge'), typeBadge = $('typeBadge'), starRow = $('starRow'), cardDisplay = $('cardDisplay');
@@ -293,8 +231,6 @@
     var poolDots = $('poolDots');
     var particles = $('particles');
     var navPrev = $('navPrev'), navNext = $('navNext');
-
-    // 生成指示点
     function buildDots() {
       poolDots.innerHTML = '';
       for (var i = 0; i < pool.length; i++) {
@@ -305,7 +241,6 @@
       }
     }
     buildDots();
-
     function mkParticles() {
       particles.innerHTML = '';
       for (var i = 0; i < 18; i++) {
@@ -318,62 +253,34 @@
       }
     }
     mkParticles();
-
     function updateArrows() {
       navPrev.classList.toggle('hidden', idx === 0);
       navNext.classList.toggle('hidden', idx === pool.length - 1);
     }
-
-    // 道具卡没有图片时用CSS渐变占位
     function getCardBg(c) {
       if (c.img) return '';
-      var gradients = {
-        warm: 'linear-gradient(135deg, #FFF5E8, #FFE0C0 40%, #FFD4A8 80%, #FFC890)',
-        cold: 'linear-gradient(135deg, #1a1520, #2a1a30 40%, #351a35 80%, #201525)',
-        soft: 'linear-gradient(135deg, #FFF0F8, #FFD8E8 40%, #FFC0D8 80%, #FFB0D0)',
-        dark: 'linear-gradient(135deg, #1a1018, #2a1520 40%, #351828 80%, #201018)'
-      };
-      return gradients[c.theme] || gradients.warm;
+      var g = { warm:'linear-gradient(135deg,#FFF5E8,#FFE0C0 40%,#FFD4A8 80%,#FFC890)', cold:'linear-gradient(135deg,#1a1520,#2a1a30 40%,#351a35 80%,#201525)', soft:'linear-gradient(135deg,#FFF0F8,#FFD8E8 40%,#FFC0D8 80%,#FFB0D0)', dark:'linear-gradient(135deg,#1a1018,#2a1520 40%,#351828 80%,#201018)' };
+      return g[c.theme] || g.warm;
     }
-
     function show(i) {
       var c = pool[i]; idx = i;
       bgLayer.className = 'bg-layer ' + c.theme;
-      var bgColors = { warm:'#FFF8F3', cold:'#1a1115', soft:'#FFF5F8', dark:'#1a1018' };
-      document.body.style.background = bgColors[c.theme] || '#FFF8F3';
-
-      if (c.img) {
-        cardImg.src = c.img;
-        cardImg.style.display = 'block';
-        cardImg.style.background = '';
-      } else {
-        cardImg.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-        cardImg.style.background = getCardBg(c);
-        cardImg.style.display = 'block';
-      }
-
+      var bgC = { warm:'#FFF8F3', cold:'#1a1115', soft:'#FFF5F8', dark:'#1a1018' };
+      document.body.style.background = bgC[c.theme] || '#FFF8F3';
+      if (c.img) { cardImg.src = c.img; cardImg.style.background = ''; }
+      else { cardImg.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; cardImg.style.background = getCardBg(c); }
       cardName.textContent = c.name;
       cardSub.textContent = c.sub;
       typeBadge.textContent = typeLabels[c.type] || '';
       rarityBadge.textContent = c.rarity;
       rarityBadge.className = 'rarity-badge ' + c.rarity.toLowerCase();
-
-      if (c.effect) {
-        cardEffect.textContent = c.effect;
-        cardEffect.style.display = 'inline-block';
-      } else {
-        cardEffect.style.display = 'none';
-      }
-
+      if (c.effect) { cardEffect.textContent = c.effect; cardEffect.style.display = 'inline-block'; } else { cardEffect.style.display = 'none'; }
       var s=''; for(var j=0;j<c.stars;j++) s+='<svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg>';
       starRow.innerHTML = s;
-
       var dots = poolDots.querySelectorAll('.pool-dot');
       dots.forEach(function(d,j) { d.classList.toggle('active', j===i); });
-      updateArrows();
-      mkParticles();
+      updateArrows(); mkParticles();
     }
-
     function goTo(nextIdx, direction) {
       if (switching || nextIdx < 0 || nextIdx >= pool.length) return;
       switching = true;
@@ -389,12 +296,8 @@
         setTimeout(function() { switching = false; }, 350);
       }, 250);
     }
-
-    // 箭头点击
     navPrev.addEventListener('click', function() { goTo(idx - 1, 'prev'); });
     navNext.addEventListener('click', function() { goTo(idx + 1, 'next'); });
-
-    // 指示点点击（事件委托）
     poolDots.addEventListener('click', function(e) {
       var dot = e.target.closest('.pool-dot');
       if (!dot) return;
@@ -402,66 +305,36 @@
       if (i === idx) return;
       goTo(i, i > idx ? 'next' : 'prev');
     });
-
-    // body级别滑动手势
     var touchStartX = 0, touchStartY = 0, touchStartTime = 0, touchTracking = false;
-
     document.body.addEventListener('touchstart', function(e) {
       if (overlay.classList.contains('active')) return;
       var t = e.target;
       if (t.closest && (t.closest('.pull-btn') || t.closest('.dock-item') || t.closest('.back-btn') || t.closest('.nav-arrow'))) return;
-      touchStartX = e.touches[0].clientX;
-      touchStartY = e.touches[0].clientY;
-      touchStartTime = Date.now();
-      touchTracking = true;
+      touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY; touchStartTime = Date.now(); touchTracking = true;
     }, false);
-
     document.body.addEventListener('touchmove', function(e) {
       if (!touchTracking) return;
-      var dx = e.touches[0].clientX - touchStartX;
-      var dy = e.touches[0].clientY - touchStartY;
-      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 15) {
-        e.preventDefault();
-      }
+      var dx = e.touches[0].clientX - touchStartX, dy = e.touches[0].clientY - touchStartY;
+      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 15) e.preventDefault();
     }, { passive: false });
-
     document.body.addEventListener('touchend', function(e) {
-      if (!touchTracking) return;
-      touchTracking = false;
+      if (!touchTracking) return; touchTracking = false;
       if (overlay.classList.contains('active')) return;
-      var dx = e.changedTouches[0].clientX - touchStartX;
-      var dy = e.changedTouches[0].clientY - touchStartY;
-      var dt = Date.now() - touchStartTime;
+      var dx = e.changedTouches[0].clientX - touchStartX, dy = e.changedTouches[0].clientY - touchStartY, dt = Date.now() - touchStartTime;
       if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) && dt < 500) {
-        if (dx < 0) goTo(idx + 1, 'next');
-        else goTo(idx - 1, 'prev');
+        if (dx < 0) goTo(idx + 1, 'next'); else goTo(idx - 1, 'prev');
       }
     }, false);
-
-    // ===== 加权随机抽卡 =====
     function weightedRandom() {
-      var total = 0;
-      for (var i = 0; i < pool.length; i++) total += pool[i].weight;
+      var total = 0; for (var i = 0; i < pool.length; i++) total += pool[i].weight;
       var r = Math.random() * total;
-      for (var i = 0; i < pool.length; i++) {
-        r -= pool[i].weight;
-        if (r <= 0) return pool[i];
-      }
+      for (var i = 0; i < pool.length; i++) { r -= pool[i].weight; if (r <= 0) return pool[i]; }
       return pool[pool.length - 1];
     }
-
-    // 抽卡
     function pull() {
       result = weightedRandom();
-
-      if (result.img) {
-        revealImg.src = result.img;
-        revealImg.style.background = '';
-      } else {
-        revealImg.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-        revealImg.style.background = getCardBg(result);
-      }
-
+      if (result.img) { revealImg.src = result.img; revealImg.style.background = ''; }
+      else { revealImg.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; revealImg.style.background = getCardBg(result); }
       envelope.style.animation = 'none'; envelope.offsetHeight; envelope.style.animation = '';
       envFlap.classList.remove('opened');
       envFlap.className = 'env-flap ' + result.theme + '-env';
@@ -469,55 +342,32 @@
       seal.className = 'wax-seal ' + result.theme + '-seal';
       seal.style.animation = 'none'; seal.offsetHeight; seal.style.animation = '';
       tapHint.style.animation = 'none'; tapHint.offsetHeight; tapHint.style.animation = '';
-      cardReveal.classList.remove('show');
-      revealInfo.classList.remove('show');
-      confirmBtn.classList.remove('show');
+      cardReveal.classList.remove('show'); revealInfo.classList.remove('show'); confirmBtn.classList.remove('show');
       envScene.style.display = 'flex';
-
       overlay.className = 'pull-overlay active';
-      ready = false;
-      setTimeout(function() { ready = true; }, 1900);
+      ready = false; setTimeout(function() { ready = true; }, 1900);
     }
-
     function openEnv() {
-      if(!ready) return;
-      ready = false;
+      if(!ready) return; ready = false;
       seal.classList.add('broken');
       setTimeout(function() { envFlap.classList.add('opened'); }, 250);
       setTimeout(function() {
-        envScene.style.display = 'none';
-        cardReveal.classList.add('show');
-        for(var i=0;i<18;i++){
-          var p = document.createElement('div');
-          p.className = 'petal '+result.theme+'-p';
-          p.style.left = Math.random()*100+'%';
-          p.style.top = '-10px';
-          overlay.appendChild(p);
-          (function(el){ setTimeout(function(){el.classList.add('go')}, Math.random()*500); setTimeout(function(){el.remove()}, 4000); })(p);
-        }
+        envScene.style.display = 'none'; cardReveal.classList.add('show');
+        for(var i=0;i<18;i++){ var p=document.createElement('div'); p.className='petal '+result.theme+'-p'; p.style.left=Math.random()*100+'%'; p.style.top='-10px'; overlay.appendChild(p); (function(el){setTimeout(function(){el.classList.add('go')},Math.random()*500);setTimeout(function(){el.remove()},4000);})(p); }
       }, 700);
       setTimeout(function() {
-        rName.textContent = result.name;
-        rSub.textContent = result.sub;
-        rEffect.textContent = result.effect || '';
-        rEffect.style.display = result.effect ? 'block' : 'none';
+        rName.textContent = result.name; rSub.textContent = result.sub;
+        rEffect.textContent = result.effect || ''; rEffect.style.display = result.effect ? 'block' : 'none';
         var s=''; for(var j=0;j<result.stars;j++) s+='<svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg>';
-        rStars.innerHTML = s;
-        revealInfo.classList.add('show');
+        rStars.innerHTML = s; revealInfo.classList.add('show');
       }, 1600);
       setTimeout(function() { confirmBtn.classList.add('show'); }, 2200);
     }
-
     envelope.addEventListener('click', openEnv);
     envelope.addEventListener('touchend', function(e) { e.preventDefault(); openEnv(); });
-
     $('pullOne').addEventListener('click', function() { pull(); });
     $('pullTen').addEventListener('click', function() { pull(); });
-
-    confirmBtn.addEventListener('click', function() {
-      overlay.className = 'pull-overlay';
-      overlay.querySelectorAll('.petal').forEach(function(p){p.remove()});
-    });
+    confirmBtn.addEventListener('click', function() { overlay.className = 'pull-overlay'; overlay.querySelectorAll('.petal').forEach(function(p){p.remove();}); });
   </script>
 </body>
 </html>

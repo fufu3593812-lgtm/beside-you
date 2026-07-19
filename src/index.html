@@ -417,18 +417,18 @@
   </div>
 
   <script>
+    var CDN = 'https://cdn.jsdelivr.net/gh/fufu3593812-lgtm/beside-you@main/assets/';
+
     (function() {
-      // 角色图 - 懒加载
       var charImg = document.getElementById('charImg');
       var outfitImg = localStorage.getItem('bsy_outfit_img');
-      var charSrc = (outfitImg && outfitImg.length > 0) ? outfitImg : '../assets/%E7%9D%A1%E8%A3%99.png';
+      var charSrc = (outfitImg && outfitImg.length > 0) ? outfitImg : CDN + '%E7%9D%A1%E8%A3%99.png';
       charImg.onload = function() { charImg.classList.add('loaded'); };
       charImg.src = charSrc;
 
-      // 背景图 - 懒加载，先显示CSS渐变
       var bgRoom = document.getElementById('bgRoom');
       var bgImg = localStorage.getItem('bsy_bg');
-      var bgSrc = (bgImg && bgImg.length > 0) ? bgImg : '../assets/%E5%8D%A7%E5%AE%A4.png';
+      var bgSrc = (bgImg && bgImg.length > 0) ? bgImg : CDN + '%E5%8D%A7%E5%AE%A4.png';
       var img = new Image();
       img.onload = function() {
         img.classList.add('loaded');

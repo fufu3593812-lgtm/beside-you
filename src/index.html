@@ -321,8 +321,8 @@
   </style>
 </head>
 <body>
-  <img class="bg-room" src="../assets/%E5%8D%A7%E5%AE%A4.png" alt="卧室">
-  <img class="character fade-in" src="../assets/%E7%9D%A1%E8%A3%99.png" alt="珩">
+  <img class="bg-room" id="bgRoom" src="../assets/%E5%8D%A7%E5%AE%A4.png" alt="卧室">
+  <img class="character fade-in" id="charImg" src="../assets/%E7%9D%A1%E8%A3%99.png" alt="珩">
 
   <div class="top-left fade-in fade-in-delay-1">
     <div class="greet" id="greet-text">Good evening,</div>
@@ -403,6 +403,14 @@
   </div>
 
   <script>
+    (function() {
+      // 读取换装数据
+      var outfitImg = localStorage.getItem('bsy_outfit_img');
+      var bgImg = localStorage.getItem('bsy_bg');
+      if (outfitImg) document.getElementById('charImg').src = outfitImg;
+      if (bgImg) document.getElementById('bgRoom').src = bgImg;
+    })();
+
     (function() {
       var hour = new Date().getHours();
       var greetEl = document.getElementById('greet-text');

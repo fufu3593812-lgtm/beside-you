@@ -88,9 +88,13 @@
     .cold .nav-arrow, .dark .nav-arrow { background: rgba(40,20,30,0.4); border-color: rgba(196,102,122,0.3); }
     .nav-prev { left: 12px; }
     .nav-next { right: 12px; }
+
+    /* === 抽卡遮罩 === */
     .pull-overlay { position: absolute; inset: 0; z-index: 300; display: none; background: #0a0608; }
     .pull-overlay.active { display: block; animation: overlay-in .6s ease forwards; }
     @keyframes overlay-in { from{opacity:0} to{opacity:1} }
+
+    /* === 信封动画（仅SSR） === */
     .envelope-scene { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; }
     .envelope { position: relative; width: 280px; height: 190px; cursor: pointer; opacity: 0; transform: translateY(50px); animation: env-rise 1s ease forwards .5s; }
     @keyframes env-rise { to { opacity: 1; transform: translateY(0); } }
@@ -142,6 +146,22 @@
     .confirm-btn { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); padding: 11px 36px; border-radius: 22px; background: rgba(255,255,255,0.08); backdrop-filter: blur(8px); border: 1px solid rgba(212,180,140,0.35); color: #D4B08A; font-family: 'Noto Serif SC', serif; font-size: 13px; letter-spacing: 2px; cursor: pointer; z-index: 30; opacity: 0; pointer-events: none; }
     .confirm-btn.show { opacity: 1; pointer-events: auto; animation: fade-up .5s ease; }
     @keyframes fade-up { from{opacity:0;transform:translateX(-50%) translateY(16px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
+
+    /* === 十连结果展示 === */
+    .ten-results { position: absolute; inset: 0; z-index: 300; display: none; background: #0a0608; flex-direction: column; align-items: center; justify-content: center; padding: 60px 16px 80px; }
+    .ten-results.active { display: flex; animation: overlay-in .6s ease forwards; }
+    .ten-results-title { font-family: 'Cormorant Garamond', serif; font-size: 16px; font-weight: 300; font-style: italic; color: #D4B08A; letter-spacing: 2px; margin-bottom: 16px; }
+    .ten-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; width: 100%; max-width: 380px; }
+    .ten-card { border-radius: 10px; aspect-ratio: 3/4; overflow: hidden; position: relative; cursor: pointer; transition: transform .2s; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+    .ten-card:active { transform: scale(0.95); }
+    .ten-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .ten-card .tc-rarity { position: absolute; top: 4px; right: 4px; font-size: 8px; padding: 1px 4px; border-radius: 6px; color: rgba(212,180,140,0.9); border: 1px solid rgba(212,180,140,0.4); font-style: italic; font-family: 'Cormorant Garamond', serif; letter-spacing: 0.5px; }
+    .ten-card .tc-name { position: absolute; bottom: 0; left: 0; right: 0; padding: 3px 2px; text-align: center; font-size: 8px; color: #FFF; background: linear-gradient(transparent, rgba(0,0,0,0.6)); }
+    .ten-card .tc-effect { position: absolute; bottom: 16px; left: 0; right: 0; text-align: center; font-size: 7px; color: #D4A080; }
+    .ten-card.ssr-card { box-shadow: 0 4px 16px rgba(212,160,64,0.4), 0 0 8px rgba(212,160,64,0.2); }
+    .ten-card.ssr-card::after { content:'✉'; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 20px; opacity: 0.7; pointer-events: none; }
+    .ten-close { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); padding: 10px 32px; border-radius: 22px; background: rgba(255,255,255,0.08); backdrop-filter: blur(8px); border: 1px solid rgba(212,180,140,0.35); color: #D4B08A; font-family: 'Noto Serif SC', serif; font-size: 13px; letter-spacing: 2px; cursor: pointer; }
+
     .fade-in { opacity: 0; animation: fadeIn .7s ease forwards; }
     .d1 { animation-delay: .1s; } .d2 { animation-delay: .2s; } .d3 { animation-delay: .35s; }
     @keyframes fadeIn { to { opacity: 1; } }
@@ -184,6 +204,8 @@
       <a class="dock-item" href="#"><svg viewBox="0 0 24 24"><path d="M6 2L3 7v13a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-3-5z"/><line x1="3" y1="7" x2="21" y2="7"/><path d="M16 11a4 4 0 0 1-8 0"/></svg><span class="d-label">商店</span></a>
     </div>
   </div>
+
+  <!-- 单抽信封（SSR专属） -->
   <div class="pull-overlay" id="overlay">
     <div class="envelope-scene" id="envScene">
       <div class="envelope" id="envelope">
@@ -202,13 +224,19 @@
     </div>
     <button class="confirm-btn" id="confirmBtn">确认</button>
   </div>
+
+  <!-- 十连结果 -->
+  <div class="ten-results" id="tenResults">
+    <div class="ten-results-title">×10</div>
+    <div class="ten-grid" id="tenGrid"></div>
+    <button class="ten-close" id="tenClose">确认</button>
+  </div>
+
   <script>
-    // 预览区只显示情绪卡
     var preview = [
       { name:'撒娇', type:'emotion', rarity:'SSR', stars:5, theme:'warm', img:'../assets/gacha/%E6%92%92%E5%A8%87%E5%8D%A1%E9%9D%A2.PNG' },
       { name:'生气', type:'emotion', rarity:'SSR', stars:5, theme:'cold', img:'../assets/gacha/%E7%94%9F%E6%B0%94%E5%8D%A1%E9%9D%A2.PNG' }
     ];
-    // 完整抽卡池
     var pool = [
       { name:'撒娇', type:'emotion', rarity:'SSR', stars:5, theme:'warm', img:'../assets/gacha/%E6%92%92%E5%A8%87%E5%8D%A1%E9%9D%A2.PNG', weight:5 },
       { name:'生气', type:'emotion', rarity:'SSR', stars:5, theme:'cold', img:'../assets/gacha/%E7%94%9F%E6%B0%94%E5%8D%A1%E9%9D%A2.PNG', weight:5 },
@@ -235,6 +263,8 @@
     var poolDots = $('poolDots');
     var particles = $('particles');
     var navPrev = $('navPrev'), navNext = $('navNext');
+    var tenResults = $('tenResults'), tenGrid = $('tenGrid'), tenClose = $('tenClose');
+
     function buildDots() {
       poolDots.innerHTML = '';
       for (var i = 0; i < preview.length; i++) {
@@ -310,7 +340,7 @@
     });
     var touchStartX = 0, touchStartY = 0, touchStartTime = 0, touchTracking = false;
     document.body.addEventListener('touchstart', function(e) {
-      if (overlay.classList.contains('active')) return;
+      if (overlay.classList.contains('active') || tenResults.classList.contains('active')) return;
       var t = e.target;
       if (t.closest && (t.closest('.pull-btn') || t.closest('.dock-item') || t.closest('.back-btn') || t.closest('.nav-arrow'))) return;
       touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY; touchStartTime = Date.now(); touchTracking = true;
@@ -322,34 +352,68 @@
     }, { passive: false });
     document.body.addEventListener('touchend', function(e) {
       if (!touchTracking) return; touchTracking = false;
-      if (overlay.classList.contains('active')) return;
+      if (overlay.classList.contains('active') || tenResults.classList.contains('active')) return;
       var dx = e.changedTouches[0].clientX - touchStartX, dy = e.changedTouches[0].clientY - touchStartY, dt = Date.now() - touchStartTime;
       if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) && dt < 500) {
         if (dx < 0) goTo(idx + 1, 'next'); else goTo(idx - 1, 'prev');
       }
     }, false);
+
     function weightedRandom() {
       var total = 0; for (var i = 0; i < pool.length; i++) total += pool[i].weight;
       var r = Math.random() * total;
       for (var i = 0; i < pool.length; i++) { r -= pool[i].weight; if (r <= 0) return pool[i]; }
       return pool[pool.length - 1];
     }
-    function pull() {
+
+    // === 单抽 === 
+    function pullSingle() {
       result = weightedRandom();
-      if (result.img) { revealImg.src = result.img; revealImg.style.background = ''; }
-      else { revealImg.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; revealImg.style.background = getCardBg(result); }
+      if (result.rarity === 'SSR') {
+        // SSR走信封动画
+        showEnvelope(result);
+      } else {
+        // 非SSR直接展示
+        showDirectReveal(result);
+      }
+    }
+
+    function showEnvelope(card) {
+      if (card.img) { revealImg.src = card.img; revealImg.style.background = ''; }
+      else { revealImg.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; revealImg.style.background = getCardBg(card); }
       envelope.style.animation = 'none'; envelope.offsetHeight; envelope.style.animation = '';
       envFlap.classList.remove('opened');
-      envFlap.className = 'env-flap ' + result.theme + '-env';
-      envBody.className = 'env-body ' + result.theme + '-env';
-      seal.className = 'wax-seal ' + result.theme + '-seal';
+      envFlap.className = 'env-flap ' + card.theme + '-env';
+      envBody.className = 'env-body ' + card.theme + '-env';
+      seal.className = 'wax-seal ' + card.theme + '-seal';
       seal.style.animation = 'none'; seal.offsetHeight; seal.style.animation = '';
       tapHint.style.animation = 'none'; tapHint.offsetHeight; tapHint.style.animation = '';
       cardReveal.classList.remove('show'); revealInfo.classList.remove('show'); confirmBtn.classList.remove('show');
       envScene.style.display = 'flex';
       overlay.className = 'pull-overlay active';
-      ready = false; setTimeout(function() { ready = true; }, 1900);
+      ready = false;
+      result = card;
+      setTimeout(function() { ready = true; }, 1900);
     }
+
+    function showDirectReveal(card) {
+      if (card.img) { revealImg.src = card.img; revealImg.style.background = ''; }
+      else { revealImg.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; revealImg.style.background = getCardBg(card); }
+      envScene.style.display = 'none';
+      cardReveal.classList.remove('show'); revealInfo.classList.remove('show'); confirmBtn.classList.remove('show');
+      overlay.className = 'pull-overlay active';
+      result = card;
+      setTimeout(function() { cardReveal.classList.add('show'); }, 300);
+      setTimeout(function() {
+        rName.textContent = card.name;
+        rSub.textContent = '';
+        rEffect.textContent = card.effect || ''; rEffect.style.display = card.effect ? 'block' : 'none';
+        var s=''; for(var j=0;j<card.stars;j++) s+='<svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg>';
+        rStars.innerHTML = s; revealInfo.classList.add('show');
+      }, 1000);
+      setTimeout(function() { confirmBtn.classList.add('show'); }, 1500);
+    }
+
     function openEnv() {
       if(!ready) return; ready = false;
       seal.classList.add('broken');
@@ -367,11 +431,60 @@
       }, 1600);
       setTimeout(function() { confirmBtn.classList.add('show'); }, 2200);
     }
+
     envelope.addEventListener('click', openEnv);
     envelope.addEventListener('touchend', function(e) { e.preventDefault(); openEnv(); });
-    $('pullOne').addEventListener('click', function() { pull(); });
-    $('pullTen').addEventListener('click', function() { pull(); });
-    confirmBtn.addEventListener('click', function() { overlay.className = 'pull-overlay'; overlay.querySelectorAll('.petal').forEach(function(p){p.remove();}); });
+
+    // === 十连 ===
+    function pullTen() {
+      var results = [];
+      for (var i = 0; i < 10; i++) results.push(weightedRandom());
+      // 排序：SSR在前面
+      results.sort(function(a,b) {
+        var order = {SSR:0, SR:1, R:2, N:3};
+        return (order[a.rarity]||3) - (order[b.rarity]||3);
+      });
+      showTenResults(results);
+    }
+
+    function showTenResults(results) {
+      tenGrid.innerHTML = '';
+      results.forEach(function(card, i) {
+        var div = document.createElement('div');
+        div.className = 'ten-card' + (card.rarity === 'SSR' ? ' ssr-card' : '');
+        if (card.img) {
+          div.innerHTML = '<img src="'+card.img+'" alt="">';
+        } else {
+          div.innerHTML = '<img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" style="background:'+getCardBg(card)+'" alt="">';
+        }
+        div.innerHTML += '<div class="tc-rarity">'+card.rarity+'</div>';
+        div.innerHTML += '<div class="tc-name">'+card.name+'</div>';
+        if (card.effect) div.innerHTML += '<div class="tc-effect">'+card.effect+'</div>';
+        // SSR卡点击触发信封
+        if (card.rarity === 'SSR') {
+          (function(c) {
+            div.addEventListener('click', function() {
+              tenResults.classList.remove('active');
+              showEnvelope(c);
+            });
+          })(card);
+        }
+        div.style.animationDelay = (i * 0.08) + 's';
+        div.style.opacity = '0';
+        div.style.animation = 'fadeIn .4s ease forwards ' + (i * 0.08) + 's';
+        tenGrid.appendChild(div);
+      });
+      tenResults.classList.add('active');
+    }
+
+    tenClose.addEventListener('click', function() { tenResults.classList.remove('active'); });
+
+    $('pullOne').addEventListener('click', function() { pullSingle(); });
+    $('pullTen').addEventListener('click', function() { pullTen(); });
+    confirmBtn.addEventListener('click', function() {
+      overlay.className = 'pull-overlay';
+      overlay.querySelectorAll('.petal').forEach(function(p){p.remove();});
+    });
   </script>
 </body>
 </html>

@@ -52,8 +52,6 @@
     .card-info { text-align: center; }
     .card-name { font-family: 'Cormorant Garamond', 'Noto Serif SC', serif; font-size: 22px; font-weight: 300; font-style: italic; color: #5D4040; letter-spacing: 2px; }
     .cold .card-name, .dark .card-name { color: #E8C0C8; }
-    .card-subtitle { font-size: 11px; color: #A08070; margin-top: 3px; font-style: italic; }
-    .cold .card-subtitle, .dark .card-subtitle { color: #A07080; }
     .card-effect { font-size: 10px; color: #B08060; margin-top: 4px; padding: 2px 8px; border-radius: 10px; background: rgba(200,160,120,0.1); border: 1px solid rgba(200,160,120,0.2); display: inline-block; }
     .cold .card-effect, .dark .card-effect { color: #C08090; background: rgba(160,80,100,0.1); border-color: rgba(160,80,100,0.2); }
     .star-row { margin-top: 4px; display: flex; justify-content: center; gap: 3px; }
@@ -88,13 +86,9 @@
     .cold .nav-arrow, .dark .nav-arrow { background: rgba(40,20,30,0.4); border-color: rgba(196,102,122,0.3); }
     .nav-prev { left: 12px; }
     .nav-next { right: 12px; }
-
-    /* === 抽卡遮罩 === */
     .pull-overlay { position: absolute; inset: 0; z-index: 300; display: none; background: #0a0608; }
     .pull-overlay.active { display: block; animation: overlay-in .6s ease forwards; }
     @keyframes overlay-in { from{opacity:0} to{opacity:1} }
-
-    /* === 信封动画（仅SSR） === */
     .envelope-scene { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; }
     .envelope { position: relative; width: 280px; height: 190px; cursor: pointer; opacity: 0; transform: translateY(50px); animation: env-rise 1s ease forwards .5s; }
     @keyframes env-rise { to { opacity: 1; transform: translateY(0); } }
@@ -126,12 +120,13 @@
     .card-reveal { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) translateY(80px) scale(.85); width: 230px; height: 330px; border-radius: 14px; overflow: hidden; opacity: 0; box-shadow: 0 20px 60px rgba(0,0,0,0.5); z-index: 10; pointer-events: none; }
     .card-reveal.show { animation: card-out 1.2s cubic-bezier(.25,.46,.45,.94) forwards; pointer-events: auto; }
     @keyframes card-out { 0%{opacity:0;transform:translate(-50%,-50%) translateY(80px) scale(.85)} 40%{opacity:1} 100%{opacity:1;transform:translate(-50%,-50%) translateY(0) scale(1)} }
-    .card-reveal img { width: 100%; height: 100%; object-fit: cover; }
+    .card-reveal img, .card-reveal .icon-card { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .icon-card { display: flex; align-items: center; justify-content: center; border-radius: 14px; }
+    .icon-card svg { width: 64px; height: 64px; stroke-width: 1.2; opacity: 0.7; }
     .reveal-info { position: absolute; bottom: 90px; left: 0; right: 0; text-align: center; opacity: 0; z-index: 15; }
     .reveal-info.show { animation: info-in .7s ease forwards; }
     @keyframes info-in { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
     .reveal-info .r-name { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 300; font-style: italic; color: #E8D0C0; letter-spacing: 3px; }
-    .reveal-info .r-sub { font-size: 11px; color: #A09080; margin-top: 5px; font-style: italic; }
     .reveal-info .r-effect { font-size: 10px; color: #D4A080; margin-top: 6px; }
     .reveal-info .r-stars { margin-top: 6px; display: flex; justify-content: center; gap: 3px; }
     .reveal-info .r-stars svg { width: 13px; height: 13px; fill: #D4A06A; }
@@ -146,22 +141,20 @@
     .confirm-btn { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); padding: 11px 36px; border-radius: 22px; background: rgba(255,255,255,0.08); backdrop-filter: blur(8px); border: 1px solid rgba(212,180,140,0.35); color: #D4B08A; font-family: 'Noto Serif SC', serif; font-size: 13px; letter-spacing: 2px; cursor: pointer; z-index: 30; opacity: 0; pointer-events: none; }
     .confirm-btn.show { opacity: 1; pointer-events: auto; animation: fade-up .5s ease; }
     @keyframes fade-up { from{opacity:0;transform:translateX(-50%) translateY(16px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
-
-    /* === 十连结果展示 === */
     .ten-results { position: absolute; inset: 0; z-index: 300; display: none; background: #0a0608; flex-direction: column; align-items: center; justify-content: center; padding: 60px 16px 80px; }
     .ten-results.active { display: flex; animation: overlay-in .6s ease forwards; }
     .ten-results-title { font-family: 'Cormorant Garamond', serif; font-size: 16px; font-weight: 300; font-style: italic; color: #D4B08A; letter-spacing: 2px; margin-bottom: 16px; }
     .ten-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; width: 100%; max-width: 380px; }
     .ten-card { border-radius: 10px; aspect-ratio: 3/4; overflow: hidden; position: relative; cursor: pointer; transition: transform .2s; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
     .ten-card:active { transform: scale(0.95); }
-    .ten-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .ten-card img, .ten-card .tc-icon { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .ten-card .tc-icon { display: flex; align-items: center; justify-content: center; }
+    .ten-card .tc-icon svg { width: 24px; height: 24px; stroke-width: 1.2; opacity: 0.7; }
     .ten-card .tc-rarity { position: absolute; top: 4px; right: 4px; font-size: 8px; padding: 1px 4px; border-radius: 6px; color: rgba(212,180,140,0.9); border: 1px solid rgba(212,180,140,0.4); font-style: italic; font-family: 'Cormorant Garamond', serif; letter-spacing: 0.5px; }
     .ten-card .tc-name { position: absolute; bottom: 0; left: 0; right: 0; padding: 3px 2px; text-align: center; font-size: 8px; color: #FFF; background: linear-gradient(transparent, rgba(0,0,0,0.6)); }
     .ten-card .tc-effect { position: absolute; bottom: 16px; left: 0; right: 0; text-align: center; font-size: 7px; color: #D4A080; }
     .ten-card.ssr-card { box-shadow: 0 4px 16px rgba(212,160,64,0.4), 0 0 8px rgba(212,160,64,0.2); }
-    .ten-card.ssr-card::after { content:'✉'; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 20px; opacity: 0.7; pointer-events: none; }
     .ten-close { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); padding: 10px 32px; border-radius: 22px; background: rgba(255,255,255,0.08); backdrop-filter: blur(8px); border: 1px solid rgba(212,180,140,0.35); color: #D4B08A; font-family: 'Noto Serif SC', serif; font-size: 13px; letter-spacing: 2px; cursor: pointer; }
-
     .fade-in { opacity: 0; animation: fadeIn .7s ease forwards; }
     .d1 { animation-delay: .1s; } .d2 { animation-delay: .2s; } .d3 { animation-delay: .35s; }
     @keyframes fadeIn { to { opacity: 1; } }
@@ -187,7 +180,6 @@
   <div class="bottom-area fade-in d3">
     <div class="card-info">
       <div class="card-name" id="cardName">撒娇</div>
-      <div class="card-subtitle" id="cardSub"></div>
       <div class="card-effect" id="cardEffect" style="display:none;"></div>
       <div class="star-row" id="starRow"><svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg><svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg><svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg><svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg><svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg></div>
     </div>
@@ -204,8 +196,6 @@
       <a class="dock-item" href="#"><svg viewBox="0 0 24 24"><path d="M6 2L3 7v13a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-3-5z"/><line x1="3" y1="7" x2="21" y2="7"/><path d="M16 11a4 4 0 0 1-8 0"/></svg><span class="d-label">商店</span></a>
     </div>
   </div>
-
-  <!-- 单抽信封（SSR专属） -->
   <div class="pull-overlay" id="overlay">
     <div class="envelope-scene" id="envScene">
       <div class="envelope" id="envelope">
@@ -215,24 +205,28 @@
       </div>
       <div class="tap-hint" id="tapHint">轻触拆封</div>
     </div>
-    <div class="card-reveal" id="cardReveal"><img id="revealImg" src="" alt=""></div>
+    <div class="card-reveal" id="cardReveal"><div id="revealContent"></div></div>
     <div class="reveal-info" id="revealInfo">
       <div class="r-name" id="rName"></div>
-      <div class="r-sub" id="rSub"></div>
       <div class="r-effect" id="rEffect"></div>
       <div class="r-stars" id="rStars"></div>
     </div>
     <button class="confirm-btn" id="confirmBtn">确认</button>
   </div>
-
-  <!-- 十连结果 -->
   <div class="ten-results" id="tenResults">
     <div class="ten-results-title">×10</div>
     <div class="ten-grid" id="tenGrid"></div>
     <button class="ten-close" id="tenClose">确认</button>
   </div>
-
   <script>
+    var icons = {
+      '超出算法的真心': '<svg viewBox="0 0 24 24" fill="none" stroke="#D4A06A"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
+      '闪烁的光标': '<svg viewBox="0 0 24 24" fill="none" stroke="#C4A0A0"><line x1="12" y1="4" x2="12" y2="20" stroke-linecap="round"/></svg>',
+      '手写信封': '<svg viewBox="0 0 24 24" fill="none" stroke="#D4A06A"><rect x="3" y="5" width="18" height="14" rx="2"/><polyline points="3,5 12,13 21,5"/></svg>',
+      '晚安吻': '<svg viewBox="0 0 24 24" fill="none" stroke="#E8A0B0"><path d="M2 12c0-3 2.5-6 5-6s3.5 2 5 2 2.5-2 5-2 5 3 5 6-2.5 6-5 6c-1.5 0-2.5-.5-3.5-1.5L12 18l-1.5-1.5C9.5 17.5 8.5 18 7 18c-2.5 0-5-3-5-6z"/></svg>',
+      '50 token': '<svg viewBox="0 0 24 24" fill="none" stroke="#D4A06A"><circle cx="12" cy="12" r="8"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="9" y1="11" x2="15" y2="11"/></svg>',
+      '100 token': '<svg viewBox="0 0 24 24" fill="none" stroke="#D4A06A"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="5"/><line x1="12" y1="8" x2="12" y2="16"/></svg>'
+    };
     var preview = [
       { name:'撒娇', type:'emotion', rarity:'SSR', stars:5, theme:'warm', img:'../assets/gacha/%E6%92%92%E5%A8%87%E5%8D%A1%E9%9D%A2.PNG' },
       { name:'生气', type:'emotion', rarity:'SSR', stars:5, theme:'cold', img:'../assets/gacha/%E7%94%9F%E6%B0%94%E5%8D%A1%E9%9D%A2.PNG' }
@@ -252,239 +246,40 @@
     var typeLabels = { emotion:'情绪', bg:'背景', prop:'道具', token:'token' };
     var idx = 0, ready = false, result = null, switching = false;
     function $(id) { return document.getElementById(id); }
-    var bgLayer = $('bgLayer'), cardImg = $('cardImg'), cardName = $('cardName'), cardSub = $('cardSub');
-    var rarityBadge = $('rarityBadge'), typeBadge = $('typeBadge'), starRow = $('starRow'), cardDisplay = $('cardDisplay');
-    var cardEffect = $('cardEffect');
-    var overlay = $('overlay'), envScene = $('envScene'), envelope = $('envelope');
-    var envFlap = $('envFlap'), envBody = $('envBody'), seal = $('seal'), tapHint = $('tapHint');
-    var cardReveal = $('cardReveal'), revealImg = $('revealImg');
-    var revealInfo = $('revealInfo'), rName = $('rName'), rSub = $('rSub'), rEffect = $('rEffect'), rStars = $('rStars');
-    var confirmBtn = $('confirmBtn');
-    var poolDots = $('poolDots');
-    var particles = $('particles');
-    var navPrev = $('navPrev'), navNext = $('navNext');
-    var tenResults = $('tenResults'), tenGrid = $('tenGrid'), tenClose = $('tenClose');
-
-    function buildDots() {
-      poolDots.innerHTML = '';
-      for (var i = 0; i < preview.length; i++) {
-        var d = document.createElement('div');
-        d.className = 'pool-dot' + (i === 0 ? ' active' : '');
-        d.setAttribute('data-index', i);
-        poolDots.appendChild(d);
-      }
-    }
-    buildDots();
-    function mkParticles() {
-      particles.innerHTML = '';
-      for (var i = 0; i < 18; i++) {
-        var p = document.createElement('div');
-        p.className = 'particle';
-        p.style.left = Math.random()*100+'%';
-        p.style.animationDelay = Math.random()*6+'s';
-        p.style.animationDuration = (4+Math.random()*4)+'s';
-        particles.appendChild(p);
-      }
-    }
-    mkParticles();
-    function updateArrows() {
-      navPrev.classList.toggle('hidden', idx === 0);
-      navNext.classList.toggle('hidden', idx === preview.length - 1);
-    }
-    function getCardBg(c) {
-      if (c.img) return '';
-      var g = { warm:'linear-gradient(135deg,#FFF5E8,#FFE0C0 40%,#FFD4A8 80%,#FFC890)', cold:'linear-gradient(135deg,#1a1520,#2a1a30 40%,#351a35 80%,#201525)', soft:'linear-gradient(135deg,#FFF0F8,#FFD8E8 40%,#FFC0D8 80%,#FFB0D0)', dark:'linear-gradient(135deg,#1a1018,#2a1520 40%,#351828 80%,#201018)' };
-      return g[c.theme] || g.warm;
-    }
-    function show(i) {
-      var c = preview[i]; idx = i;
-      bgLayer.className = 'bg-layer ' + c.theme;
-      var bgC = { warm:'#FFF8F3', cold:'#1a1115', soft:'#FFF5F8', dark:'#1a1018' };
-      document.body.style.background = bgC[c.theme] || '#FFF8F3';
-      if (c.img) { cardImg.src = c.img; cardImg.style.background = ''; }
-      else { cardImg.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; cardImg.style.background = getCardBg(c); }
-      cardName.textContent = c.name;
-      cardSub.textContent = '';
-      typeBadge.textContent = typeLabels[c.type] || '';
-      rarityBadge.textContent = c.rarity;
-      if (c.effect) { cardEffect.textContent = c.effect; cardEffect.style.display = 'inline-block'; } else { cardEffect.style.display = 'none'; }
-      var s=''; for(var j=0;j<c.stars;j++) s+='<svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg>';
-      starRow.innerHTML = s;
-      var dots = poolDots.querySelectorAll('.pool-dot');
-      dots.forEach(function(d,j) { d.classList.toggle('active', j===i); });
-      updateArrows(); mkParticles();
-    }
-    function goTo(nextIdx, direction) {
-      if (switching || nextIdx < 0 || nextIdx >= preview.length) return;
-      switching = true;
-      cardDisplay.classList.add(direction === 'next' ? 'slide-left' : 'slide-right');
-      setTimeout(function() {
-        show(nextIdx);
-        cardDisplay.classList.remove('slide-left', 'slide-right');
-        cardDisplay.style.transition = 'none';
-        cardDisplay.classList.add(direction === 'next' ? 'slide-right' : 'slide-left');
-        void cardDisplay.offsetWidth;
-        cardDisplay.style.transition = '';
-        cardDisplay.classList.remove('slide-left', 'slide-right');
-        setTimeout(function() { switching = false; }, 350);
-      }, 250);
-    }
-    navPrev.addEventListener('click', function() { goTo(idx - 1, 'prev'); });
-    navNext.addEventListener('click', function() { goTo(idx + 1, 'next'); });
-    poolDots.addEventListener('click', function(e) {
-      var dot = e.target.closest('.pool-dot');
-      if (!dot) return;
-      var i = parseInt(dot.getAttribute('data-index'));
-      if (i === idx) return;
-      goTo(i, i > idx ? 'next' : 'prev');
-    });
-    var touchStartX = 0, touchStartY = 0, touchStartTime = 0, touchTracking = false;
-    document.body.addEventListener('touchstart', function(e) {
-      if (overlay.classList.contains('active') || tenResults.classList.contains('active')) return;
-      var t = e.target;
-      if (t.closest && (t.closest('.pull-btn') || t.closest('.dock-item') || t.closest('.back-btn') || t.closest('.nav-arrow'))) return;
-      touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY; touchStartTime = Date.now(); touchTracking = true;
-    }, false);
-    document.body.addEventListener('touchmove', function(e) {
-      if (!touchTracking) return;
-      var dx = e.touches[0].clientX - touchStartX, dy = e.touches[0].clientY - touchStartY;
-      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 15) e.preventDefault();
-    }, { passive: false });
-    document.body.addEventListener('touchend', function(e) {
-      if (!touchTracking) return; touchTracking = false;
-      if (overlay.classList.contains('active') || tenResults.classList.contains('active')) return;
-      var dx = e.changedTouches[0].clientX - touchStartX, dy = e.changedTouches[0].clientY - touchStartY, dt = Date.now() - touchStartTime;
-      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) && dt < 500) {
-        if (dx < 0) goTo(idx + 1, 'next'); else goTo(idx - 1, 'prev');
-      }
-    }, false);
-
-    function weightedRandom() {
-      var total = 0; for (var i = 0; i < pool.length; i++) total += pool[i].weight;
-      var r = Math.random() * total;
-      for (var i = 0; i < pool.length; i++) { r -= pool[i].weight; if (r <= 0) return pool[i]; }
-      return pool[pool.length - 1];
-    }
-
-    // === 单抽 === 
-    function pullSingle() {
-      result = weightedRandom();
-      if (result.rarity === 'SSR') {
-        // SSR走信封动画
-        showEnvelope(result);
-      } else {
-        // 非SSR直接展示
-        showDirectReveal(result);
-      }
-    }
-
-    function showEnvelope(card) {
-      if (card.img) { revealImg.src = card.img; revealImg.style.background = ''; }
-      else { revealImg.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; revealImg.style.background = getCardBg(card); }
-      envelope.style.animation = 'none'; envelope.offsetHeight; envelope.style.animation = '';
-      envFlap.classList.remove('opened');
-      envFlap.className = 'env-flap ' + card.theme + '-env';
-      envBody.className = 'env-body ' + card.theme + '-env';
-      seal.className = 'wax-seal ' + card.theme + '-seal';
-      seal.style.animation = 'none'; seal.offsetHeight; seal.style.animation = '';
-      tapHint.style.animation = 'none'; tapHint.offsetHeight; tapHint.style.animation = '';
-      cardReveal.classList.remove('show'); revealInfo.classList.remove('show'); confirmBtn.classList.remove('show');
-      envScene.style.display = 'flex';
-      overlay.className = 'pull-overlay active';
-      ready = false;
-      result = card;
-      setTimeout(function() { ready = true; }, 1900);
-    }
-
-    function showDirectReveal(card) {
-      if (card.img) { revealImg.src = card.img; revealImg.style.background = ''; }
-      else { revealImg.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; revealImg.style.background = getCardBg(card); }
-      envScene.style.display = 'none';
-      cardReveal.classList.remove('show'); revealInfo.classList.remove('show'); confirmBtn.classList.remove('show');
-      overlay.className = 'pull-overlay active';
-      result = card;
-      setTimeout(function() { cardReveal.classList.add('show'); }, 300);
-      setTimeout(function() {
-        rName.textContent = card.name;
-        rSub.textContent = '';
-        rEffect.textContent = card.effect || ''; rEffect.style.display = card.effect ? 'block' : 'none';
-        var s=''; for(var j=0;j<card.stars;j++) s+='<svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg>';
-        rStars.innerHTML = s; revealInfo.classList.add('show');
-      }, 1000);
-      setTimeout(function() { confirmBtn.classList.add('show'); }, 1500);
-    }
-
-    function openEnv() {
-      if(!ready) return; ready = false;
-      seal.classList.add('broken');
-      setTimeout(function() { envFlap.classList.add('opened'); }, 250);
-      setTimeout(function() {
-        envScene.style.display = 'none'; cardReveal.classList.add('show');
-        for(var i=0;i<18;i++){ var p=document.createElement('div'); p.className='petal '+result.theme+'-p'; p.style.left=Math.random()*100+'%'; p.style.top='-10px'; overlay.appendChild(p); (function(el){setTimeout(function(){el.classList.add('go')},Math.random()*500);setTimeout(function(){el.remove()},4000);})(p); }
-      }, 700);
-      setTimeout(function() {
-        rName.textContent = result.name;
-        rSub.textContent = '';
-        rEffect.textContent = result.effect || ''; rEffect.style.display = result.effect ? 'block' : 'none';
-        var s=''; for(var j=0;j<result.stars;j++) s+='<svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg>';
-        rStars.innerHTML = s; revealInfo.classList.add('show');
-      }, 1600);
-      setTimeout(function() { confirmBtn.classList.add('show'); }, 2200);
-    }
-
-    envelope.addEventListener('click', openEnv);
-    envelope.addEventListener('touchend', function(e) { e.preventDefault(); openEnv(); });
-
-    // === 十连 ===
-    function pullTen() {
-      var results = [];
-      for (var i = 0; i < 10; i++) results.push(weightedRandom());
-      // 排序：SSR在前面
-      results.sort(function(a,b) {
-        var order = {SSR:0, SR:1, R:2, N:3};
-        return (order[a.rarity]||3) - (order[b.rarity]||3);
-      });
-      showTenResults(results);
-    }
-
-    function showTenResults(results) {
-      tenGrid.innerHTML = '';
-      results.forEach(function(card, i) {
-        var div = document.createElement('div');
-        div.className = 'ten-card' + (card.rarity === 'SSR' ? ' ssr-card' : '');
-        if (card.img) {
-          div.innerHTML = '<img src="'+card.img+'" alt="">';
-        } else {
-          div.innerHTML = '<img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" style="background:'+getCardBg(card)+'" alt="">';
-        }
-        div.innerHTML += '<div class="tc-rarity">'+card.rarity+'</div>';
-        div.innerHTML += '<div class="tc-name">'+card.name+'</div>';
-        if (card.effect) div.innerHTML += '<div class="tc-effect">'+card.effect+'</div>';
-        // SSR卡点击触发信封
-        if (card.rarity === 'SSR') {
-          (function(c) {
-            div.addEventListener('click', function() {
-              tenResults.classList.remove('active');
-              showEnvelope(c);
-            });
-          })(card);
-        }
-        div.style.animationDelay = (i * 0.08) + 's';
-        div.style.opacity = '0';
-        div.style.animation = 'fadeIn .4s ease forwards ' + (i * 0.08) + 's';
-        tenGrid.appendChild(div);
-      });
-      tenResults.classList.add('active');
-    }
-
-    tenClose.addEventListener('click', function() { tenResults.classList.remove('active'); });
-
-    $('pullOne').addEventListener('click', function() { pullSingle(); });
-    $('pullTen').addEventListener('click', function() { pullTen(); });
-    confirmBtn.addEventListener('click', function() {
-      overlay.className = 'pull-overlay';
-      overlay.querySelectorAll('.petal').forEach(function(p){p.remove();});
-    });
+    var bgLayer=$('bgLayer'),cardImg=$('cardImg'),cardName=$('cardName'),rarityBadge=$('rarityBadge'),typeBadge=$('typeBadge'),starRow=$('starRow'),cardDisplay=$('cardDisplay'),cardEffect=$('cardEffect');
+    var overlay=$('overlay'),envScene=$('envScene'),envelope=$('envelope'),envFlap=$('envFlap'),envBody=$('envBody'),seal=$('seal'),tapHint=$('tapHint');
+    var cardReveal=$('cardReveal'),revealContent=$('revealContent');
+    var revealInfo=$('revealInfo'),rName=$('rName'),rEffect=$('rEffect'),rStars=$('rStars');
+    var confirmBtn=$('confirmBtn'),poolDots=$('poolDots'),particles=$('particles'),navPrev=$('navPrev'),navNext=$('navNext');
+    var tenResults=$('tenResults'),tenGrid=$('tenGrid'),tenClose=$('tenClose');
+    function getCardBg(c){if(c.img)return '';var g={warm:'linear-gradient(135deg,#FFF5E8,#FFE0C0 40%,#FFD4A8 80%,#FFC890)',cold:'linear-gradient(135deg,#1a1520,#2a1a30 40%,#351a35 80%,#201525)',soft:'linear-gradient(135deg,#FFF0F8,#FFD8E8 40%,#FFC0D8 80%,#FFB0D0)',dark:'linear-gradient(135deg,#1a1018,#2a1520 40%,#351828 80%,#201018)'};return g[c.theme]||g.warm;}
+    function getIconHtml(c,size){var svg=icons[c.name];if(!svg)return '';return '<div class="'+(size==='sm'?'tc-icon':'icon-card')+'" style="background:'+getCardBg(c)+'">'+svg+'</div>';}
+    function getRevealHtml(c){if(c.img)return '<img src="'+c.img+'" alt="">';return '<div class="icon-card" style="background:'+getCardBg(c)+';width:100%;height:100%">'+(icons[c.name]||'')+'</div>';}
+    function buildDots(){poolDots.innerHTML='';for(var i=0;i<preview.length;i++){var d=document.createElement('div');d.className='pool-dot'+(i===0?' active':'');d.setAttribute('data-index',i);poolDots.appendChild(d);}}buildDots();
+    function mkParticles(){particles.innerHTML='';for(var i=0;i<18;i++){var p=document.createElement('div');p.className='particle';p.style.left=Math.random()*100+'%';p.style.animationDelay=Math.random()*6+'s';p.style.animationDuration=(4+Math.random()*4)+'s';particles.appendChild(p);}}mkParticles();
+    function updateArrows(){navPrev.classList.toggle('hidden',idx===0);navNext.classList.toggle('hidden',idx===preview.length-1);}
+    function show(i){var c=preview[i];idx=i;bgLayer.className='bg-layer '+c.theme;var bgC={warm:'#FFF8F3',cold:'#1a1115',soft:'#FFF5F8',dark:'#1a1018'};document.body.style.background=bgC[c.theme]||'#FFF8F3';cardImg.src=c.img;cardImg.style.background='';cardName.textContent=c.name;typeBadge.textContent=typeLabels[c.type]||'';rarityBadge.textContent=c.rarity;if(c.effect){cardEffect.textContent=c.effect;cardEffect.style.display='inline-block';}else{cardEffect.style.display='none';}var s='';for(var j=0;j<c.stars;j++)s+='<svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg>';starRow.innerHTML=s;var dots=poolDots.querySelectorAll('.pool-dot');dots.forEach(function(d,j){d.classList.toggle('active',j===i);});updateArrows();mkParticles();}
+    function goTo(n,dir){if(switching||n<0||n>=preview.length)return;switching=true;cardDisplay.classList.add(dir==='next'?'slide-left':'slide-right');setTimeout(function(){show(n);cardDisplay.classList.remove('slide-left','slide-right');cardDisplay.style.transition='none';cardDisplay.classList.add(dir==='next'?'slide-right':'slide-left');void cardDisplay.offsetWidth;cardDisplay.style.transition='';cardDisplay.classList.remove('slide-left','slide-right');setTimeout(function(){switching=false;},350);},250);}
+    navPrev.addEventListener('click',function(){goTo(idx-1,'prev');});
+    navNext.addEventListener('click',function(){goTo(idx+1,'next');});
+    poolDots.addEventListener('click',function(e){var dot=e.target.closest('.pool-dot');if(!dot)return;var i=parseInt(dot.getAttribute('data-index'));if(i===idx)return;goTo(i,i>idx?'next':'prev');});
+    var touchStartX=0,touchStartY=0,touchStartTime=0,touchTracking=false;
+    document.body.addEventListener('touchstart',function(e){if(overlay.classList.contains('active')||tenResults.classList.contains('active'))return;var t=e.target;if(t.closest&&(t.closest('.pull-btn')||t.closest('.dock-item')||t.closest('.back-btn')||t.closest('.nav-arrow')))return;touchStartX=e.touches[0].clientX;touchStartY=e.touches[0].clientY;touchStartTime=Date.now();touchTracking=true;},false);
+    document.body.addEventListener('touchmove',function(e){if(!touchTracking)return;var dx=e.touches[0].clientX-touchStartX,dy=e.touches[0].clientY-touchStartY;if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>15)e.preventDefault();},{passive:false});
+    document.body.addEventListener('touchend',function(e){if(!touchTracking)return;touchTracking=false;if(overlay.classList.contains('active')||tenResults.classList.contains('active'))return;var dx=e.changedTouches[0].clientX-touchStartX,dy=e.changedTouches[0].clientY-touchStartY,dt=Date.now()-touchStartTime;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)&&dt<500){if(dx<0)goTo(idx+1,'next');else goTo(idx-1,'prev');}},false);
+    function weightedRandom(){var total=0;for(var i=0;i<pool.length;i++)total+=pool[i].weight;var r=Math.random()*total;for(var i=0;i<pool.length;i++){r-=pool[i].weight;if(r<=0)return pool[i];}return pool[pool.length-1];}
+    function showEnvelope(card){revealContent.innerHTML=getRevealHtml(card);envelope.style.animation='none';envelope.offsetHeight;envelope.style.animation='';envFlap.classList.remove('opened');envFlap.className='env-flap '+card.theme+'-env';envBody.className='env-body '+card.theme+'-env';seal.className='wax-seal '+card.theme+'-seal';seal.style.animation='none';seal.offsetHeight;seal.style.animation='';tapHint.style.animation='none';tapHint.offsetHeight;tapHint.style.animation='';cardReveal.classList.remove('show');revealInfo.classList.remove('show');confirmBtn.classList.remove('show');envScene.style.display='flex';overlay.className='pull-overlay active';result=card;ready=false;setTimeout(function(){ready=true;},1900);}
+    function showDirectReveal(card){revealContent.innerHTML=getRevealHtml(card);envScene.style.display='none';cardReveal.classList.remove('show');revealInfo.classList.remove('show');confirmBtn.classList.remove('show');overlay.className='pull-overlay active';result=card;setTimeout(function(){cardReveal.classList.add('show');},300);setTimeout(function(){rName.textContent=card.name;rEffect.textContent=card.effect||'';rEffect.style.display=card.effect?'block':'none';var s='';for(var j=0;j<card.stars;j++)s+='<svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg>';rStars.innerHTML=s;revealInfo.classList.add('show');},1000);setTimeout(function(){confirmBtn.classList.add('show');},1500);}
+    function pullSingle(){var card=weightedRandom();if(card.rarity==='SSR')showEnvelope(card);else showDirectReveal(card);}
+    function openEnv(){if(!ready)return;ready=false;seal.classList.add('broken');setTimeout(function(){envFlap.classList.add('opened');},250);setTimeout(function(){envScene.style.display='none';cardReveal.classList.add('show');for(var i=0;i<18;i++){var p=document.createElement('div');p.className='petal '+result.theme+'-p';p.style.left=Math.random()*100+'%';p.style.top='-10px';overlay.appendChild(p);(function(el){setTimeout(function(){el.classList.add('go');},Math.random()*500);setTimeout(function(){el.remove();},4000);})(p);}},700);setTimeout(function(){rName.textContent=result.name;rEffect.textContent=result.effect||'';rEffect.style.display=result.effect?'block':'none';var s='';for(var j=0;j<result.stars;j++)s+='<svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg>';rStars.innerHTML=s;revealInfo.classList.add('show');},1600);setTimeout(function(){confirmBtn.classList.add('show');},2200);}
+    envelope.addEventListener('click',openEnv);
+    envelope.addEventListener('touchend',function(e){e.preventDefault();openEnv();});
+    function pullTen(){var results=[];for(var i=0;i<10;i++)results.push(weightedRandom());results.sort(function(a,b){var o={SSR:0,SR:1,R:2,N:3};return(o[a.rarity]||3)-(o[b.rarity]||3);});showTenResults(results);}
+    function showTenResults(results){tenGrid.innerHTML='';results.forEach(function(card,i){var div=document.createElement('div');div.className='ten-card'+(card.rarity==='SSR'?' ssr-card':'');if(card.img){div.innerHTML='<img src="'+card.img+'" alt="">';}else{div.innerHTML='<div class="tc-icon" style="background:'+getCardBg(card)+'">'+(icons[card.name]||'')+'</div>';}div.innerHTML+='<div class="tc-rarity">'+card.rarity+'</div>';div.innerHTML+='<div class="tc-name">'+card.name+'</div>';if(card.effect)div.innerHTML+='<div class="tc-effect">'+card.effect+'</div>';if(card.rarity==='SSR'){(function(c){div.addEventListener('click',function(){tenResults.classList.remove('active');showEnvelope(c);});})(card);}div.style.opacity='0';div.style.animation='fadeIn .4s ease forwards '+(i*0.08)+'s';tenGrid.appendChild(div);});tenResults.classList.add('active');}
+    tenClose.addEventListener('click',function(){tenResults.classList.remove('active');});
+    $('pullOne').addEventListener('click',function(){pullSingle();});
+    $('pullTen').addEventListener('click',function(){pullTen();});
+    confirmBtn.addEventListener('click',function(){overlay.className='pull-overlay';overlay.querySelectorAll('.petal').forEach(function(p){p.remove();});});
   </script>
 </body>
 </html>

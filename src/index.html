@@ -404,11 +404,11 @@
 
   <script>
     (function() {
-      // 读取换装数据
+      // 读取换装数据（有值且非空才覆盖默认）
       var outfitImg = localStorage.getItem('bsy_outfit_img');
       var bgImg = localStorage.getItem('bsy_bg');
-      if (outfitImg) document.getElementById('charImg').src = outfitImg;
-      if (bgImg) document.getElementById('bgRoom').src = bgImg;
+      if (outfitImg && outfitImg.length > 0) document.getElementById('charImg').src = outfitImg;
+      if (bgImg && bgImg.length > 0) document.getElementById('bgRoom').src = bgImg;
     })();
 
     (function() {

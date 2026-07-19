@@ -33,27 +33,6 @@
       z-index: 0;
     }
 
-    body::after {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background: 
-        radial-gradient(1.5px 1.5px at 12% 18%, rgba(232, 180, 160, 0.5), transparent),
-        radial-gradient(1px 1px at 48% 8%, rgba(240, 180, 200, 0.4), transparent),
-        radial-gradient(1.5px 1.5px at 78% 45%, rgba(232, 180, 160, 0.35), transparent),
-        radial-gradient(1px 1px at 32% 62%, rgba(240, 180, 200, 0.3), transparent),
-        radial-gradient(1px 1px at 88% 28%, rgba(255, 200, 180, 0.35), transparent),
-        radial-gradient(1.5px 1.5px at 22% 82%, rgba(240, 180, 200, 0.25), transparent);
-      pointer-events: none;
-      z-index: 0;
-      animation: twinkle 3s ease-in-out infinite alternate;
-    }
-
-    @keyframes twinkle {
-      0% { opacity: 0.4; }
-      100% { opacity: 1; }
-    }
-
     .header {
       position: relative;
       height: 88px;
@@ -155,10 +134,6 @@
       height: 260px;
       border-radius: 50%;
       border: 2px solid rgba(232, 180, 180, 0.25);
-      box-shadow:
-        0 0 0 4px rgba(255, 248, 245, 0.3),
-        0 0 0 6px rgba(232, 180, 180, 0.12),
-        inset 0 0 40px rgba(245, 200, 200, 0.08);
       pointer-events: none;
     }
 
@@ -181,10 +156,10 @@
       50% { transform: translateY(-6px) scale(1.005); }
     }
 
-    .preview .decor-left,
-    .preview .decor-right {
+    .preview .decor-left {
       position: absolute;
       top: 50%;
+      left: 16px;
       transform: translateY(-50%);
       display: flex;
       flex-direction: column;
@@ -194,9 +169,6 @@
       font-size: 14px;
       color: #E0B8B8;
     }
-
-    .preview .decor-left { left: 16px; }
-    .preview .decor-right { right: 16px; }
 
     .preview .outfit-name {
       position: absolute;
@@ -214,9 +186,7 @@
       padding: 12px 6px;
       border-radius: 16px;
       border: 1px solid rgba(232, 180, 180, 0.3);
-      box-shadow: 0 2px 8px rgba(232, 160, 160, 0.08);
       z-index: 2;
-      transition: opacity 0.3s ease;
     }
 
     .tabs {
@@ -258,12 +228,13 @@
     }
 
     .wardrobe-grid {
-      padding: 12px 16px;
+      padding: 12px 16px 100px;
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 10px;
       overflow-y: auto;
       flex: 1;
+      -webkit-overflow-scrolling: touch;
     }
 
     .wardrobe-grid::-webkit-scrollbar { width: 0; }
@@ -290,15 +261,7 @@
 
     .outfit-card.active {
       border-color: rgba(232, 150, 150, 0.6);
-      box-shadow: 
-        0 0 12px rgba(232, 160, 160, 0.2),
-        inset 0 0 12px rgba(245, 200, 200, 0.1);
-      animation: glow 2s ease-in-out infinite alternate;
-    }
-
-    @keyframes glow {
-      0% { box-shadow: 0 0 8px rgba(232, 160, 160, 0.15), inset 0 0 8px rgba(245, 200, 200, 0.05); }
-      100% { box-shadow: 0 0 16px rgba(232, 160, 160, 0.25), inset 0 0 16px rgba(245, 200, 200, 0.1); }
+      box-shadow: 0 0 12px rgba(232, 160, 160, 0.2);
     }
 
     .outfit-card .thumb {
@@ -310,11 +273,6 @@
       height: 100%;
       object-fit: cover;
       object-position: center 40%;
-      transition: transform 0.3s ease;
-    }
-
-    .outfit-card.active .thumb {
-      transform: translateX(-50%) scale(1.05);
     }
 
     .outfit-card .name {
@@ -336,37 +294,30 @@
       font-size: 9px;
       font-weight: 700;
       font-style: italic;
-      letter-spacing: 0.5px;
       z-index: 2;
-      background: linear-gradient(135deg, #D4A44C, #F0D080, #C89030);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      filter: drop-shadow(0 1px 2px rgba(180, 140, 60, 0.3));
+      color: #C89030;
     }
 
-    .outfit-card::before {
-      content: '';
-      position: absolute;
-      top: -1px;
-      right: -1px;
-      width: 14px;
-      height: 14px;
-      border-top: 1.5px solid rgba(232, 180, 180, 0.4);
-      border-right: 1.5px solid rgba(232, 180, 180, 0.4);
-      border-top-right-radius: 14px;
-      z-index: 2;
-      pointer-events: none;
+    .bg-grid {
+      padding: 12px 16px 100px;
+      display: none;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      overflow-y: auto;
+      flex: 1;
+      -webkit-overflow-scrolling: touch;
     }
+
+    .bg-grid::-webkit-scrollbar { width: 0; }
 
     .bg-card {
-      aspect-ratio: 4/3;
+      aspect-ratio: 16/10;
       border-radius: 14px;
       background: rgba(255, 255, 255, 0.65);
       backdrop-filter: blur(8px);
       border: 1.5px solid rgba(232, 190, 190, 0.35);
       cursor: pointer;
-      transition: transform 0.2s, border-color 0.3s, box-shadow 0.3s;
+      transition: transform 0.2s, border-color 0.3s;
       position: relative;
       overflow: hidden;
     }
@@ -375,18 +326,8 @@
     .bg-card.active { border-color: rgba(232, 150, 150, 0.6); box-shadow: 0 0 12px rgba(232, 160, 160, 0.2); }
     .bg-card .thumb { width: 100%; height: 100%; object-fit: cover; display: block; }
     .bg-card .name { position: absolute; bottom: 0; left: 0; right: 0; padding: 4px 6px; text-align: center; font-size: 9px; color: #FFF; background: linear-gradient(transparent, rgba(0,0,0,0.5)); }
-    .bg-card.empty { display: flex; align-items: center; justify-content: center; background: rgba(200,180,170,0.1); border: 1.5px dashed rgba(200,180,170,0.35); }
-    .bg-card.empty::after { content: '?'; font-size: 24px; color: rgba(180,160,150,0.3); font-style: italic; }
-
-    .bg-grid {
-      padding: 12px 16px;
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      overflow-y: auto;
-      flex: 1;
-      display: none;
-    }
+    .bg-card.locked { display: flex; align-items: center; justify-content: center; background: rgba(200,180,170,0.08); border: 1.5px dashed rgba(200,180,170,0.35); }
+    .bg-card.locked .lock-text { font-size: 10px; color: rgba(180,160,150,0.5); font-style: italic; }
 
     .bottom-bar {
       padding: 10px 16px;
@@ -446,7 +387,6 @@
       pointer-events: none;
       transition: opacity 0.3s ease, transform 0.3s ease;
       z-index: 100;
-      box-shadow: 0 8px 24px rgba(232, 160, 160, 0.15);
     }
 
     .toast.show {
@@ -469,11 +409,7 @@
   <div class="main">
     <div class="preview">
       <div class="decor-left">
-        <span>❧</span>
-        <span>┊</span>
-        <span>✿</span>
-        <span>┊</span>
-        <span>❧</span>
+        <span>❧</span><span>┊</span><span>✿</span><span>┊</span><span>❧</span>
       </div>
       <img class="character" id="preview-img" src="../assets/%E7%9D%A1%E8%A3%99.png" alt="珩">
       <div class="outfit-name" id="outfit-name">月光睡裙</div>
@@ -512,11 +448,15 @@
 
     <div class="bg-grid" id="bg-grid">
       <div class="bg-card active" data-name="默认卧室" data-img="../assets/%E5%8D%A7%E5%AE%A4.png">
-        <img class="thumb" src="../assets/%E5%8D%A7%E5%AE%A4.png" alt="卧室">
+        <div class="thumb" style="width:100%;height:100%;background:linear-gradient(135deg,#FFF5F0,#FFE8E0);display:flex;align-items:center;justify-content:center;font-size:11px;color:#B8A0A0;">默认卧室</div>
         <div class="name">默认卧室</div>
       </div>
-      <div class="bg-card empty" data-name="撒娇背景" data-img="../assets/background/%E6%92%92%E5%A8%87%E8%83%8C%E6%99%AF.jpg"></div>
-      <div class="bg-card empty" data-name="生气背景" data-img="../assets/background/%E7%94%9F%E6%B0%94%E8%83%8C%E6%99%AF.PNG"></div>
+      <div class="bg-card locked" data-name="撒娇背景" data-img="../assets/background/%E6%92%92%E5%A8%87%E8%83%8C%E6%99%AF.jpg">
+        <span class="lock-text">抽卡解锁</span>
+      </div>
+      <div class="bg-card locked" data-name="生气背景" data-img="../assets/background/%E7%94%9F%E6%B0%94%E8%83%8C%E6%99%AF.PNG">
+        <span class="lock-text">抽卡解锁</span>
+      </div>
     </div>
   </div>
 
@@ -544,7 +484,7 @@
       var selectedCard = null;
       var mode = 'outfit';
 
-      // 初始化：高亮当前穿着
+      // 初始化预览和高亮
       outfitCards.forEach(function(card) {
         card.classList.remove('active');
         if (card.dataset.name === currentOutfit) {
@@ -555,7 +495,16 @@
         }
       });
 
-      // tab筛选
+      // 检查已解锁的背景
+      var owned = JSON.parse(localStorage.getItem('bsy_collection') || '[]');
+      bgCards.forEach(function(card) {
+        if (card.classList.contains('locked') && owned.indexOf(card.dataset.name) !== -1) {
+          card.classList.remove('locked');
+          card.innerHTML = '<img class="thumb" src="' + card.dataset.img + '" alt=""><div class="name">' + card.dataset.name + '</div>';
+        }
+      });
+
+      // tab切换
       tabs.forEach(function(tab) {
         tab.addEventListener('click', function() {
           tabs.forEach(function(t) { t.classList.remove('active'); });
@@ -579,13 +528,12 @@
         });
       });
 
-      // 点衣服卡片切换预览
+      // 点衣服卡片
       outfitCards.forEach(function(card) {
         card.addEventListener('click', function() {
           outfitCards.forEach(function(c) { c.classList.remove('active'); });
           card.classList.add('active');
           selectedCard = card;
-
           previewImg.classList.add('switching');
           setTimeout(function() {
             previewImg.src = card.dataset.img;
@@ -598,8 +546,8 @@
       // 点背景卡片
       bgCards.forEach(function(card) {
         card.addEventListener('click', function() {
-          if (card.classList.contains('empty')) {
-            showToast('还没解锁这个背景');
+          if (card.classList.contains('locked')) {
+            showToast('还没解锁，去抽卡吧');
             return;
           }
           bgCards.forEach(function(c) { c.classList.remove('active'); });
@@ -624,6 +572,10 @@
           localStorage.setItem('bsy_outfit_img', currentOutfitImg);
           showToast('✿ 已换上「' + name + '」');
         } else {
+          if (selectedCard.classList.contains('locked')) {
+            showToast('还没解锁，去抽卡吧');
+            return;
+          }
           localStorage.setItem('bsy_bg', selectedCard.dataset.img);
           showToast('✿ 背景已切换为「' + name + '」');
         }
@@ -634,15 +586,6 @@
         toast.classList.add('show');
         setTimeout(function() { toast.classList.remove('show'); }, 1600);
       }
-
-      // 检查已解锁的背景
-      var owned = JSON.parse(localStorage.getItem('bsy_collection') || '[]');
-      bgCards.forEach(function(card) {
-        if (card.classList.contains('empty') && owned.indexOf(card.dataset.name) !== -1) {
-          card.classList.remove('empty');
-          card.innerHTML = '<img class="thumb" src="' + card.dataset.img + '" alt=""><div class="name">' + card.dataset.name + '</div>';
-        }
-      });
     })();
   </script>
 </body>

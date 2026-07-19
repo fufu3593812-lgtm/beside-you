@@ -17,7 +17,7 @@
       position: relative;
       max-width: 430px;
       margin: 0 auto;
-      background: #1a1115;
+      background: #FFF8F3;
     }
 
     /* === 背景层 === */
@@ -182,10 +182,6 @@
       box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(139,32,64,0.3);
     }
 
-    .card-frame:hover {
-      transform: rotateY(3deg) rotateX(-2deg) scale(1.02);
-    }
-
     .card-frame img {
       width: 100%;
       height: 100%;
@@ -320,18 +316,6 @@
       color: #E8C0C8;
     }
 
-    .pull-btn::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: 28px;
-      background: linear-gradient(135deg, rgba(212,180,140,0.1), rgba(255,255,255,0.05));
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-
-    .pull-btn:hover::before { opacity: 1; }
-
     .pull-btn:active {
       transform: scale(0.96);
       box-shadow: 0 0 20px rgba(212,180,140,0.4);
@@ -442,7 +426,7 @@
     .cold .dock-item .d-en { color: #A08080; }
     .cold .dock-item .d-cn { color: #806060; }
 
-    /* === 抽卡动画 === */
+    /* === 信封抽卡动画 === */
     .pull-overlay {
       position: absolute;
       inset: 0;
@@ -450,7 +434,8 @@
       display: none;
       align-items: center;
       justify-content: center;
-      background: #000;
+      flex-direction: column;
+      background: #0a0608;
       opacity: 0;
     }
 
@@ -464,57 +449,241 @@
       100% { opacity: 1; }
     }
 
-    .pull-overlay .light-beam {
+    /* 信封容器 */
+    .envelope-container {
+      position: relative;
+      width: 300px;
+      height: 200px;
+      margin-top: 40px;
+      cursor: pointer;
+    }
+
+    /* 信封主体 */
+    .envelope-body {
       position: absolute;
-      width: 4px;
-      height: 0;
-      background: linear-gradient(to top, transparent, #D4A06A, transparent);
-      animation: beam-rise 1.5s ease forwards 0.5s;
-    }
-
-    .pull-overlay.cold-pull .light-beam {
-      background: linear-gradient(to top, transparent, #C4667A, transparent);
-    }
-
-    @keyframes beam-rise {
-      0% { height: 0; opacity: 0; }
-      50% { height: 60vh; opacity: 1; }
-      100% { height: 100vh; opacity: 0.6; }
-    }
-
-    .pull-overlay .reveal-card {
-      width: 260px;
-      height: 380px;
-      border-radius: 16px;
+      bottom: 0;
+      left: 0;
+      width: 300px;
+      height: 180px;
+      border-radius: 4px 4px 12px 12px;
       overflow: hidden;
       opacity: 0;
-      transform: translateY(80px) scale(0.8);
-      animation: card-reveal 1s ease forwards 1.8s;
-      box-shadow: 0 0 60px rgba(212,180,140,0.5);
+      transform: translateY(60px);
+      animation: envelope-float-up 1s ease forwards 0.6s;
     }
 
-    .pull-overlay.cold-pull .reveal-card {
-      box-shadow: 0 0 60px rgba(196,102,122,0.5);
+    .envelope-body.warm-env {
+      background: linear-gradient(135deg, #FFF5EE, #FFE8D8);
+      border: 1px solid rgba(212,180,140,0.6);
+      box-shadow: 0 10px 40px rgba(180,140,100,0.3), 0 0 20px rgba(212,180,140,0.2);
     }
 
-    @keyframes card-reveal {
-      0% { opacity: 0; transform: translateY(80px) scale(0.8); }
-      60% { opacity: 1; transform: translateY(-10px) scale(1.02); }
-      100% { opacity: 1; transform: translateY(0) scale(1); }
+    .envelope-body.cold-env {
+      background: linear-gradient(135deg, #2a1a22, #1f1018);
+      border: 1px solid rgba(196,102,122,0.4);
+      box-shadow: 0 10px 40px rgba(139,32,64,0.3), 0 0 20px rgba(196,102,122,0.2);
     }
 
-    .reveal-card img {
+    @keyframes envelope-float-up {
+      0% { opacity: 0; transform: translateY(60px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 信封内部装饰线 */
+    .envelope-body::before {
+      content: '';
+      position: absolute;
+      inset: 8px;
+      border: 1px dashed rgba(180,140,100,0.3);
+      border-radius: 8px;
+    }
+
+    .cold-env.envelope-body::before {
+      border-color: rgba(196,102,122,0.2);
+    }
+
+    /* 封口 */
+    .envelope-flap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 300px;
+      height: 100px;
+      transform-origin: top center;
+      transform: rotateX(0deg);
+      transition: transform 1s ease;
+      z-index: 5;
+    }
+
+    .envelope-flap::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 0;
+      border-left: 150px solid transparent;
+      border-right: 150px solid transparent;
+      border-top: 100px solid #FFE8D8;
+    }
+
+    .cold-env .envelope-flap::before {
+      border-top-color: #2a1a22;
+    }
+
+    .envelope-flap.opened {
+      transform: rotateX(180deg);
+    }
+
+    /* 蜡封印章 */
+    .wax-seal {
+      position: absolute;
+      top: 70px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      z-index: 6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      animation: seal-appear 0.5s ease forwards 1.4s;
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .wax-seal.warm-seal {
+      background: radial-gradient(circle, #D4A06A, #B8860B);
+      box-shadow: 0 2px 12px rgba(180,120,60,0.5);
+    }
+
+    .wax-seal.cold-seal {
+      background: radial-gradient(circle, #C4667A, #8B2040);
+      box-shadow: 0 2px 12px rgba(139,32,64,0.5);
+    }
+
+    .wax-seal svg {
+      width: 22px;
+      height: 22px;
+      fill: #FFF;
+      opacity: 0.9;
+    }
+
+    .wax-seal.broken {
+      opacity: 0;
+      transform: translateX(-50%) scale(1.5);
+    }
+
+    @keyframes seal-appear {
+      0% { opacity: 0; transform: translateX(-50%) scale(0.5); }
+      100% { opacity: 1; transform: translateX(-50%) scale(1); }
+    }
+
+    /* 提示文字 */
+    .tap-hint {
+      position: absolute;
+      bottom: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      color: #A09080;
+      opacity: 0;
+      animation: hint-fade 0.6s ease forwards 2s;
+      letter-spacing: 1px;
+    }
+
+    @keyframes hint-fade {
+      0% { opacity: 0; }
+      100% { opacity: 0.7; }
+    }
+
+    /* 卡面从信封中抽出 */
+    .card-pull-out {
+      position: absolute;
+      width: 220px;
+      height: 320px;
+      border-radius: 12px;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(100px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+      z-index: 10;
+    }
+
+    .card-pull-out.reveal {
+      animation: card-slide-out 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    }
+
+    @keyframes card-slide-out {
+      0% { opacity: 0; transform: translateY(100px) scale(0.9); }
+      30% { opacity: 1; }
+      100% { opacity: 1; transform: translateY(-60px) scale(1); }
+    }
+
+    .card-pull-out img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
 
+    /* 卡名显示 */
+    .reveal-info {
+      position: absolute;
+      bottom: 80px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      opacity: 0;
+      z-index: 15;
+    }
+
+    .reveal-info.show {
+      animation: info-fade-in 0.8s ease forwards;
+    }
+
+    @keyframes info-fade-in {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .reveal-info .r-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px;
+      font-weight: 300;
+      font-style: italic;
+      color: #E8D0C0;
+      letter-spacing: 3px;
+    }
+
+    .reveal-info .r-subtitle {
+      font-size: 12px;
+      color: #A09080;
+      margin-top: 6px;
+      font-style: italic;
+    }
+
+    .reveal-info .r-stars {
+      margin-top: 8px;
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .reveal-info .r-stars svg {
+      width: 14px;
+      height: 14px;
+      fill: #D4A06A;
+    }
+
+    /* 花瓣 */
     .petal {
       position: absolute;
       width: 12px;
       height: 12px;
       opacity: 0;
       pointer-events: none;
+      z-index: 20;
     }
 
     .petal::before {
@@ -541,23 +710,30 @@
       100% { opacity: 0; transform: translateY(100vh) rotate(360deg); }
     }
 
+    /* 确认按钮 */
     .confirm-btn {
       position: absolute;
-      bottom: 60px;
+      bottom: 30px;
       left: 50%;
       transform: translateX(-50%);
       padding: 12px 40px;
       border-radius: 24px;
-      background: rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.1);
       backdrop-filter: blur(10px);
-      border: 1px solid rgba(212,180,140,0.5);
+      border: 1px solid rgba(212,180,140,0.4);
       color: #D4B08A;
       font-family: 'Noto Serif SC', serif;
       font-size: 14px;
       letter-spacing: 2px;
       cursor: pointer;
       opacity: 0;
-      animation: fade-up 0.6s ease forwards 3s;
+      z-index: 30;
+      display: none;
+    }
+
+    .confirm-btn.show {
+      display: block;
+      animation: fade-up 0.6s ease forwards;
     }
 
     @keyframes fade-up {
@@ -655,10 +831,23 @@
     </div>
   </div>
 
+  <!-- 信封抽卡遮罩 -->
   <div class="pull-overlay" id="pullOverlay">
-    <div class="light-beam"></div>
-    <div class="reveal-card">
+    <div class="envelope-container" id="envelopeContainer">
+      <div class="envelope-flap" id="envelopeFlap"></div>
+      <div class="wax-seal" id="waxSeal">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </div>
+      <div class="envelope-body" id="envelopeBody"></div>
+      <div class="tap-hint">轻触拆封</div>
+    </div>
+    <div class="card-pull-out" id="cardPullOut">
       <img id="revealImg" src="" alt="">
+    </div>
+    <div class="reveal-info" id="revealInfo">
+      <div class="r-name" id="revealName"></div>
+      <div class="r-subtitle" id="revealSubtitle"></div>
+      <div class="r-stars" id="revealStars"></div>
     </div>
     <button class="confirm-btn" id="confirmBtn">确认</button>
   </div>
@@ -686,6 +875,8 @@
     ];
 
     let currentIndex = 0;
+    let envelopeReady = false;
+    let currentResult = null;
 
     const bgLayer = document.getElementById('bgLayer');
     const cardImg = document.getElementById('cardImg');
@@ -694,7 +885,16 @@
     const rarityBadge = document.getElementById('rarityBadge');
     const starRow = document.getElementById('starRow');
     const pullOverlay = document.getElementById('pullOverlay');
+    const envelopeContainer = document.getElementById('envelopeContainer');
+    const envelopeFlap = document.getElementById('envelopeFlap');
+    const envelopeBody = document.getElementById('envelopeBody');
+    const waxSeal = document.getElementById('waxSeal');
+    const cardPullOut = document.getElementById('cardPullOut');
     const revealImg = document.getElementById('revealImg');
+    const revealInfo = document.getElementById('revealInfo');
+    const revealName = document.getElementById('revealName');
+    const revealSubtitle = document.getElementById('revealSubtitle');
+    const revealStars = document.getElementById('revealStars');
     const confirmBtn = document.getElementById('confirmBtn');
     const poolDots = document.querySelectorAll('.pool-dot');
     const particlesEl = document.getElementById('particles');
@@ -744,9 +944,11 @@
 
     let touchStartX = 0;
     document.addEventListener('touchstart', e => {
+      if (pullOverlay.classList.contains('active')) return;
       touchStartX = e.touches[0].clientX;
     });
     document.addEventListener('touchend', e => {
+      if (pullOverlay.classList.contains('active')) return;
       const diff = e.changedTouches[0].clientX - touchStartX;
       if (Math.abs(diff) > 60) {
         if (diff < 0 && currentIndex < pool.length - 1) showCard(currentIndex + 1);
@@ -754,21 +956,86 @@
       }
     });
 
-    function doPull(count) {
-      const result = pool[Math.floor(Math.random() * pool.length)];
-      revealImg.src = result.img;
-      pullOverlay.className = 'pull-overlay active' + (result.theme === 'cold' ? ' cold-pull' : '');
-
-      for (let i = 0; i < 15; i++) {
-        const petal = document.createElement('div');
-        petal.className = 'petal';
-        petal.style.left = Math.random() * 100 + '%';
-        petal.style.top = '-20px';
-        pullOverlay.appendChild(petal);
-        setTimeout(() => petal.classList.add('animate'), 1800 + Math.random() * 800);
-        setTimeout(() => petal.remove(), 5500);
-      }
+    function resetEnvelope() {
+      envelopeFlap.classList.remove('opened');
+      envelopeFlap.className = 'envelope-flap';
+      envelopeBody.className = 'envelope-body';
+      waxSeal.className = 'wax-seal';
+      waxSeal.style.animation = '';
+      cardPullOut.classList.remove('reveal');
+      cardPullOut.style.opacity = '0';
+      revealInfo.classList.remove('show');
+      confirmBtn.classList.remove('show');
+      envelopeReady = false;
+      envelopeContainer.style.display = 'block';
     }
+
+    function doPull(count) {
+      currentResult = pool[Math.floor(Math.random() * pool.length)];
+      revealImg.src = currentResult.img;
+
+      resetEnvelope();
+
+      // 设置信封主题
+      const isWarm = currentResult.theme === 'warm';
+      envelopeBody.classList.add(isWarm ? 'warm-env' : 'cold-env');
+      envelopeFlap.classList.add(isWarm ? 'warm-env' : 'cold-env');
+      waxSeal.classList.add(isWarm ? 'warm-seal' : 'cold-seal');
+
+      pullOverlay.className = 'pull-overlay active' + (isWarm ? '' : ' cold-pull');
+
+      // 信封浮起后可点击
+      setTimeout(() => { envelopeReady = true; }, 2000);
+    }
+
+    function openEnvelope() {
+      if (!envelopeReady) return;
+      envelopeReady = false;
+
+      // 蜡封碎裂
+      waxSeal.classList.add('broken');
+
+      // 封口翻开
+      setTimeout(() => {
+        envelopeFlap.classList.add('opened');
+      }, 300);
+
+      // 信封隐藏 + 卡面抽出
+      setTimeout(() => {
+        envelopeContainer.style.display = 'none';
+        cardPullOut.classList.add('reveal');
+
+        // 花瓣
+        for (let i = 0; i < 15; i++) {
+          const petal = document.createElement('div');
+          petal.className = 'petal';
+          petal.style.left = Math.random() * 100 + '%';
+          petal.style.top = '-20px';
+          pullOverlay.appendChild(petal);
+          setTimeout(() => petal.classList.add('animate'), Math.random() * 600);
+          setTimeout(() => petal.remove(), 4000);
+        }
+      }, 800);
+
+      // 卡名信息
+      setTimeout(() => {
+        revealName.textContent = currentResult.name;
+        revealSubtitle.textContent = currentResult.subtitle;
+        let starsHtml = '';
+        for (let i = 0; i < currentResult.stars; i++) {
+          starsHtml += '<svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg>';
+        }
+        revealStars.innerHTML = starsHtml;
+        revealInfo.classList.add('show');
+      }, 1800);
+
+      // 确认按钮
+      setTimeout(() => {
+        confirmBtn.classList.add('show');
+      }, 2400);
+    }
+
+    envelopeContainer.addEventListener('click', openEnvelope);
 
     document.getElementById('pullOne').addEventListener('click', () => doPull(1));
     document.getElementById('pullTen').addEventListener('click', () => doPull(10));
@@ -776,13 +1043,6 @@
     confirmBtn.addEventListener('click', () => {
       pullOverlay.className = 'pull-overlay';
       pullOverlay.querySelectorAll('.petal').forEach(p => p.remove());
-    });
-
-    pullOverlay.addEventListener('click', (e) => {
-      if (e.target === pullOverlay) {
-        pullOverlay.className = 'pull-overlay';
-        pullOverlay.querySelectorAll('.petal').forEach(p => p.remove());
-      }
     });
   </script>
 </body>

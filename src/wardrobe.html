@@ -411,7 +411,7 @@
       <div class="decor-left">
         <span>❧</span><span>┊</span><span>✿</span><span>┊</span><span>❧</span>
       </div>
-      <img class="character" id="preview-img" src="../assets/%E7%9D%A1%E8%A3%99.png" alt="珩">
+      <img class="character" id="preview-img" alt="珩">
       <div class="outfit-name" id="outfit-name">月光睡裙</div>
     </div>
 
@@ -423,41 +423,9 @@
       <div class="tab" data-cat="bg">背景</div>
     </div>
 
-    <div class="wardrobe-grid" id="wardrobe-grid">
-      <div class="outfit-card active" data-cat="limited" data-img="../assets/%E7%9D%A1%E8%A3%99.png" data-name="月光睡裙">
-        <span class="rarity">SR</span>
-        <img class="thumb" src="../assets/%E7%9D%A1%E8%A3%99.png" alt="睡裙">
-        <div class="name">月光睡裙</div>
-      </div>
-      <div class="outfit-card" data-cat="daily" data-img="../assets/%E5%8D%AB%E8%A1%A3.png" data-name="慵懒卫衣">
-        <span class="rarity">R</span>
-        <img class="thumb" src="../assets/%E5%8D%AB%E8%A1%A3.png" alt="卫衣">
-        <div class="name">慵懒卫衣</div>
-      </div>
-      <div class="outfit-card" data-cat="daily" data-img="../assets/jk.png" data-name="初恋JK">
-        <span class="rarity">R</span>
-        <img class="thumb" src="../assets/jk.png" alt="JK">
-        <div class="name">初恋JK</div>
-      </div>
-      <div class="outfit-card" data-cat="daily" data-img="../assets/%E7%A2%8E%E8%8A%B1%E8%A3%99.png" data-name="碎花裙">
-        <span class="rarity">SR</span>
-        <img class="thumb" src="../assets/%E7%A2%8E%E8%8A%B1%E8%A3%99.png" alt="碎花裙">
-        <div class="name">碎花裙</div>
-      </div>
-    </div>
+    <div class="wardrobe-grid" id="wardrobe-grid"></div>
 
-    <div class="bg-grid" id="bg-grid">
-      <div class="bg-card active" data-name="默认卧室" data-img="../assets/%E5%8D%A7%E5%AE%A4.png">
-        <div class="thumb" style="width:100%;height:100%;background:linear-gradient(135deg,#FFF5F0,#FFE8E0);display:flex;align-items:center;justify-content:center;font-size:11px;color:#B8A0A0;">默认卧室</div>
-        <div class="name">默认卧室</div>
-      </div>
-      <div class="bg-card locked" data-name="撒娇背景" data-img="../assets/background/%E6%92%92%E5%A8%87%E8%83%8C%E6%99%AF.jpg">
-        <span class="lock-text">抽卡解锁</span>
-      </div>
-      <div class="bg-card locked" data-name="生气背景" data-img="../assets/background/%E7%94%9F%E6%B0%94%E8%83%8C%E6%99%AF.PNG">
-        <span class="lock-text">抽卡解锁</span>
-      </div>
-    </div>
+    <div class="bg-grid" id="bg-grid"></div>
   </div>
 
   <div class="bottom-bar">
@@ -468,41 +436,71 @@
   <div class="toast" id="toast"></div>
 
   <script>
+    var CDN = 'https://cdn.jsdelivr.net/gh/fufu3593812-lgtm/beside-you@main/assets/';
+
+    var outfits = [
+      { name: '月光睡裙', cat: 'limited', rarity: 'SR', img: CDN + '%E7%9D%A1%E8%A3%99.png' },
+      { name: '慵懒卫衣', cat: 'daily', rarity: 'R', img: CDN + '%E5%8D%AB%E8%A1%A3.png' },
+      { name: '初恋JK', cat: 'daily', rarity: 'R', img: CDN + 'jk.png' },
+      { name: '碎花裙', cat: 'daily', rarity: 'SR', img: CDN + '%E7%A2%8E%E8%8A%B1%E8%A3%99.png' }
+    ];
+
+    var backgrounds = [
+      { name: '默认卧室', img: CDN + '%E5%8D%A7%E5%AE%A4.png', locked: false },
+      { name: '撒娇背景', img: CDN + 'background/%E6%92%92%E5%A8%87%E8%83%8C%E6%99%AF.jpg', locked: true },
+      { name: '生气背景', img: CDN + 'background/%E7%94%9F%E6%B0%94%E8%83%8C%E6%99%AF.PNG', locked: true }
+    ];
+
     (function() {
-      var tabs = document.querySelectorAll('.tab');
-      var outfitCards = document.querySelectorAll('.outfit-card');
       var wardrobeGrid = document.getElementById('wardrobe-grid');
       var bgGrid = document.getElementById('bg-grid');
-      var bgCards = document.querySelectorAll('.bg-card');
       var previewImg = document.getElementById('preview-img');
       var outfitName = document.getElementById('outfit-name');
       var btnWear = document.getElementById('btn-wear');
       var toast = document.getElementById('toast');
+      var tabs = document.querySelectorAll('.tab');
 
       var currentOutfit = localStorage.getItem('bsy_outfit') || '月光睡裙';
-      var currentOutfitImg = localStorage.getItem('bsy_outfit_img') || '../assets/%E7%9D%A1%E8%A3%99.png';
+      var currentOutfitImg = localStorage.getItem('bsy_outfit_img') || outfits[0].img;
       var selectedCard = null;
+      var selectedData = null;
       var mode = 'outfit';
 
-      // 初始化预览和高亮
-      outfitCards.forEach(function(card) {
-        card.classList.remove('active');
-        if (card.dataset.name === currentOutfit) {
-          card.classList.add('active');
+      // 渲染衣柜
+      outfits.forEach(function(o) {
+        var card = document.createElement('div');
+        card.className = 'outfit-card' + (o.name === currentOutfit ? ' active' : '');
+        card.dataset.name = o.name;
+        card.dataset.cat = o.cat;
+        card.dataset.img = o.img;
+        card.innerHTML = '<span class="rarity">' + o.rarity + '</span><img class="thumb" src="' + o.img + '" alt="' + o.name + '"><div class="name">' + o.name + '</div>';
+        wardrobeGrid.appendChild(card);
+        if (o.name === currentOutfit) {
           selectedCard = card;
-          previewImg.src = card.dataset.img;
-          outfitName.textContent = card.dataset.name;
+          selectedData = o;
+          previewImg.src = o.img;
+          outfitName.textContent = o.name;
         }
       });
 
-      // 检查已解锁的背景
+      // 渲染背景
       var owned = JSON.parse(localStorage.getItem('bsy_collection') || '[]');
-      bgCards.forEach(function(card) {
-        if (card.classList.contains('locked') && owned.indexOf(card.dataset.name) !== -1) {
-          card.classList.remove('locked');
-          card.innerHTML = '<img class="thumb" src="' + card.dataset.img + '" alt=""><div class="name">' + card.dataset.name + '</div>';
+      backgrounds.forEach(function(b) {
+        var card = document.createElement('div');
+        var isLocked = b.locked && owned.indexOf(b.name) === -1;
+        card.className = 'bg-card' + (isLocked ? ' locked' : '') + (b.name === '默认卧室' ? ' active' : '');
+        card.dataset.name = b.name;
+        card.dataset.img = b.img;
+        if (isLocked) {
+          card.innerHTML = '<span class="lock-text">抽卡解锁</span>';
+        } else {
+          card.innerHTML = '<img class="thumb" src="' + b.img + '" alt=""><div class="name">' + b.name + '</div>';
         }
+        bgGrid.appendChild(card);
       });
+
+      var outfitCards = wardrobeGrid.querySelectorAll('.outfit-card');
+      var bgCards = bgGrid.querySelectorAll('.bg-card');
 
       // tab切换
       tabs.forEach(function(tab) {
@@ -534,6 +532,7 @@
           outfitCards.forEach(function(c) { c.classList.remove('active'); });
           card.classList.add('active');
           selectedCard = card;
+          selectedData = { name: card.dataset.name, img: card.dataset.img };
           previewImg.classList.add('switching');
           setTimeout(function() {
             previewImg.src = card.dataset.img;
@@ -553,30 +552,31 @@
           bgCards.forEach(function(c) { c.classList.remove('active'); });
           card.classList.add('active');
           selectedCard = card;
+          selectedData = { name: card.dataset.name, img: card.dataset.img };
           outfitName.textContent = card.dataset.name;
         });
       });
 
       // 换上/使用按钮
       btnWear.addEventListener('click', function() {
-        if (!selectedCard) return;
-        var name = selectedCard.dataset.name;
+        if (!selectedData) return;
+        var name = selectedData.name;
         if (mode === 'outfit') {
           if (name === currentOutfit) {
             showToast('已经穿着这件了');
             return;
           }
           currentOutfit = name;
-          currentOutfitImg = selectedCard.dataset.img;
+          currentOutfitImg = selectedData.img;
           localStorage.setItem('bsy_outfit', name);
           localStorage.setItem('bsy_outfit_img', currentOutfitImg);
           showToast('✿ 已换上「' + name + '」');
         } else {
-          if (selectedCard.classList.contains('locked')) {
+          if (selectedCard && selectedCard.classList.contains('locked')) {
             showToast('还没解锁，去抽卡吧');
             return;
           }
-          localStorage.setItem('bsy_bg', selectedCard.dataset.img);
+          localStorage.setItem('bsy_bg', selectedData.img);
           showToast('✿ 背景已切换为「' + name + '」');
         }
       });

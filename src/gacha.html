@@ -46,7 +46,7 @@
     .currency span { font-size: 12px; color: #8D6A5A; }
     .cold .currency span { color: #C4A0A0; }
 
-    /* 滑动区域 - z-index高于卡面，确保iOS能接收touch事件 */
+    /* 滑动区域 */
     .swipe-area { position: absolute; top: 90px; left: 0; right: 0; bottom: 200px; z-index: 20; }
 
     /* 卡面 */
@@ -104,7 +104,6 @@
 
     .envelope-scene { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; }
 
-    /* 信封 */
     .envelope { position: relative; width: 280px; height: 190px; cursor: pointer; opacity: 0; transform: translateY(50px); animation: env-rise 1s ease forwards .5s; }
     @keyframes env-rise { to { opacity: 1; transform: translateY(0); } }
 
@@ -180,7 +179,7 @@
     </div>
   </div>
 
-  <!-- 滑动检测层，覆盖在卡面之上 -->
+  <!-- 滑动检测层 -->
   <div class="swipe-area" id="swipeArea"></div>
 
   <div class="bottom-area fade-in d3">
@@ -231,29 +230,33 @@
   </div>
 
   <script>
-    const pool = [
-      { name:'撒娇', sub:'"...你不来，我就一直这样看着你。"', rarity:'SR', stars:4, theme:'warm', img:'../assets/gacha/撒娇卡面.PNG' },
-      { name:'生气', sub:'"我在等一个解释。"', rarity:'SR', stars:4, theme:'cold', img:'../assets/gacha/生气卡面.PNG' }
+    // 统一使用URL编码路径，避免中文路径在GitHub Pages上出问题
+    var IMG_SAJIAO = '../assets/gacha/%E6%92%92%E5%A8%87%E5%8D%A1%E9%9D%A2.PNG';
+    var IMG_SHENGQI = '../assets/gacha/%E7%94%9F%E6%B0%94%E5%8D%A1%E9%9D%A2.PNG';
+
+    var pool = [
+      { name:'撒娇', sub:'"...你不来，我就一直这样看着你。"', rarity:'SR', stars:4, theme:'warm', img: IMG_SAJIAO },
+      { name:'生气', sub:'"我在等一个解释。"', rarity:'SR', stars:4, theme:'cold', img: IMG_SHENGQI }
     ];
 
-    let idx = 0, ready = false, result = null;
+    var idx = 0, ready = false, result = null;
 
-    const $ = id => document.getElementById(id);
-    const bgLayer = $('bgLayer'), cardImg = $('cardImg'), cardName = $('cardName'), cardSub = $('cardSub');
-    const rarityBadge = $('rarityBadge'), starRow = $('starRow'), cardDisplay = $('cardDisplay');
-    const overlay = $('overlay'), envScene = $('envScene'), envelope = $('envelope');
-    const envFlap = $('envFlap'), envBody = $('envBody'), seal = $('seal'), tapHint = $('tapHint');
-    const cardReveal = $('cardReveal'), revealImg = $('revealImg');
-    const revealInfo = $('revealInfo'), rName = $('rName'), rSub = $('rSub'), rStars = $('rStars');
-    const confirmBtn = $('confirmBtn');
-    const dots = document.querySelectorAll('.pool-dot');
-    const particles = $('particles');
-    const swipeArea = $('swipeArea');
+    function $(id) { return document.getElementById(id); }
+    var bgLayer = $('bgLayer'), cardImg = $('cardImg'), cardName = $('cardName'), cardSub = $('cardSub');
+    var rarityBadge = $('rarityBadge'), starRow = $('starRow'), cardDisplay = $('cardDisplay');
+    var overlay = $('overlay'), envScene = $('envScene'), envelope = $('envelope');
+    var envFlap = $('envFlap'), envBody = $('envBody'), seal = $('seal'), tapHint = $('tapHint');
+    var cardReveal = $('cardReveal'), revealImg = $('revealImg');
+    var revealInfo = $('revealInfo'), rName = $('rName'), rSub = $('rSub'), rStars = $('rStars');
+    var confirmBtn = $('confirmBtn');
+    var dots = document.querySelectorAll('.pool-dot');
+    var particles = $('particles');
+    var swipeArea = $('swipeArea');
 
     function mkParticles() {
       particles.innerHTML = '';
-      for (let i = 0; i < 18; i++) {
-        const p = document.createElement('div');
+      for (var i = 0; i < 18; i++) {
+        var p = document.createElement('div');
         p.className = 'particle';
         p.style.left = Math.random()*100+'%';
         p.style.animationDelay = Math.random()*6+'s';
@@ -264,27 +267,31 @@
     mkParticles();
 
     function show(i) {
-      const c = pool[i]; idx = i;
+      var c = pool[i]; idx = i;
       bgLayer.className = 'bg-layer ' + c.theme;
       document.body.style.background = c.theme==='warm'?'#FFF8F3':'#1a1115';
+      // 用新Image预加载，确保切换生效
+      var newImg = new Image();
+      newImg.onload = function() { cardImg.src = this.src; };
+      newImg.src = c.img;
       cardImg.src = c.img;
       cardName.textContent = c.name;
       cardSub.textContent = c.sub;
       rarityBadge.textContent = c.rarity;
       rarityBadge.className = 'rarity-badge'+(c.rarity==='SSR'?' ssr':'');
-      let s=''; for(let j=0;j<c.stars;j++) s+='<svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg>';
+      var s=''; for(var j=0;j<c.stars;j++) s+='<svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg>';
       starRow.innerHTML = s;
-      dots.forEach((d,j) => d.classList.toggle('active', j===i));
+      dots.forEach(function(d,j) { d.classList.toggle('active', j===i); });
       mkParticles();
     }
 
     function switchCard(direction) {
-      const nextIdx = direction === 'left' ? idx + 1 : idx - 1;
+      var nextIdx = direction === 'left' ? idx + 1 : idx - 1;
       if (nextIdx < 0 || nextIdx >= pool.length) return;
 
       cardDisplay.classList.add(direction === 'left' ? 'slide-left' : 'slide-right');
 
-      setTimeout(() => {
+      setTimeout(function() {
         show(nextIdx);
         cardDisplay.classList.remove('slide-left', 'slide-right');
         cardDisplay.classList.add(direction === 'left' ? 'slide-right' : 'slide-left');
@@ -293,10 +300,10 @@
       }, 200);
     }
 
-    dots.forEach((d,i) => d.addEventListener('click', () => show(i)));
+    dots.forEach(function(d,i) { d.addEventListener('click', function() { show(i); }); });
 
-    // 滑动手势 - swipeArea层z-index=20，高于card-display的10，能正常接收iOS touch
-    let sx = 0, sy = 0, swiping = false;
+    // 滑动手势
+    var sx = 0, sy = 0, swiping = false;
     swipeArea.addEventListener('touchstart', function(e) {
       if (overlay.classList.contains('active')) return;
       sx = e.touches[0].clientX;

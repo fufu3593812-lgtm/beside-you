@@ -422,7 +422,7 @@
     (function() {
       var charImg = document.getElementById('charImg');
       var outfitImg = localStorage.getItem('bsy_outfit_img');
-      var charSrc = (outfitImg && outfitImg.length > 0) ? outfitImg : CDN + '%E7%9D%A1%E8%A3%99.png';
+      var charSrc = (outfitImg && outfitImg.length > 0) ? outfitImg : CDN + '%E7%9D%A1%E8%A3%99.PNG';
       charImg.onload = function() { charImg.classList.add('loaded'); };
       charImg.src = charSrc;
 

@@ -37,9 +37,9 @@ var fullPool = [
   { name:'撒娇背景', type:'bg', rarity:'SR', stars:4, theme:'soft', img:'../assets/background/%E6%92%92%E5%A8%87%E8%83%8C%E6%99%AF.jpg', effect:'解锁首页背景', weight:4, unique:true },
   { name:'生气背景', type:'bg', rarity:'SR', stars:4, theme:'dark', img:'../assets/background/%E7%94%9F%E6%B0%94%E8%83%8C%E6%99%AF.PNG', effect:'解锁首页背景', weight:4, unique:true },
   { name:'超出算法的真心', type:'prop', rarity:'SSR', stars:5, theme:'warm', img:'', effect:'亲密度 +20', weight:3 },
-  { name:'闪烁的光标', type:'prop', rarity:'SR', stars:4, theme:'cold', img:'', effect:'亲密度 +15', weight:10 },
-  { name:'手写信封', type:'prop', rarity:'SR', stars:4, theme:'warm', img:'', effect:'亲密度 +10', weight:15 },
-  { name:'晚安吻', type:'prop', rarity:'R', stars:3, theme:'soft', img:'', effect:'亲密度 +3', weight:30 },
+  { name:'闪烁的光标', type:'prop', rarity:'SR', stars:4, theme:'cold', img:'', effect:'亲密度 +15', weight:12 },
+  { name:'手写信封', type:'prop', rarity:'SR', stars:4, theme:'warm', img:'', effect:'亲密度 +10', weight:18 },
+  { name:'晚安吻', type:'prop', rarity:'R', stars:3, theme:'soft', img:'', effect:'亲密度 +3', weight:25 },
   { name:'50 token', type:'token', rarity:'N', stars:2, theme:'warm', img:'', effect:'+50 token', weight:35 },
   { name:'100 token', type:'token', rarity:'R', stars:3, theme:'warm', img:'', effect:'+100 token', weight:20 }
 ];

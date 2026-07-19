@@ -1,9 +1,34 @@
-// 抽卡核心逻辑 - 去重 + 保底
+// 抽卡核心逻辑 - 去重 + 保底 + 扣token
 // 已获得的唯一卡片（从 localStorage 读取）
 var owned = JSON.parse(localStorage.getItem('bsy_collection') || '[]');
 // 保底计数器
 var pityBg = parseInt(localStorage.getItem('bsy_pity_bg') || '0');
 var pityEmotion = parseInt(localStorage.getItem('bsy_pity_emotion') || '0');
+
+// Token 管理
+function getTokens() {
+  return parseInt(localStorage.getItem('bsy_tokens') || '1600');
+}
+function setTokens(n) {
+  localStorage.setItem('bsy_tokens', n.toString());
+  var el = document.getElementById('tokenDisplay');
+  if (el) el.textContent = n;
+}
+function canAfford(cost) {
+  return getTokens() >= cost;
+}
+function spendTokens(cost) {
+  var t = getTokens();
+  t -= cost;
+  setTokens(t);
+  return t;
+}
+function addTokens(amount) {
+  var t = getTokens();
+  t += amount;
+  setTokens(t);
+  return t;
+}
 
 // 全量池子定义
 var fullPool = [
@@ -71,7 +96,16 @@ function onPull(card) {
     owned.push(card.name);
     localStorage.setItem('bsy_collection', JSON.stringify(owned));
   }
+  // token卡直接加回余额
+  if (card.name === '50 token') addTokens(50);
+  if (card.name === '100 token') addTokens(100);
   // 保存保底计数
   localStorage.setItem('bsy_pity_bg', pityBg.toString());
   localStorage.setItem('bsy_pity_emotion', pityEmotion.toString());
 }
+
+// 页面加载时同步token显示
+(function() {
+  var el = document.getElementById('tokenDisplay');
+  if (el) el.textContent = getTokens();
+})();

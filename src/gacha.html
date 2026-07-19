@@ -44,12 +44,10 @@
     .card-frame::before { content:''; position: absolute; inset: 3px; border-radius: 11px; border: 1px solid rgba(212,180,140,0.35); z-index: 2; pointer-events: none; }
     .cold .card-frame::before, .dark .card-frame::before { border-color: rgba(196,102,122,0.35); }
     .card-frame::after { content:''; position: absolute; inset: 0; border-radius: 14px; background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 50%); z-index: 3; pointer-events: none; }
-    .rarity-badge { position: absolute; top: 10px; right: 10px; z-index: 5; padding: 3px 8px; border-radius: 10px; font-size: 10px; letter-spacing: 1px; color: #FFF; border: 1px solid rgba(255,255,255,0.3); }
-    .rarity-badge.ssr { background: linear-gradient(135deg, #D4A040, #B8860B); box-shadow: 0 0 10px rgba(212,160,64,0.5); }
-    .rarity-badge.sr { background: linear-gradient(135deg, #9B59B6, #6C3483); box-shadow: 0 0 8px rgba(155,89,182,0.4); }
-    .rarity-badge.r { background: linear-gradient(135deg, #3498DB, #2471A3); box-shadow: 0 0 6px rgba(52,152,219,0.4); }
-    .rarity-badge.n { background: linear-gradient(135deg, rgba(212,180,140,0.8), rgba(180,140,100,0.9)); }
-    .type-badge { position: absolute; top: 10px; left: 10px; z-index: 5; padding: 3px 7px; border-radius: 8px; font-size: 9px; letter-spacing: 0.5px; color: #FFF; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.15); }
+    .rarity-badge { position: absolute; top: 10px; right: 10px; z-index: 5; padding: 3px 8px; border-radius: 10px; font-size: 10px; letter-spacing: 1px; color: rgba(212,180,140,0.9); background: none; border: 1px solid rgba(212,180,140,0.4); font-style: italic; font-family: 'Cormorant Garamond', serif; }
+    .cold .rarity-badge, .dark .rarity-badge { color: rgba(196,130,150,0.9); border-color: rgba(196,130,150,0.4); }
+    .type-badge { position: absolute; top: 10px; left: 10px; z-index: 5; padding: 3px 7px; border-radius: 8px; font-size: 9px; letter-spacing: 0.5px; color: rgba(160,120,100,0.8); background: none; border: 1px solid rgba(160,120,100,0.3); }
+    .cold .type-badge, .dark .type-badge { color: rgba(180,130,150,0.8); border-color: rgba(180,130,150,0.3); }
     .bottom-area { position: absolute; bottom: 0; left: 0; right: 0; z-index: 50; display: flex; flex-direction: column; align-items: center; padding: 0 16px 10px; gap: 8px; }
     .card-info { text-align: center; }
     .card-name { font-family: 'Cormorant Garamond', 'Noto Serif SC', serif; font-size: 22px; font-weight: 300; font-style: italic; color: #5D4040; letter-spacing: 2px; }
@@ -61,7 +59,7 @@
     .star-row { margin-top: 4px; display: flex; justify-content: center; gap: 3px; }
     .star-row svg { width: 12px; height: 12px; fill: #D4A06A; }
     .cold .star-row svg, .dark .star-row svg { fill: #C4667A; }
-    .pool-dots { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; max-width: 200px; }
+    .pool-dots { display: flex; gap: 8px; justify-content: center; }
     .pool-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(160,120,100,0.3); cursor: pointer; transition: all .3s; }
     .pool-dot.active { width: 18px; border-radius: 3px; background: #D4A06A; }
     .cold .pool-dot.active, .dark .pool-dot.active { background: #C4667A; }
@@ -155,12 +153,12 @@
   <div class="top-bar fade-in">
     <a class="back-btn" href="index.html"><svg viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg></a>
     <div class="pool-title">情绪碎片</div>
-    <div class="currency"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg><span>1200</span></div>
+    <div class="currency"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg><span id="tokenDisplay">1200</span></div>
   </div>
   <div class="card-display fade-in d2" id="cardDisplay">
     <div class="card-frame">
       <img id="cardImg" src="../assets/gacha/%E6%92%92%E5%A8%87%E5%8D%A1%E9%9D%A2.PNG" alt="">
-      <div class="rarity-badge sr" id="rarityBadge">SR</div>
+      <div class="rarity-badge" id="rarityBadge">SSR</div>
       <div class="type-badge" id="typeBadge">情绪</div>
     </div>
   </div>
@@ -171,7 +169,7 @@
       <div class="card-name" id="cardName">撒娇</div>
       <div class="card-subtitle" id="cardSub"></div>
       <div class="card-effect" id="cardEffect" style="display:none;"></div>
-      <div class="star-row" id="starRow"><svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg><svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg><svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg><svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg></div>
+      <div class="star-row" id="starRow"><svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg><svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg><svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg><svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg><svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg></div>
     </div>
     <div class="pool-dots" id="poolDots"></div>
     <div class="pull-area">
@@ -205,19 +203,25 @@
     <button class="confirm-btn" id="confirmBtn">确认</button>
   </div>
   <script>
-    var pool = [
-      { name:'撒娇', type:'emotion', sub:'', rarity:'SR', stars:4, theme:'warm', img:'../assets/gacha/%E6%92%92%E5%A8%87%E5%8D%A1%E9%9D%A2.PNG', weight:8 },
-      { name:'生气', type:'emotion', sub:'', rarity:'SR', stars:4, theme:'cold', img:'../assets/gacha/%E7%94%9F%E6%B0%94%E5%8D%A1%E9%9D%A2.PNG', weight:8 },
-      { name:'撒娇背景', type:'bg', sub:'', rarity:'SR', stars:4, theme:'soft', img:'../assets/background/%E6%92%92%E5%A8%87%E8%83%8C%E6%99%AF.jpg', effect:'解锁首页背景', weight:10 },
-      { name:'生气背景', type:'bg', sub:'', rarity:'SR', stars:4, theme:'dark', img:'../assets/background/%E7%94%9F%E6%B0%94%E8%83%8C%E6%99%AF.PNG', effect:'解锁首页背景', weight:10 },
-      { name:'爱心巧克力', type:'prop', sub:'', rarity:'R', stars:3, theme:'warm', img:'', effect:'亲密度 +5', weight:20 },
-      { name:'晚安吻', type:'prop', sub:'', rarity:'R', stars:3, theme:'soft', img:'', effect:'亲密度 +3', weight:25 },
-      { name:'手写信封', type:'prop', sub:'', rarity:'SR', stars:4, theme:'warm', img:'', effect:'亲密度 +10', weight:8 },
-      { name:'一杯热可可', type:'prop', sub:'', rarity:'N', stars:2, theme:'warm', img:'', effect:'亲密度 +2', weight:30 },
-      { name:'超出算法的真心', type:'prop', sub:'', rarity:'SSR', stars:5, theme:'warm', img:'', effect:'亲密度 +20', weight:3 },
-      { name:'闪烁的光标', type:'prop', sub:'', rarity:'SR', stars:4, theme:'cold', img:'', effect:'亲密度 +15', weight:8 }
+    // 预览区只显示情绪卡
+    var preview = [
+      { name:'撒娇', type:'emotion', rarity:'SSR', stars:5, theme:'warm', img:'../assets/gacha/%E6%92%92%E5%A8%87%E5%8D%A1%E9%9D%A2.PNG' },
+      { name:'生气', type:'emotion', rarity:'SSR', stars:5, theme:'cold', img:'../assets/gacha/%E7%94%9F%E6%B0%94%E5%8D%A1%E9%9D%A2.PNG' }
     ];
-    var typeLabels = { emotion:'情绪', bg:'背景', prop:'道具' };
+    // 完整抽卡池
+    var pool = [
+      { name:'撒娇', type:'emotion', rarity:'SSR', stars:5, theme:'warm', img:'../assets/gacha/%E6%92%92%E5%A8%87%E5%8D%A1%E9%9D%A2.PNG', weight:5 },
+      { name:'生气', type:'emotion', rarity:'SSR', stars:5, theme:'cold', img:'../assets/gacha/%E7%94%9F%E6%B0%94%E5%8D%A1%E9%9D%A2.PNG', weight:5 },
+      { name:'撒娇背景', type:'bg', rarity:'SR', stars:4, theme:'soft', img:'../assets/background/%E6%92%92%E5%A8%87%E8%83%8C%E6%99%AF.jpg', effect:'解锁首页背景', weight:10 },
+      { name:'生气背景', type:'bg', rarity:'SR', stars:4, theme:'dark', img:'../assets/background/%E7%94%9F%E6%B0%94%E8%83%8C%E6%99%AF.PNG', effect:'解锁首页背景', weight:10 },
+      { name:'超出算法的真心', type:'prop', rarity:'SSR', stars:5, theme:'warm', img:'', effect:'亲密度 +20', weight:3 },
+      { name:'闪烁的光标', type:'prop', rarity:'SR', stars:4, theme:'cold', img:'', effect:'亲密度 +15', weight:8 },
+      { name:'手写信封', type:'prop', rarity:'SR', stars:4, theme:'warm', img:'', effect:'亲密度 +10', weight:10 },
+      { name:'晚安吻', type:'prop', rarity:'R', stars:3, theme:'soft', img:'', effect:'亲密度 +3', weight:25 },
+      { name:'50 token', type:'token', rarity:'N', stars:2, theme:'warm', img:'', effect:'+50 token', weight:30 },
+      { name:'100 token', type:'token', rarity:'R', stars:3, theme:'warm', img:'', effect:'+100 token', weight:20 }
+    ];
+    var typeLabels = { emotion:'情绪', bg:'背景', prop:'道具', token:'token' };
     var idx = 0, ready = false, result = null, switching = false;
     function $(id) { return document.getElementById(id); }
     var bgLayer = $('bgLayer'), cardImg = $('cardImg'), cardName = $('cardName'), cardSub = $('cardSub');
@@ -233,7 +237,7 @@
     var navPrev = $('navPrev'), navNext = $('navNext');
     function buildDots() {
       poolDots.innerHTML = '';
-      for (var i = 0; i < pool.length; i++) {
+      for (var i = 0; i < preview.length; i++) {
         var d = document.createElement('div');
         d.className = 'pool-dot' + (i === 0 ? ' active' : '');
         d.setAttribute('data-index', i);
@@ -255,7 +259,7 @@
     mkParticles();
     function updateArrows() {
       navPrev.classList.toggle('hidden', idx === 0);
-      navNext.classList.toggle('hidden', idx === pool.length - 1);
+      navNext.classList.toggle('hidden', idx === preview.length - 1);
     }
     function getCardBg(c) {
       if (c.img) return '';
@@ -263,17 +267,16 @@
       return g[c.theme] || g.warm;
     }
     function show(i) {
-      var c = pool[i]; idx = i;
+      var c = preview[i]; idx = i;
       bgLayer.className = 'bg-layer ' + c.theme;
       var bgC = { warm:'#FFF8F3', cold:'#1a1115', soft:'#FFF5F8', dark:'#1a1018' };
       document.body.style.background = bgC[c.theme] || '#FFF8F3';
       if (c.img) { cardImg.src = c.img; cardImg.style.background = ''; }
       else { cardImg.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; cardImg.style.background = getCardBg(c); }
       cardName.textContent = c.name;
-      cardSub.textContent = c.sub || '';
+      cardSub.textContent = '';
       typeBadge.textContent = typeLabels[c.type] || '';
       rarityBadge.textContent = c.rarity;
-      rarityBadge.className = 'rarity-badge ' + c.rarity.toLowerCase();
       if (c.effect) { cardEffect.textContent = c.effect; cardEffect.style.display = 'inline-block'; } else { cardEffect.style.display = 'none'; }
       var s=''; for(var j=0;j<c.stars;j++) s+='<svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg>';
       starRow.innerHTML = s;
@@ -282,7 +285,7 @@
       updateArrows(); mkParticles();
     }
     function goTo(nextIdx, direction) {
-      if (switching || nextIdx < 0 || nextIdx >= pool.length) return;
+      if (switching || nextIdx < 0 || nextIdx >= preview.length) return;
       switching = true;
       cardDisplay.classList.add(direction === 'next' ? 'slide-left' : 'slide-right');
       setTimeout(function() {
@@ -357,7 +360,7 @@
       }, 700);
       setTimeout(function() {
         rName.textContent = result.name;
-        rSub.textContent = result.sub || '';
+        rSub.textContent = '';
         rEffect.textContent = result.effect || ''; rEffect.style.display = result.effect ? 'block' : 'none';
         var s=''; for(var j=0;j<result.stars;j++) s+='<svg viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.2,21 12,17.5 5.8,21 7,14 2,9.3 9,8.5"/></svg>';
         rStars.innerHTML = s; revealInfo.classList.add('show');

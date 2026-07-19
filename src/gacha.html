@@ -47,12 +47,12 @@
     .cold .currency span { color: #C4A0A0; }
 
     /* 滑动区域 */
-    .swipe-area { position: absolute; top: 85px; left: 0; right: 0; bottom: 220px; z-index: 9; touch-action: pan-y; }
+    .swipe-area { position: absolute; top: 100px; left: 0; right: 0; bottom: 220px; z-index: 9; touch-action: pan-y; }
 
-    /* 卡面 */
-    .card-display { position: absolute; top: 95px; left: 50%; transform: translateX(-50%); z-index: 10; width: 62vw; max-width: 260px; aspect-ratio: 3/4; pointer-events: none; transition: transform .35s cubic-bezier(.4,0,.2,1), opacity .35s ease; }
-    .card-display.slide-left { transform: translateX(-50%) translateX(-30px); opacity: 0.3; }
-    .card-display.slide-right { transform: translateX(-50%) translateX(30px); opacity: 0.3; }
+    /* 卡面 - 垂直居中于顶栏和底部信息之间 */
+    .card-display { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -58%); z-index: 10; width: 62vw; max-width: 260px; aspect-ratio: 3/4; pointer-events: none; transition: transform .35s cubic-bezier(.4,0,.2,1), opacity .35s ease; }
+    .card-display.slide-left { transform: translate(-50%, -58%) translateX(-30px); opacity: 0.3; }
+    .card-display.slide-right { transform: translate(-50%, -58%) translateX(30px); opacity: 0.3; }
     .card-frame { width: 100%; height: 100%; border-radius: 14px; overflow: hidden; box-shadow: 0 16px 50px rgba(0,0,0,0.25), 0 0 30px rgba(200,160,120,0.15); position: relative; }
     .cold .card-frame { box-shadow: 0 16px 50px rgba(0,0,0,0.4), 0 0 30px rgba(139,32,64,0.25); }
     .card-frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -177,7 +177,7 @@
     <div class="currency"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg><span>1200</span></div>
   </div>
 
-  <!-- 滑动检测区域，覆盖卡面及周围空白 -->
+  <!-- 滑动检测区域 -->
   <div class="swipe-area" id="swipeArea"></div>
 
   <div class="card-display fade-in d2" id="cardDisplay">
@@ -287,15 +287,12 @@
       const nextIdx = direction === 'left' ? idx + 1 : idx - 1;
       if (nextIdx < 0 || nextIdx >= pool.length) return;
 
-      // 滑出动画
       cardDisplay.classList.add(direction === 'left' ? 'slide-left' : 'slide-right');
 
       setTimeout(() => {
         show(nextIdx);
-        // 从另一侧滑入
         cardDisplay.classList.remove('slide-left', 'slide-right');
         cardDisplay.classList.add(direction === 'left' ? 'slide-right' : 'slide-left');
-        // 强制回流后去掉class触发过渡
         cardDisplay.offsetHeight;
         cardDisplay.classList.remove('slide-left', 'slide-right');
       }, 200);
@@ -316,7 +313,6 @@
       if (!swiping) return;
       const dx = e.touches[0].clientX - sx;
       const dy = e.touches[0].clientY - sy;
-      // 水平滑动时阻止垂直滚动
       if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) {
         e.preventDefault();
       }
@@ -333,14 +329,13 @@
       }
     }, { passive: true });
 
-    // 同时保留document级别的滑动作为兜底
+    // document级别兜底
     let dsx = 0;
     document.addEventListener('touchstart', e => {
       if (!overlay.classList.contains('active')) dsx = e.touches[0].clientX;
     }, { passive: true });
     document.addEventListener('touchend', e => {
       if (overlay.classList.contains('active')) return;
-      // 只在非交互区域触发
       if (e.target.closest('.bottom-area') || e.target.closest('.top-bar')) return;
       const d = e.changedTouches[0].clientX - dsx;
       if (Math.abs(d) > 50) {
@@ -354,7 +349,6 @@
       result = pool[Math.floor(Math.random()*pool.length)];
       revealImg.src = result.img;
 
-      // 重置
       envelope.style.animation = 'none'; envelope.offsetHeight; envelope.style.animation = '';
       envFlap.classList.remove('opened');
       envFlap.className = 'env-flap ' + (result.theme==='warm'?'warm-env':'cold-env');
@@ -380,7 +374,6 @@
       setTimeout(() => {
         envScene.style.display = 'none';
         cardReveal.classList.add('show');
-        // 花瓣
         for(let i=0;i<18;i++){
           const p = document.createElement('div');
           p.className = 'petal '+(result.theme==='warm'?'warm-p':'cold-p');

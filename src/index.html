@@ -123,6 +123,31 @@
       border-radius: 50%;
     }
 
+    .dot.hidden { display: none; }
+
+    .checkin-toast {
+      position: fixed;
+      top: 110px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-10px);
+      padding: 8px 16px;
+      border-radius: 20px;
+      background: rgba(60, 40, 40, 0.85);
+      backdrop-filter: blur(10px);
+      color: #FFD4A0;
+      font-size: 12px;
+      letter-spacing: 1px;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 999;
+      transition: opacity .4s, transform .4s;
+    }
+
+    .checkin-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
     .right-cards {
       position: absolute;
       top: 148px;
@@ -306,14 +331,17 @@
   </div>
 
   <div class="top-right fade-in fade-in-delay-2">
-    <div class="icon-btn glass">
+    <div class="icon-btn glass" id="checkinBtn">
       <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span class="dot" id="checkinDot"></span>
     </div>
     <div class="icon-btn glass">
       <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22,6 12,13 2,6"/></svg>
       <span class="dot"></span>
     </div>
   </div>
+
+  <div class="checkin-toast" id="checkinToast">签到成功 +160 token</div>
 
   <div class="right-cards fade-in fade-in-delay-2">
     <div class="r-card glass">
@@ -376,9 +404,9 @@
 
   <script>
     (function() {
-      const hour = new Date().getHours();
-      const greetEl = document.getElementById('greet-text');
-      const subEl = document.getElementById('subtitle-text');
+      var hour = new Date().getHours();
+      var greetEl = document.getElementById('greet-text');
+      var subEl = document.getElementById('subtitle-text');
       if (hour >= 5 && hour < 12) {
         greetEl.textContent = 'Good morning,';
         subEl.innerHTML = '新的一天开始了，<br>要好好吃早饭哦。';
@@ -395,15 +423,38 @@
     })();
 
     (function() {
-      const el = document.getElementById('companion-time');
-      const start = Date.now();
+      var el = document.getElementById('companion-time');
+      var start = Date.now();
       function pad(n) { return n < 10 ? '0' + n : n; }
       function update() {
-        const diff = Math.floor((Date.now() - start) / 1000);
+        var diff = Math.floor((Date.now() - start) / 1000);
         el.textContent = pad(Math.floor(diff/3600)) + ':' + pad(Math.floor((diff%3600)/60)) + ':' + pad(diff%60);
       }
       setInterval(update, 1000);
       update();
+    })();
+
+    (function() {
+      var btn = document.getElementById('checkinBtn');
+      var dot = document.getElementById('checkinDot');
+      var toast = document.getElementById('checkinToast');
+      var today = new Date().toISOString().slice(0, 10);
+      var key = 'bsy_checkin_' + today;
+
+      if (localStorage.getItem(key)) {
+        dot.classList.add('hidden');
+      }
+
+      btn.addEventListener('click', function() {
+        if (localStorage.getItem(key)) return;
+        localStorage.setItem(key, '1');
+        var t = parseInt(localStorage.getItem('bsy_tokens') || '1600');
+        t += 160;
+        localStorage.setItem('bsy_tokens', t.toString());
+        dot.classList.add('hidden');
+        toast.classList.add('show');
+        setTimeout(function() { toast.classList.remove('show'); }, 2000);
+      });
     })();
   </script>
 </body>

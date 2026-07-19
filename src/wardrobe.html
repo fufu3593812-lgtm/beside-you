@@ -6,415 +6,65 @@
   <title>Beside You - 装扮</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: -apple-system, 'PingFang SC', sans-serif;
-      background: #FFF8F7;
-      width: 100vw;
-      height: 100vh;
-      overflow: hidden;
-      position: relative;
-      max-width: 430px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-    }
-
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background:
-        radial-gradient(ellipse 80px 80px at 15% 15%, rgba(245, 200, 200, 0.2), transparent),
-        radial-gradient(ellipse 60px 100px at 85% 20%, rgba(240, 210, 220, 0.15), transparent),
-        radial-gradient(ellipse 100px 60px at 10% 80%, rgba(240, 220, 210, 0.15), transparent),
-        radial-gradient(ellipse 70px 90px at 90% 75%, rgba(245, 200, 210, 0.12), transparent);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .header {
-      position: relative;
-      height: 88px;
-      padding: 44px 20px 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(255, 248, 245, 0.85);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(240, 210, 210, 0.4);
-      z-index: 10;
-      flex-shrink: 0;
-    }
-
-    .header .back {
-      position: absolute;
-      left: 16px;
-      top: 48px;
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      text-decoration: none;
-    }
-
-    .header .back svg {
-      width: 20px;
-      height: 20px;
-      stroke: #A07070;
-      stroke-width: 2;
-      fill: none;
-    }
-
-    .header .title {
-      font-size: 15px;
-      color: #5D4040;
-      font-weight: 500;
-      letter-spacing: 1px;
-      font-style: italic;
-    }
-
-    .header .ornament {
-      position: absolute;
-      bottom: -1px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 120px;
-      height: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-    }
-
-    .header .ornament::before,
-    .header .ornament::after {
-      content: '❦';
-      font-size: 10px;
-      color: #E0B0B0;
-    }
-
-    .header .ornament .center-gem {
-      width: 6px;
-      height: 6px;
-      background: linear-gradient(135deg, #F5C4C4, #E8A0A0);
-      border-radius: 50%;
-      box-shadow: 0 0 6px rgba(232, 160, 160, 0.4);
-    }
-
-    .main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      position: relative;
-      z-index: 1;
-    }
-
-    .preview {
-      height: 45vh;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .preview::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 180px;
-      height: 260px;
-      border-radius: 50%;
-      border: 2px solid rgba(232, 180, 180, 0.25);
-      pointer-events: none;
-    }
-
-    .preview .character {
-      height: 100%;
-      object-fit: contain;
-      animation: breathe 3s ease-in-out infinite;
-      position: relative;
-      z-index: 1;
-      transition: opacity 0.3s ease;
-    }
-
-    .preview .character.switching {
-      opacity: 0;
-      animation: none;
-    }
-
-    @keyframes breathe {
-      0%, 100% { transform: translateY(0) scale(1); }
-      50% { transform: translateY(-6px) scale(1.005); }
-    }
-
-    .preview .decor-left {
-      position: absolute;
-      top: 50%;
-      left: 16px;
-      transform: translateY(-50%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      opacity: 0.5;
-      font-size: 14px;
-      color: #E0B8B8;
-    }
-
-    .preview .outfit-name {
-      position: absolute;
-      right: 20px;
-      bottom: 50%;
-      transform: translateY(50%);
-      font-size: 11px;
-      color: #8A6060;
-      font-style: italic;
-      letter-spacing: 1px;
-      writing-mode: vertical-rl;
-      background: rgba(255, 255, 255, 0.65);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      padding: 12px 6px;
-      border-radius: 16px;
-      border: 1px solid rgba(232, 180, 180, 0.3);
-      z-index: 2;
-    }
-
-    .tabs {
-      display: flex;
-      gap: 0;
-      padding: 0 16px;
-      background: rgba(255, 248, 245, 0.75);
-      border-bottom: 1px solid rgba(240, 210, 210, 0.3);
-      border-top: 1px solid rgba(240, 210, 210, 0.3);
-      flex-shrink: 0;
-    }
-
-    .tab {
-      flex: 1;
-      text-align: center;
-      padding: 10px 0;
-      font-size: 12px;
-      color: #B8A0A0;
-      position: relative;
-      cursor: pointer;
-      transition: color 0.2s;
-    }
-
-    .tab.active {
-      color: #7D5050;
-      font-weight: 500;
-    }
-
-    .tab.active::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 24px;
-      height: 2px;
-      background: linear-gradient(90deg, #F5C4C4, #E8A0A0);
-      border-radius: 2px;
-    }
-
-    .wardrobe-grid {
-      padding: 12px 16px 100px;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-      overflow-y: auto;
-      flex: 1;
-      -webkit-overflow-scrolling: touch;
-    }
-
+    body { font-family: -apple-system, 'PingFang SC', sans-serif; background: #FFF8F7; width: 100vw; height: 100vh; overflow: hidden; position: relative; max-width: 430px; margin: 0 auto; display: flex; flex-direction: column; }
+    body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse 80px 80px at 15% 15%, rgba(245, 200, 200, 0.2), transparent), radial-gradient(ellipse 60px 100px at 85% 20%, rgba(240, 210, 220, 0.15), transparent), radial-gradient(ellipse 100px 60px at 10% 80%, rgba(240, 220, 210, 0.15), transparent), radial-gradient(ellipse 70px 90px at 90% 75%, rgba(245, 200, 210, 0.12), transparent); pointer-events: none; z-index: 0; }
+    .header { position: relative; height: 88px; padding: 44px 20px 0; display: flex; align-items: center; justify-content: center; background: rgba(255, 248, 245, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(240, 210, 210, 0.4); z-index: 10; flex-shrink: 0; }
+    .header .back { position: absolute; left: 16px; top: 48px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; }
+    .header .back svg { width: 20px; height: 20px; stroke: #A07070; stroke-width: 2; fill: none; }
+    .header .title { font-size: 15px; color: #5D4040; font-weight: 500; letter-spacing: 1px; font-style: italic; }
+    .header .ornament { position: absolute; bottom: -1px; left: 50%; transform: translateX(-50%); width: 120px; height: 12px; display: flex; align-items: center; justify-content: center; gap: 4px; }
+    .header .ornament::before, .header .ornament::after { content: '❦'; font-size: 10px; color: #E0B0B0; }
+    .header .ornament .center-gem { width: 6px; height: 6px; background: linear-gradient(135deg, #F5C4C4, #E8A0A0); border-radius: 50%; box-shadow: 0 0 6px rgba(232, 160, 160, 0.4); }
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; z-index: 1; }
+    .preview { height: 45vh; flex-shrink: 0; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+    .preview::before { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 180px; height: 260px; border-radius: 50%; border: 2px solid rgba(232, 180, 180, 0.25); pointer-events: none; }
+    .preview .character { height: 100%; object-fit: contain; animation: breathe 3s ease-in-out infinite; position: relative; z-index: 1; transition: opacity 0.3s ease; }
+    .preview .character.switching { opacity: 0; animation: none; }
+    @keyframes breathe { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-6px) scale(1.005); } }
+    .preview .decor-left { position: absolute; top: 50%; left: 16px; transform: translateY(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; opacity: 0.5; font-size: 14px; color: #E0B8B8; }
+    .preview .outfit-name { position: absolute; right: 20px; bottom: 50%; transform: translateY(50%); font-size: 11px; color: #8A6060; font-style: italic; letter-spacing: 1px; writing-mode: vertical-rl; background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 12px 6px; border-radius: 16px; border: 1px solid rgba(232, 180, 180, 0.3); z-index: 2; }
+    .tabs { display: flex; gap: 0; padding: 0 16px; background: rgba(255, 248, 245, 0.75); border-bottom: 1px solid rgba(240, 210, 210, 0.3); border-top: 1px solid rgba(240, 210, 210, 0.3); flex-shrink: 0; }
+    .tab { flex: 1; text-align: center; padding: 10px 0; font-size: 12px; color: #B8A0A0; position: relative; cursor: pointer; transition: color 0.2s; }
+    .tab.active { color: #7D5050; font-weight: 500; }
+    .tab.active::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 24px; height: 2px; background: linear-gradient(90deg, #F5C4C4, #E8A0A0); border-radius: 2px; }
+    .wardrobe-grid { padding: 12px 16px 100px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch; }
     .wardrobe-grid::-webkit-scrollbar { width: 0; }
-
-    .outfit-card {
-      aspect-ratio: 3/4;
-      border-radius: 14px;
-      background: rgba(255, 255, 255, 0.65);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      border: 1.5px solid rgba(232, 190, 190, 0.35);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-end;
-      cursor: pointer;
-      transition: transform 0.2s, border-color 0.3s, box-shadow 0.3s;
-      position: relative;
-      overflow: hidden;
-      padding-bottom: 6px;
-    }
-
+    .outfit-card { aspect-ratio: 3/4; border-radius: 14px; background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1.5px solid rgba(232, 190, 190, 0.35); display: flex; flex-direction: column; align-items: center; justify-content: flex-end; cursor: pointer; transition: transform 0.2s, border-color 0.3s, box-shadow 0.3s; position: relative; overflow: hidden; padding-bottom: 6px; }
     .outfit-card:active { transform: scale(0.95); }
-
-    .outfit-card.active {
-      border-color: rgba(232, 150, 150, 0.6);
-      box-shadow: 0 0 12px rgba(232, 160, 160, 0.2);
-    }
-
-    .outfit-card .thumb {
-      position: absolute;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 120%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center 40%;
-    }
-
-    .outfit-card .name {
-      position: relative;
-      z-index: 2;
-      font-size: 9px;
-      color: #6D5050;
-      text-align: center;
-      background: rgba(255, 248, 245, 0.85);
-      padding: 2px 6px;
-      border-radius: 8px;
-      border: 1px solid rgba(232, 190, 190, 0.2);
-    }
-
-    .outfit-card .rarity {
-      position: absolute;
-      top: 5px;
-      left: 5px;
-      font-size: 9px;
-      font-weight: 700;
-      font-style: italic;
-      z-index: 2;
-      color: #C89030;
-    }
-
-    .bg-grid {
-      padding: 12px 16px 100px;
-      display: none;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      overflow-y: auto;
-      flex: 1;
-      -webkit-overflow-scrolling: touch;
-    }
-
+    .outfit-card.active { border-color: rgba(232, 150, 150, 0.6); box-shadow: 0 0 12px rgba(232, 160, 160, 0.2); }
+    .outfit-card .thumb { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 120%; height: 100%; object-fit: cover; object-position: center 40%; }
+    .outfit-card .name { position: relative; z-index: 2; font-size: 9px; color: #6D5050; text-align: center; background: rgba(255, 248, 245, 0.85); padding: 2px 6px; border-radius: 8px; border: 1px solid rgba(232, 190, 190, 0.2); }
+    .outfit-card .rarity { position: absolute; top: 5px; left: 5px; font-size: 9px; font-weight: 700; font-style: italic; z-index: 2; color: #C89030; }
+    .bg-grid { padding: 12px 16px 100px; display: none; grid-template-columns: repeat(2, 1fr); gap: 12px; overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch; }
     .bg-grid::-webkit-scrollbar { width: 0; }
-
-    .bg-card {
-      aspect-ratio: 16/10;
-      border-radius: 14px;
-      background: rgba(255, 255, 255, 0.65);
-      backdrop-filter: blur(8px);
-      border: 1.5px solid rgba(232, 190, 190, 0.35);
-      cursor: pointer;
-      transition: transform 0.2s, border-color 0.3s;
-      position: relative;
-      overflow: hidden;
-    }
-
+    .bg-card { aspect-ratio: 16/10; border-radius: 14px; background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(8px); border: 1.5px solid rgba(232, 190, 190, 0.35); cursor: pointer; transition: transform 0.2s, border-color 0.3s; position: relative; overflow: hidden; }
     .bg-card:active { transform: scale(0.95); }
     .bg-card.active { border-color: rgba(232, 150, 150, 0.6); box-shadow: 0 0 12px rgba(232, 160, 160, 0.2); }
     .bg-card .thumb { width: 100%; height: 100%; object-fit: cover; display: block; }
     .bg-card .name { position: absolute; bottom: 0; left: 0; right: 0; padding: 4px 6px; text-align: center; font-size: 9px; color: #FFF; background: linear-gradient(transparent, rgba(0,0,0,0.5)); }
     .bg-card.locked { display: flex; align-items: center; justify-content: center; background: rgba(200,180,170,0.08); border: 1.5px dashed rgba(200,180,170,0.35); }
     .bg-card.locked .lock-text { font-size: 10px; color: rgba(180,160,150,0.5); font-style: italic; }
-
-    .bottom-bar {
-      padding: 10px 16px;
-      padding-bottom: max(10px, env(safe-area-inset-bottom));
-      background: rgba(255, 248, 245, 0.88);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-top: 1px solid rgba(232, 190, 190, 0.3);
-      display: flex;
-      gap: 12px;
-      z-index: 10;
-      flex-shrink: 0;
-    }
-
-    .btn {
-      flex: 1;
-      height: 38px;
-      border-radius: 20px;
-      border: none;
-      font-size: 13px;
-      cursor: pointer;
-      transition: transform 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
+    .bottom-bar { padding: 10px 16px; padding-bottom: max(10px, env(safe-area-inset-bottom)); background: rgba(255, 248, 245, 0.88); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid rgba(232, 190, 190, 0.3); display: flex; gap: 12px; z-index: 10; flex-shrink: 0; }
+    .btn { flex: 1; height: 38px; border-radius: 20px; border: none; font-size: 13px; cursor: pointer; transition: transform 0.2s; display: flex; align-items: center; justify-content: center; }
     .btn:active { transform: scale(0.96); }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #F5C4C4, #E8A0A0);
-      color: #fff;
-      box-shadow: 0 4px 12px rgba(232, 160, 160, 0.25);
-      border: 1px solid rgba(255, 200, 200, 0.5);
-    }
-
-    .btn-secondary {
-      background: rgba(255, 255, 255, 0.65);
-      border: 1.5px solid rgba(232, 190, 190, 0.4);
-      color: #7D5555;
-    }
-
-    .toast {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(0.8);
-      background: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1.5px solid rgba(232, 180, 180, 0.4);
-      border-radius: 16px;
-      padding: 16px 28px;
-      font-size: 13px;
-      color: #5D4040;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease, transform 0.3s ease;
-      z-index: 100;
-    }
-
-    .toast.show {
-      opacity: 1;
-      transform: translate(-50%, -50%) scale(1);
-    }
+    .btn-primary { background: linear-gradient(135deg, #F5C4C4, #E8A0A0); color: #fff; box-shadow: 0 4px 12px rgba(232, 160, 160, 0.25); border: 1px solid rgba(255, 200, 200, 0.5); }
+    .btn-secondary { background: rgba(255, 255, 255, 0.65); border: 1.5px solid rgba(232, 190, 190, 0.4); color: #7D5555; }
+    .toast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8); background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1.5px solid rgba(232, 180, 180, 0.4); border-radius: 16px; padding: 16px 28px; font-size: 13px; color: #5D4040; opacity: 0; pointer-events: none; transition: opacity 0.3s ease, transform 0.3s ease; z-index: 100; }
+    .toast.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
   </style>
 </head>
 <body>
   <div class="header">
-    <a class="back" href="index.html">
-      <svg viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg>
-    </a>
+    <a class="back" href="index.html"><svg viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg></a>
     <div class="title">Style</div>
-    <div class="ornament">
-      <div class="center-gem"></div>
-    </div>
+    <div class="ornament"><div class="center-gem"></div></div>
   </div>
-
   <div class="main">
     <div class="preview">
-      <div class="decor-left">
-        <span>❧</span><span>┊</span><span>✿</span><span>┊</span><span>❧</span>
-      </div>
+      <div class="decor-left"><span>❧</span><span>┊</span><span>✿</span><span>┊</span><span>❧</span></div>
       <img class="character" id="preview-img" alt="珩">
       <div class="outfit-name" id="outfit-name">月光睡裙</div>
     </div>
-
     <div class="tabs">
       <div class="tab active" data-cat="all">全部</div>
       <div class="tab" data-cat="daily">日常</div>
@@ -422,35 +72,26 @@
       <div class="tab" data-cat="limited">限定</div>
       <div class="tab" data-cat="bg">背景</div>
     </div>
-
     <div class="wardrobe-grid" id="wardrobe-grid"></div>
-
     <div class="bg-grid" id="bg-grid"></div>
   </div>
-
   <div class="bottom-bar">
     <button class="btn btn-secondary" id="btn-fav">收藏</button>
     <button class="btn btn-primary" id="btn-wear">换上</button>
   </div>
-
   <div class="toast" id="toast"></div>
-
   <script>
-    var CDN = 'https://cdn.jsdelivr.net/gh/fufu3593812-lgtm/beside-you@main/assets/';
-
     var outfits = [
-      { name: '月光睡裙', cat: 'limited', rarity: 'SR', img: CDN + '%E7%9D%A1%E8%A3%99.PNG' },
-      { name: '慵懒卫衣', cat: 'daily', rarity: 'R', img: CDN + '%E5%8D%AB%E8%A1%A3.PNG' },
-      { name: '初恋JK', cat: 'daily', rarity: 'R', img: CDN + 'jk.PNG' },
-      { name: '碎花裙', cat: 'daily', rarity: 'SR', img: CDN + '%E7%A2%8E%E8%8A%B1%E8%A3%99.PNG' }
+      { name: '月光睡裙', cat: 'limited', rarity: 'SR', img: '../assets/%E7%9D%A1%E8%A3%99.PNG' },
+      { name: '慵懒卫衣', cat: 'daily', rarity: 'R', img: '../assets/%E5%8D%AB%E8%A1%A3.PNG' },
+      { name: '初恋JK', cat: 'daily', rarity: 'R', img: '../assets/jk.PNG' },
+      { name: '碎花裙', cat: 'daily', rarity: 'SR', img: '../assets/%E7%A2%8E%E8%8A%B1%E8%A3%99.PNG' }
     ];
-
     var backgrounds = [
-      { name: '默认卧室', img: CDN + '%E5%8D%A7%E5%AE%A4.png', locked: false },
-      { name: '撒娇背景', img: CDN + 'background/%E6%92%92%E5%A8%87%E8%83%8C%E6%99%AF.jpg', locked: true },
-      { name: '生气背景', img: CDN + 'background/%E7%94%9F%E6%B0%94%E8%83%8C%E6%99%AF.PNG', locked: true }
+      { name: '默认卧室', img: '../assets/%E5%8D%A7%E5%AE%A4.png', locked: false },
+      { name: '撒娇背景', img: '../assets/background/%E6%92%92%E5%A8%87%E8%83%8C%E6%99%AF.jpg', locked: true },
+      { name: '生气背景', img: '../assets/background/%E7%94%9F%E6%B0%94%E8%83%8C%E6%99%AF.PNG', locked: true }
     ];
-
     (function() {
       var wardrobeGrid = document.getElementById('wardrobe-grid');
       var bgGrid = document.getElementById('bg-grid');
@@ -459,14 +100,11 @@
       var btnWear = document.getElementById('btn-wear');
       var toast = document.getElementById('toast');
       var tabs = document.querySelectorAll('.tab');
-
       var currentOutfit = localStorage.getItem('bsy_outfit') || '月光睡裙';
       var currentOutfitImg = localStorage.getItem('bsy_outfit_img') || outfits[0].img;
       var selectedCard = null;
       var selectedData = null;
       var mode = 'outfit';
-
-      // 渲染衣柜
       outfits.forEach(function(o) {
         var card = document.createElement('div');
         card.className = 'outfit-card' + (o.name === currentOutfit ? ' active' : '');
@@ -475,15 +113,8 @@
         card.dataset.img = o.img;
         card.innerHTML = '<span class="rarity">' + o.rarity + '</span><img class="thumb" src="' + o.img + '" alt="' + o.name + '"><div class="name">' + o.name + '</div>';
         wardrobeGrid.appendChild(card);
-        if (o.name === currentOutfit) {
-          selectedCard = card;
-          selectedData = o;
-          previewImg.src = o.img;
-          outfitName.textContent = o.name;
-        }
+        if (o.name === currentOutfit) { selectedCard = card; selectedData = o; previewImg.src = o.img; outfitName.textContent = o.name; }
       });
-
-      // 渲染背景
       var owned = JSON.parse(localStorage.getItem('bsy_collection') || '[]');
       backgrounds.forEach(function(b) {
         var card = document.createElement('div');
@@ -491,42 +122,21 @@
         card.className = 'bg-card' + (isLocked ? ' locked' : '') + (b.name === '默认卧室' ? ' active' : '');
         card.dataset.name = b.name;
         card.dataset.img = b.img;
-        if (isLocked) {
-          card.innerHTML = '<span class="lock-text">抽卡解锁</span>';
-        } else {
-          card.innerHTML = '<img class="thumb" src="' + b.img + '" alt=""><div class="name">' + b.name + '</div>';
-        }
+        if (isLocked) { card.innerHTML = '<span class="lock-text">抽卡解锁</span>'; }
+        else { card.innerHTML = '<img class="thumb" src="' + b.img + '" alt=""><div class="name">' + b.name + '</div>'; }
         bgGrid.appendChild(card);
       });
-
       var outfitCards = wardrobeGrid.querySelectorAll('.outfit-card');
       var bgCards = bgGrid.querySelectorAll('.bg-card');
-
-      // tab切换
       tabs.forEach(function(tab) {
         tab.addEventListener('click', function() {
           tabs.forEach(function(t) { t.classList.remove('active'); });
           tab.classList.add('active');
           var cat = tab.dataset.cat;
-
-          if (cat === 'bg') {
-            mode = 'bg';
-            wardrobeGrid.style.display = 'none';
-            bgGrid.style.display = 'grid';
-            btnWear.textContent = '使用';
-          } else {
-            mode = 'outfit';
-            wardrobeGrid.style.display = 'grid';
-            bgGrid.style.display = 'none';
-            btnWear.textContent = '换上';
-            outfitCards.forEach(function(card) {
-              card.style.display = (cat === 'all' || card.dataset.cat === cat) ? '' : 'none';
-            });
-          }
+          if (cat === 'bg') { mode = 'bg'; wardrobeGrid.style.display = 'none'; bgGrid.style.display = 'grid'; btnWear.textContent = '使用'; }
+          else { mode = 'outfit'; wardrobeGrid.style.display = 'grid'; bgGrid.style.display = 'none'; btnWear.textContent = '换上'; outfitCards.forEach(function(card) { card.style.display = (cat === 'all' || card.dataset.cat === cat) ? '' : 'none'; }); }
         });
       });
-
-      // 点衣服卡片
       outfitCards.forEach(function(card) {
         card.addEventListener('click', function() {
           outfitCards.forEach(function(c) { c.classList.remove('active'); });
@@ -534,21 +144,12 @@
           selectedCard = card;
           selectedData = { name: card.dataset.name, img: card.dataset.img };
           previewImg.classList.add('switching');
-          setTimeout(function() {
-            previewImg.src = card.dataset.img;
-            outfitName.textContent = card.dataset.name;
-            previewImg.classList.remove('switching');
-          }, 250);
+          setTimeout(function() { previewImg.src = card.dataset.img; outfitName.textContent = card.dataset.name; previewImg.classList.remove('switching'); }, 250);
         });
       });
-
-      // 点背景卡片
       bgCards.forEach(function(card) {
         card.addEventListener('click', function() {
-          if (card.classList.contains('locked')) {
-            showToast('还没解锁，去抽卡吧');
-            return;
-          }
+          if (card.classList.contains('locked')) { showToast('还没解锁，去抽卡吧'); return; }
           bgCards.forEach(function(c) { c.classList.remove('active'); });
           card.classList.add('active');
           selectedCard = card;
@@ -556,36 +157,23 @@
           outfitName.textContent = card.dataset.name;
         });
       });
-
-      // 换上/使用按钮
       btnWear.addEventListener('click', function() {
         if (!selectedData) return;
         var name = selectedData.name;
         if (mode === 'outfit') {
-          if (name === currentOutfit) {
-            showToast('已经穿着这件了');
-            return;
-          }
+          if (name === currentOutfit) { showToast('已经穿着这件了'); return; }
           currentOutfit = name;
           currentOutfitImg = selectedData.img;
           localStorage.setItem('bsy_outfit', name);
           localStorage.setItem('bsy_outfit_img', currentOutfitImg);
           showToast('✿ 已换上「' + name + '」');
         } else {
-          if (selectedCard && selectedCard.classList.contains('locked')) {
-            showToast('还没解锁，去抽卡吧');
-            return;
-          }
+          if (selectedCard && selectedCard.classList.contains('locked')) { showToast('还没解锁，去抽卡吧'); return; }
           localStorage.setItem('bsy_bg', selectedData.img);
           showToast('✿ 背景已切换为「' + name + '」');
         }
       });
-
-      function showToast(msg) {
-        toast.textContent = msg;
-        toast.classList.add('show');
-        setTimeout(function() { toast.classList.remove('show'); }, 1600);
-      }
+      function showToast(msg) { toast.textContent = msg; toast.classList.add('show'); setTimeout(function() { toast.classList.remove('show'); }, 1600); }
     })();
   </script>
 </body>

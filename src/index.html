@@ -34,7 +34,7 @@
     .r-card .value { font-size: 24px; font-weight: 300; color: #7D6666; margin-top: 6px; }
     .r-card .value small { font-size: 12px; color: #B8A8A8; }
     .progress-bar { margin-top: 8px; height: 3px; background: #F0E0E0; border-radius: 2px; overflow: hidden; }
-    .progress-bar .fill { height: 100%; width: 72%; background: linear-gradient(90deg, #F5C4C4, #E8A0A0); border-radius: 2px; }
+    .progress-bar .fill { height: 100%; background: linear-gradient(90deg, #F5C4C4, #E8A0A0); border-radius: 2px; transition: width 0.5s ease; }
     .mood-card { position: absolute; bottom: 120px; left: 16px; z-index: 10; border-radius: 16px; padding: 14px 18px; text-align: center; }
     .mood-card .title { font-size: 10px; color: #B8A0A0; text-align: center; }
     .mood-card .mood-icon { margin-top: 8px; display: flex; justify-content: center; }
@@ -84,8 +84,8 @@
   <div class="right-cards fade-in fade-in-delay-2">
     <div class="r-card glass">
       <div class="label"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>亲密度</div>
-      <div class="value">72<small>/100</small></div>
-      <div class="progress-bar"><div class="fill"></div></div>
+      <div class="value" id="intimacy-value">0<small>/100</small></div>
+      <div class="progress-bar"><div class="fill" id="intimacy-fill"></div></div>
     </div>
     <div class="r-card glass">
       <div class="label"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>今日陪伴</div>
@@ -152,8 +152,18 @@
         localStorage.setItem('bsy_tokens', t.toString());
         dot.classList.add('hidden'); toast.classList.add('show');
         setTimeout(function() { toast.classList.remove('show'); }, 2000);
+        updateIntimacy();
       });
     })();
+    (function() {
+      updateIntimacy();
+    })();
+    function updateIntimacy() {
+      var intimacy = parseInt(localStorage.getItem('bsy_intimacy') || '0');
+      if (intimacy > 100) intimacy = 100;
+      document.getElementById('intimacy-value').innerHTML = intimacy + '<small>/100</small>';
+      document.getElementById('intimacy-fill').style.width = intimacy + '%';
+    }
   </script>
 </body>
 </html>

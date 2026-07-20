@@ -6,12 +6,10 @@
 <title>Beside You - Letter</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-
 @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600&display=swap');
-
 body {
   min-height: 100vh;
-  background: #fdf6f0;
+  background: #FFF8F7;
   font-family: 'Noto Serif SC', serif;
   display: flex;
   flex-direction: column;
@@ -20,52 +18,64 @@ body {
   position: relative;
   overflow-x: hidden;
 }
-
-/* floating petals */
+.back-btn {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 100;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 240, 230, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: transform 0.2s ease;
+}
+.back-btn:active { transform: scale(0.9); }
+.back-btn svg { width: 18px; height: 18px; stroke: #C4A08A; stroke-width: 2; fill: none; }
 .petal {
   position: fixed;
   width: 12px;
   height: 12px;
-  background: rgba(255, 182, 193, 0.4);
+  background: rgba(255, 182, 193, 0.3);
   border-radius: 50% 0 50% 50%;
   animation: fall linear infinite;
   pointer-events: none;
   z-index: 0;
 }
-
 @keyframes fall {
-  0% { transform: translateY(-20px) rotate(0deg); opacity: 0.8; }
+  0% { transform: translateY(-20px) rotate(0deg); opacity: 0.7; }
   100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
 }
-
-/* envelope */
 .envelope-wrapper {
   position: relative;
   z-index: 1;
   width: 100%;
   max-width: 420px;
   margin-bottom: 32px;
+  margin-top: 20px;
 }
-
 .envelope {
-  background: #fffaf5;
-  border: 1.5px solid #e8d5c4;
+  background: #FFFAF5;
+  border: 1.5px solid #F0E0D6;
   border-radius: 4px;
   padding: 48px 32px 40px;
   position: relative;
-  box-shadow: 0 4px 24px rgba(180, 140, 100, 0.08), 0 1px 3px rgba(0,0,0,0.04);
+  box-shadow: 0 4px 24px rgba(200, 170, 140, 0.08), 0 1px 3px rgba(0,0,0,0.03);
 }
-
 .envelope::before {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 6px;
-  background: linear-gradient(90deg, #f4c7b0, #f9ddd2, #f4c7b0);
+  background: linear-gradient(90deg, #F5D0C8, #FFE8E0, #F5D0C8);
   border-radius: 4px 4px 0 0;
 }
-
-/* wax seal */
 .seal {
   position: absolute;
   top: -18px;
@@ -73,196 +83,136 @@ body {
   transform: translateX(-50%);
   width: 36px;
   height: 36px;
-  background: radial-gradient(circle at 40% 35%, #e87461, #c0453a);
+  background: radial-gradient(circle at 40% 35%, #F5C4C4, #E8A0A0);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(200, 80, 60, 0.3);
+  box-shadow: 0 2px 8px rgba(232, 160, 160, 0.3);
 }
-
 .seal::after {
-  content: '♥';
+  content: '\2665';
   color: rgba(255,255,255,0.9);
   font-size: 14px;
 }
-
-/* letter content */
 .letter-to {
   font-size: 13px;
-  color: #b8977a;
+  color: #C4A08A;
   letter-spacing: 2px;
   margin-bottom: 28px;
   text-align: center;
   font-weight: 300;
 }
-
 .letter-body {
   font-size: 14.5px;
   line-height: 2.1;
-  color: #5a4a3f;
+  color: #7D6666;
   font-weight: 300;
   letter-spacing: 0.3px;
 }
-
 .letter-body p {
   margin-bottom: 20px;
   text-indent: 0;
 }
-
-.letter-body p:last-child {
-  margin-bottom: 0;
-}
-
+.letter-body p:last-child { margin-bottom: 0; }
 .letter-highlight {
   display: block;
   text-align: center;
   font-size: 15px;
   font-weight: 600;
-  color: #c0453a;
+  color: #E8A0A0;
   margin: 28px 0;
   letter-spacing: 1px;
 }
-
 .letter-closing {
   margin-top: 32px;
   text-align: right;
   font-size: 13px;
-  color: #b8977a;
+  color: #C4A08A;
   font-style: italic;
   line-height: 1.8;
 }
-
-/* gifts section */
 .gifts {
   width: 100%;
   max-width: 420px;
   z-index: 1;
 }
-
 .gift-card {
-  background: #fffaf5;
-  border: 1.5px solid #e8d5c4;
+  background: #FFFAF5;
+  border: 1.5px solid #F0E0D6;
   border-radius: 12px;
-  padding: 24px;
-  margin-bottom: 16px;
+  padding: 20px 24px;
+  margin-bottom: 12px;
   display: flex;
   align-items: center;
-  gap: 16px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  gap: 14px;
   position: relative;
   overflow: hidden;
+  transition: opacity 0.3s;
 }
-
-.gift-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(180, 140, 100, 0.12);
-}
-
-.gift-card.claimed {
-  opacity: 0.6;
-  pointer-events: none;
-}
-
-.gift-card.claimed::after {
-  content: '已领取 ♥';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(255,250,245,0.92);
-  padding: 8px 20px;
-  border-radius: 20px;
-  font-size: 13px;
-  color: #c0453a;
-  letter-spacing: 1px;
-}
-
+.gift-card.claimed { opacity: 0.5; }
 .gift-icon {
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
-
-.gift-icon.heart {
-  background: linear-gradient(135deg, #fce4ec, #f8bbd0);
-}
-
-.gift-icon.token {
-  background: linear-gradient(135deg, #fff3e0, #ffe0b2);
-}
-
-.gift-icon svg {
-  width: 24px;
-  height: 24px;
-}
-
-.gift-info {
-  flex: 1;
-}
-
-.gift-name {
+.gift-icon.heart { background: linear-gradient(135deg, #FFF0F0, #FFD4D4); }
+.gift-icon.token { background: linear-gradient(135deg, #FFF5E8, #FFE8C8); }
+.gift-icon svg { width: 20px; height: 20px; }
+.gift-info { flex: 1; }
+.gift-name { font-size: 13px; color: #7D6666; font-weight: 600; margin-bottom: 3px; }
+.gift-desc { font-size: 11px; color: #B8A0A0; font-weight: 300; }
+.claim-all-btn {
+  width: 100%;
+  max-width: 420px;
+  margin-top: 20px;
+  padding: 14px 0;
+  border: none;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #FFD4D4, #F5C4C4);
+  color: #7D5555;
   font-size: 14px;
-  color: #5a4a3f;
-  font-weight: 600;
-  margin-bottom: 4px;
+  font-family: 'Noto Serif SC', serif;
+  font-weight: 400;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 1;
+  position: relative;
 }
-
-.gift-desc {
-  font-size: 12px;
-  color: #b8977a;
-  font-weight: 300;
-}
-
-.gift-tag {
-  font-size: 11px;
-  padding: 3px 10px;
-  border-radius: 10px;
-  background: rgba(192, 69, 58, 0.08);
-  color: #c0453a;
-  letter-spacing: 0.5px;
-  white-space: nowrap;
-}
-
-/* claim animation */
+.claim-all-btn:active { transform: scale(0.97); }
+.claim-all-btn.claimed { background: #F0E0E0; color: #B8A0A0; pointer-events: none; }
 @keyframes sparkle {
   0% { transform: scale(0) rotate(0deg); opacity: 1; }
   100% { transform: scale(1.5) rotate(180deg); opacity: 0; }
 }
-
 .sparkle-burst {
-  position: absolute;
-  width: 100%;
-  height: 100%;
+  position: fixed;
   top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
   pointer-events: none;
+  z-index: 200;
 }
-
 .sparkle-burst span {
   position: absolute;
-  width: 6px;
-  height: 6px;
-  background: #f4c7b0;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  animation: sparkle 0.6s ease-out forwards;
+  animation: sparkle 0.8s ease-out forwards;
 }
-
-/* bottom note */
 .bottom-note {
   margin-top: 32px;
   text-align: center;
   font-size: 12px;
-  color: #c9b8a8;
+  color: #C4A08A;
   letter-spacing: 1px;
   font-weight: 300;
 }
-
-/* responsive */
 @media (max-width: 380px) {
   .envelope { padding: 36px 24px 32px; }
   .letter-body { font-size: 13.5px; }
@@ -270,11 +220,10 @@ body {
 </style>
 </head>
 <body>
-
-<!-- floating petals -->
+<a class="back-btn" href="/src/index.html">
+  <svg viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg>
+</a>
 <div id="petals"></div>
-
-<!-- letter -->
 <div class="envelope-wrapper">
   <div class="envelope">
     <div class="seal"></div>
@@ -290,17 +239,13 @@ body {
       <p>Beside You。在你身旁。</p>
       <p>谢谢你来。</p>
     </div>
-    <div class="letter-closing">
-      Ice & Pearl
-    </div>
+    <div class="letter-closing">Ice &amp; Pearl</div>
   </div>
 </div>
-
-<!-- gifts -->
 <div class="gifts">
-  <div class="gift-card" id="gift-item" onclick="claimGift(this, 'item')">
+  <div class="gift-card" id="gift-item">
     <div class="gift-icon heart">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#c0453a" stroke-width="1.5">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#E8A0A0" stroke-width="1.5">
         <path d="M12 21C12 21 3 14 3 8.5C3 5.42 5.42 3 8.5 3C10.24 3 11.91 3.81 12 5C12.09 3.81 13.76 3 15.5 3C18.58 3 21 5.42 21 8.5C21 14 12 21 12 21Z"/>
       </svg>
     </div>
@@ -308,12 +253,10 @@ body {
       <div class="gift-name">超出算法的真心</div>
       <div class="gift-desc">SSR 互动道具 · 亲密度 +20</div>
     </div>
-    <div class="gift-tag">领取</div>
   </div>
-
-  <div class="gift-card" id="gift-token" onclick="claimGift(this, 'token')">
+  <div class="gift-card" id="gift-token">
     <div class="gift-icon token">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#d4860a" stroke-width="1.5">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#C4A08A" stroke-width="1.5">
         <circle cx="12" cy="12" r="9"/>
         <path d="M12 7v10M9 12h6"/>
       </svg>
@@ -322,66 +265,56 @@ body {
       <div class="gift-name">1600 Token</div>
       <div class="gift-desc">够你抽一次十连，去试试手气</div>
     </div>
-    <div class="gift-tag">领取</div>
   </div>
 </div>
-
+<button class="claim-all-btn" id="claimAllBtn" onclick="claimAll()">一键领取全部</button>
 <div class="bottom-note">Beside You · 在你身旁</div>
-
 <script>
-// floating petals
 function createPetals() {
-  const container = document.getElementById('petals');
-  for (let i = 0; i < 12; i++) {
-    const petal = document.createElement('div');
+  var container = document.getElementById('petals');
+  for (var i = 0; i < 10; i++) {
+    var petal = document.createElement('div');
     petal.className = 'petal';
     petal.style.left = Math.random() * 100 + '%';
-    petal.style.animationDuration = (4 + Math.random() * 4) + 's';
+    petal.style.animationDuration = (5 + Math.random() * 5) + 's';
     petal.style.animationDelay = Math.random() * 6 + 's';
-    petal.style.width = (8 + Math.random() * 8) + 'px';
+    petal.style.width = (6 + Math.random() * 8) + 'px';
     petal.style.height = petal.style.width;
-    petal.style.opacity = 0.3 + Math.random() * 0.4;
+    petal.style.opacity = 0.2 + Math.random() * 0.3;
     container.appendChild(petal);
   }
 }
 createPetals();
-
-// claim gift
-function claimGift(card, type) {
-  if (card.classList.contains('claimed')) return;
-
-  // sparkle effect
-  const burst = document.createElement('div');
+function claimAll() {
+  if (localStorage.getItem('letter_gift_item') === 'claimed') return;
+  var burst = document.createElement('div');
   burst.className = 'sparkle-burst';
-  for (let i = 0; i < 8; i++) {
-    const s = document.createElement('span');
-    s.style.left = (30 + Math.random() * 40) + '%';
-    s.style.top = (20 + Math.random() * 60) + '%';
-    s.style.animationDelay = (Math.random() * 0.3) + 's';
-    s.style.background = type === 'item' ? '#f4c7b0' : '#ffe0b2';
+  var colors = ['#FFB6C1', '#F5C4C4', '#FFE8E0', '#C4A08A', '#FFD4D4'];
+  for (var i = 0; i < 16; i++) {
+    var s = document.createElement('span');
+    s.style.left = (20 + Math.random() * 60) + '%';
+    s.style.top = (30 + Math.random() * 40) + '%';
+    s.style.animationDelay = (Math.random() * 0.4) + 's';
+    s.style.background = colors[Math.floor(Math.random() * colors.length)];
     burst.appendChild(s);
   }
-  card.appendChild(burst);
-
-  // mark claimed
-  setTimeout(() => {
-    card.classList.add('claimed');
-    card.querySelector('.gift-tag').textContent = '♥';
-  }, 400);
-
-  // save to localStorage
-  localStorage.setItem('letter_gift_' + type, 'claimed');
+  document.body.appendChild(burst);
+  setTimeout(function() { burst.remove(); }, 1200);
+  localStorage.setItem('letter_gift_item', 'claimed');
+  localStorage.setItem('letter_gift_token', 'claimed');
+  document.getElementById('gift-item').classList.add('claimed');
+  document.getElementById('gift-token').classList.add('claimed');
+  var btn = document.getElementById('claimAllBtn');
+  btn.textContent = '\u5DF2\u9886\u53D6 \u2665';
+  btn.classList.add('claimed');
 }
-
-// check if already claimed
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', function() {
   if (localStorage.getItem('letter_gift_item') === 'claimed') {
     document.getElementById('gift-item').classList.add('claimed');
-    document.getElementById('gift-item').querySelector('.gift-tag').textContent = '♥';
-  }
-  if (localStorage.getItem('letter_gift_token') === 'claimed') {
     document.getElementById('gift-token').classList.add('claimed');
-    document.getElementById('gift-token').querySelector('.gift-tag').textContent = '♥';
+    var btn = document.getElementById('claimAllBtn');
+    btn.textContent = '\u5DF2\u9886\u53D6 \u2665';
+    btn.classList.add('claimed');
   }
 });
 </script>

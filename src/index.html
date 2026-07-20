@@ -184,18 +184,13 @@
       var tapKey = 'bsy_tap_' + today;
 
       charWrap.addEventListener('click', function(e) {
-        // always show hearts
         spawnHearts(e);
-
-        // daily +5 check
         if (localStorage.getItem(tapKey)) return;
         localStorage.setItem(tapKey, '1');
-
         var intimacy = parseInt(localStorage.getItem('bsy_intimacy') || '0');
         intimacy = Math.min(intimacy + 5, 100);
         localStorage.setItem('bsy_intimacy', intimacy.toString());
         updateIntimacy();
-
         tapToast.classList.add('show');
         setTimeout(function() { tapToast.classList.remove('show'); }, 2000);
       });
@@ -209,7 +204,7 @@
           heart.className = 'heart-float';
           heart.style.left = (x + (Math.random() - 0.5) * 40) + 'px';
           heart.style.top = (y + (Math.random() - 0.5) * 20) + 'px';
-          heart.innerHTML = '<svg viewBox="0 0 24 24" fill="#FF8FA3" stroke="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
+          heart.innerHTML = '<svg viewBox="0 0 24 24" fill="#FFB6C1" stroke="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
           heart.style.animationDelay = (i * 0.1) + 's';
           charWrap.appendChild(heart);
           (function(h) { setTimeout(function() { h.remove(); }, 1400); })(heart);

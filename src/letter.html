@@ -286,7 +286,24 @@ function createPetals() {
 }
 createPetals();
 function claimAll() {
-  if (localStorage.getItem('letter_gift_item') === 'claimed') return;
+  if (localStorage.getItem('letter_gift_claimed') === 'yes') return;
+
+  // 实际发放 1600 token
+  var currentTokens = parseInt(localStorage.getItem('bsy_tokens') || '0');
+  localStorage.setItem('bsy_tokens', (currentTokens + 1600).toString());
+
+  // 发放 SSR 道具「超出算法的真心」到背包
+  var bag = JSON.parse(localStorage.getItem('bsy_bag') || '{}');
+  bag['\u8d85\u51fa\u7b97\u6cd5\u7684\u771f\u5fc3'] = (bag['\u8d85\u51fa\u7b97\u6cd5\u7684\u771f\u5fc3'] || 0) + 1;
+  localStorage.setItem('bsy_bag', JSON.stringify(bag));
+
+  // 标记已领取
+  localStorage.setItem('letter_gift_claimed', 'yes');
+  // 兼容旧标记
+  localStorage.setItem('letter_gift_item', 'claimed');
+  localStorage.setItem('letter_gift_token', 'claimed');
+
+  // sparkle动画
   var burst = document.createElement('div');
   burst.className = 'sparkle-burst';
   var colors = ['#FFB6C1', '#F5C4C4', '#FFE8E0', '#C4A08A', '#FFD4D4'];
@@ -300,8 +317,8 @@ function claimAll() {
   }
   document.body.appendChild(burst);
   setTimeout(function() { burst.remove(); }, 1200);
-  localStorage.setItem('letter_gift_item', 'claimed');
-  localStorage.setItem('letter_gift_token', 'claimed');
+
+  // 更新UI
   document.getElementById('gift-item').classList.add('claimed');
   document.getElementById('gift-token').classList.add('claimed');
   var btn = document.getElementById('claimAllBtn');
@@ -309,7 +326,7 @@ function claimAll() {
   btn.classList.add('claimed');
 }
 window.addEventListener('DOMContentLoaded', function() {
-  if (localStorage.getItem('letter_gift_item') === 'claimed') {
+  if (localStorage.getItem('letter_gift_claimed') === 'yes' || localStorage.getItem('letter_gift_item') === 'claimed') {
     document.getElementById('gift-item').classList.add('claimed');
     document.getElementById('gift-token').classList.add('claimed');
     var btn = document.getElementById('claimAllBtn');

@@ -10,8 +10,10 @@
     .bg-room { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; background: linear-gradient(180deg, #FFF5F0 0%, #FFE8E0 30%, #FFDDD4 60%, #F5D0C8 100%); }
     .bg-room img { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease; }
     .bg-room img.loaded { opacity: 1; }
-    .character { position: absolute; bottom: 96px; left: 50%; transform: translateX(-50%) translateY(0) scale(1); height: 70vh; object-fit: contain; z-index: 1; opacity: 0; transition: opacity 0.6s ease; animation: breathe 3s ease-in-out infinite; }
+    .char-wrap { position: absolute; bottom: 96px; left: 50%; transform: translateX(-50%); height: 70vh; z-index: 1; animation: breathe 3s ease-in-out infinite; }
+    .character { height: 100%; object-fit: contain; opacity: 0; transition: opacity 0.6s ease; filter: drop-shadow(0 8px 24px rgba(180, 120, 100, 0.2)); }
     .character.loaded { opacity: 1; }
+    .char-wrap::after { content: ''; position: absolute; bottom: 0; left: -20%; right: -20%; height: 25%; background: linear-gradient(to top, var(--bg-blend, #F5D0C8) 0%, transparent 100%); pointer-events: none; z-index: 2; }
     @keyframes breathe { 0%, 100% { transform: translateX(-50%) translateY(0) scale(1); } 50% { transform: translateX(-50%) translateY(-6px) scale(1.003); } }
     .glass { background: rgba(255, 255, 255, 0.55); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04); }
     .top-left { position: absolute; top: 56px; left: 24px; z-index: 10; }
@@ -61,7 +63,9 @@
 </head>
 <body>
   <div class="bg-room" id="bgRoom"></div>
-  <img class="character" id="charImg" alt="珩">
+  <div class="char-wrap">
+    <img class="character" id="charImg" alt="珩">
+  </div>
   <div class="top-left fade-in fade-in-delay-1">
     <div class="greet" id="greet-text">Good evening,</div>
     <div class="name">珩</div>
@@ -117,7 +121,20 @@
       var bgImg = localStorage.getItem('bsy_bg');
       var bgSrc = (bgImg && bgImg.length > 0) ? bgImg : CDN + '%E5%8D%A7%E5%AE%A4.png';
       var img = new Image();
-      img.onload = function() { img.classList.add('loaded'); bgRoom.appendChild(img); };
+      img.onload = function() {
+        img.classList.add('loaded');
+        bgRoom.appendChild(img);
+        // 取背景底部中间像素颜色作为融合色
+        try {
+          var canvas = document.createElement('canvas');
+          canvas.width = 1; canvas.height = 1;
+          var ctx = canvas.getContext('2d');
+          ctx.drawImage(img, Math.floor(img.naturalWidth/2), img.naturalHeight - 2, 1, 1, 0, 0, 1, 1);
+          var px = ctx.getImageData(0, 0, 1, 1).data;
+          var blendColor = 'rgb(' + px[0] + ',' + px[1] + ',' + px[2] + ')';
+          document.querySelector('.char-wrap').style.setProperty('--bg-blend', blendColor);
+        } catch(e) {}
+      };
       img.src = bgSrc;
     })();
     (function() {

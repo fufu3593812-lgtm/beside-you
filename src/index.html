@@ -20,7 +20,7 @@
     .top-left .name { font-size: 40px; font-weight: 300; font-style: italic; color: #3D3333; margin-top: 4px; font-family: 'Georgia', serif; }
     .top-left .subtitle { font-size: 12px; color: #B0A0A0; margin-top: 8px; line-height: 1.7; max-width: 180px; }
     .top-right { position: absolute; top: 56px; right: 20px; z-index: 10; display: flex; gap: 12px; }
-    .icon-btn { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; transition: transform 0.2s ease; }
+    .icon-btn { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; transition: transform 0.2s ease; text-decoration: none; }
     .icon-btn:active { transform: scale(0.95); }
     .icon-btn svg { width: 20px; height: 20px; stroke: #8D7676; stroke-width: 1.8; fill: none; }
     .dot { position: absolute; top: 7px; right: 7px; width: 6px; height: 6px; background: #F28B82; border-radius: 50%; }
@@ -58,23 +58,9 @@
     .fade-in-delay-3 { animation-delay: 0.3s; }
     .fade-in-delay-4 { animation-delay: 0.4s; }
     @keyframes fadeIn { to { opacity: 1; } }
-
-    /* heart tap animation */
-    .heart-float {
-      position: absolute;
-      pointer-events: none;
-      z-index: 100;
-      animation: heartRise 1.2s ease-out forwards;
-    }
-    .heart-float svg {
-      width: 28px;
-      height: 28px;
-    }
-    @keyframes heartRise {
-      0% { opacity: 1; transform: translateY(0) scale(0.5); }
-      30% { opacity: 1; transform: translateY(-20px) scale(1.1); }
-      100% { opacity: 0; transform: translateY(-80px) scale(0.8); }
-    }
+    .heart-float { position: absolute; pointer-events: none; z-index: 100; animation: heartRise 1.2s ease-out forwards; }
+    .heart-float svg { width: 28px; height: 28px; }
+    @keyframes heartRise { 0% { opacity: 1; transform: translateY(0) scale(0.5); } 30% { opacity: 1; transform: translateY(-20px) scale(1.1); } 100% { opacity: 0; transform: translateY(-80px) scale(0.8); } }
     .tap-toast { position: fixed; top: 110px; left: 50%; transform: translateX(-50%) translateY(-10px); padding: 8px 16px; border-radius: 20px; background: rgba(60, 40, 40, 0.85); backdrop-filter: blur(10px); color: #FFB0C0; font-size: 12px; letter-spacing: 1px; opacity: 0; pointer-events: none; z-index: 999; transition: opacity .4s, transform .4s; }
     .tap-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   </style>
@@ -94,10 +80,10 @@
       <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
       <span class="dot" id="checkinDot"></span>
     </div>
-    <div class="icon-btn glass">
+    <a class="icon-btn glass" href="letter.html">
       <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22,6 12,13 2,6"/></svg>
-      <span class="dot"></span>
-    </div>
+      <span class="dot" id="letterDot"></span>
+    </a>
   </div>
   <div class="checkin-toast" id="checkinToast">签到成功 +160 token</div>
   <div class="tap-toast" id="tapToast">♥ 亲密度 +5</div>
@@ -117,16 +103,16 @@
     <div class="mood-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>
     <div class="mood-text">开心</div>
   </div>
-  <a class="story-btn glass fade-in fade-in-delay-3" href="/src/story.html">
+  <a class="story-btn glass fade-in fade-in-delay-3" href="story.html">
     <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="13" y2="11"/></svg>
     <span class="text">主线</span>
   </a>
   <div class="dock fade-in fade-in-delay-4">
-    <a class="dock-item glass" href="/src/chat.html"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="d-en">Chat</span><span class="d-cn">聊天</span></a>
-    <a class="dock-item glass" href="/src/wardrobe.html"><svg viewBox="0 0 24 24"><path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/><line x1="12" y1="22" x2="12" y2="12"/><polyline points="22,7 12,12 2,7"/></svg><span class="d-en">Style</span><span class="d-cn">装扮</span></a>
+    <a class="dock-item glass" href="chat.html"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="d-en">Chat</span><span class="d-cn">聊天</span></a>
+    <a class="dock-item glass" href="wardrobe.html"><svg viewBox="0 0 24 24"><path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/><line x1="12" y1="22" x2="12" y2="12"/><polyline points="22,7 12,12 2,7"/></svg><span class="d-en">Style</span><span class="d-cn">装扮</span></a>
     <div class="dock-item glass active"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg><span class="d-en">Home</span><span class="d-cn">主页</span></div>
-    <a class="dock-item glass" href="/src/gacha.html"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span class="d-en">Heartbeat</span><span class="d-cn">心动</span></a>
-    <a class="dock-item glass" href="/src/collection.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span class="d-en">Collection</span><span class="d-cn">收藏</span></a>
+    <a class="dock-item glass" href="gacha.html"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span class="d-en">Heartbeat</span><span class="d-cn">心动</span></a>
+    <a class="dock-item glass" href="collection.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span class="d-en">Collection</span><span class="d-cn">收藏</span></a>
   </div>
   <script>
     (function() {
@@ -175,14 +161,12 @@
         updateIntimacy();
       });
     })();
-
     // Tap character to +5 intimacy (once per day)
     (function() {
       var charWrap = document.getElementById('charWrap');
       var tapToast = document.getElementById('tapToast');
       var today = new Date().toISOString().slice(0, 10);
       var tapKey = 'bsy_tap_' + today;
-
       charWrap.addEventListener('click', function(e) {
         spawnHearts(e);
         if (localStorage.getItem(tapKey)) return;
@@ -194,7 +178,6 @@
         tapToast.classList.add('show');
         setTimeout(function() { tapToast.classList.remove('show'); }, 2000);
       });
-
       function spawnHearts(e) {
         var rect = charWrap.getBoundingClientRect();
         var x = e.clientX - rect.left;
@@ -211,7 +194,13 @@
         }
       }
     })();
-
+    // Letter dot: hide if already claimed
+    (function() {
+      var letterDot = document.getElementById('letterDot');
+      if (localStorage.getItem('letter_gift_item') === 'claimed' && localStorage.getItem('letter_gift_token') === 'claimed') {
+        letterDot.classList.add('hidden');
+      }
+    })();
     (function() { updateIntimacy(); })();
     function updateIntimacy() {
       var intimacy = parseInt(localStorage.getItem('bsy_intimacy') || '0');

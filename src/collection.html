@@ -21,13 +21,14 @@
     .card-slot .slot-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 8px 10px; background: linear-gradient(transparent, rgba(0,0,0,0.5)); }
     .card-slot .slot-name { font-size: 13px; color: #FFF; font-weight: 300; letter-spacing: 1px; }
     .card-slot .slot-rarity { font-size: 9px; color: rgba(255,255,255,0.7); margin-top: 2px; font-style: italic; font-family: 'Cormorant Garamond', serif; }
-    .card-slot.empty { background: rgba(200,180,170,0.1); border: 1.5px dashed rgba(200,180,170,0.35); display: flex; align-items: center; justify-content: center; }
+    .card-slot.empty { background: rgba(200,180,170,0.1); border: 1.5px dashed rgba(200,180,170,0.35); display: flex; align-items: center; justify-content: center; cursor: default; }
     .card-slot.empty::after { content: '?'; font-size: 32px; color: rgba(180,160,150,0.3); font-family: 'Cormorant Garamond', serif; font-style: italic; }
 
     /* 详情弹层 */
     .detail-overlay { position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity .3s; }
     .detail-overlay.show { display: flex; opacity: 1; }
-    .detail-container { width: 88%; max-width: 380px; height: 78vh; position: relative; overflow: hidden; border-radius: 18px; }
+    .detail-container { width: 88%; max-width: 380px; height: 78vh; position: relative; overflow: hidden; border-radius: 18px; cursor: grab; }
+    .detail-container:active { cursor: grabbing; }
     .detail-pages { display: flex; width: 200%; height: 100%; transition: transform .35s cubic-bezier(.4,0,.2,1); }
     .detail-page { width: 50%; height: 100%; flex-shrink: 0; }
     .detail-page.img-page { position: relative; }
@@ -41,9 +42,17 @@
     .detail-page.story-page .story-text p { margin-bottom: 14px; }
 
     /* 翻页指示 */
-    .page-dots { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; }
-    .page-dots .dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.3); transition: background .3s; }
+    .page-dots { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 5; }
+    .page-dots .dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.3); transition: background .3s; cursor: pointer; padding: 4px; }
     .page-dots .dot.active { background: rgba(255,255,255,0.8); }
+
+    /* 翻页箭头 */
+    .detail-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; transition: opacity .3s; }
+    .detail-arrow:hover { background: rgba(255,255,255,0.25); }
+    .detail-arrow svg { width: 14px; height: 14px; stroke: #FFF; stroke-width: 2; fill: none; }
+    .detail-arrow.prev { left: 10px; }
+    .detail-arrow.next { right: 10px; }
+    .detail-arrow.hidden { opacity: 0; pointer-events: none; }
 
     /* 关闭按钮 */
     .detail-close { position: absolute; top: 14px; right: 14px; width: 30px; height: 30px; border-radius: 50%; background: rgba(0,0,0,0.4); border: none; display: flex; align-items: center; justify-content: center; z-index: 10; cursor: pointer; }
@@ -85,6 +94,9 @@
           <div class="story-text" id="storyText"></div>
         </div>
       </div>
+      <!-- 翻页箭头 -->
+      <div class="detail-arrow prev hidden" id="arrowPrev"><svg viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg></div>
+      <div class="detail-arrow next" id="arrowNext"><svg viewBox="0 0 24 24"><polyline points="9,6 15,12 9,18"/></svg></div>
       <div class="page-dots">
         <div class="dot active" id="dot0"></div>
         <div class="dot" id="dot1"></div>
@@ -143,7 +155,8 @@
     var overlay = document.getElementById('detailOverlay');
     var pages = document.getElementById('detailPages');
     var currentPage = 0;
-    var touchStartX = 0;
+    var startX = 0;
+    var dragging = false;
 
     function openDetail(card) {
       document.getElementById('detailImg').src = card.img;
@@ -154,6 +167,7 @@
       currentPage = 0;
       pages.style.transform = 'translateX(0)';
       updateDots();
+      updateArrows();
       overlay.classList.add('show');
     }
 
@@ -166,10 +180,16 @@
       document.getElementById('dot1').className = currentPage === 1 ? 'dot active' : 'dot';
     }
 
+    function updateArrows() {
+      document.getElementById('arrowPrev').classList.toggle('hidden', currentPage === 0);
+      document.getElementById('arrowNext').classList.toggle('hidden', currentPage === 1);
+    }
+
     function goToPage(p) {
       currentPage = p;
       pages.style.transform = 'translateX(-' + (p * 50) + '%)';
       updateDots();
+      updateArrows();
     }
 
     document.getElementById('detailClose').addEventListener('click', closeDetail);
@@ -177,17 +197,55 @@
       if (e.target === overlay) closeDetail();
     });
 
-    // 滑动翻页
+    // 点击箭头翻页
+    document.getElementById('arrowPrev').addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (currentPage === 1) goToPage(0);
+    });
+    document.getElementById('arrowNext').addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (currentPage === 0) goToPage(1);
+    });
+
+    // 点击圆点翻页
+    document.getElementById('dot0').addEventListener('click', function() { goToPage(0); });
+    document.getElementById('dot1').addEventListener('click', function() { goToPage(1); });
+
+    // 触摸滑动翻页
     var container = document.getElementById('detailContainer');
     container.addEventListener('touchstart', function(e) {
-      touchStartX = e.touches[0].clientX;
+      startX = e.touches[0].clientX;
     });
     container.addEventListener('touchend', function(e) {
-      var diff = touchStartX - e.changedTouches[0].clientX;
+      var diff = startX - e.changedTouches[0].clientX;
       if (Math.abs(diff) > 50) {
         if (diff > 0 && currentPage === 0) goToPage(1);
         else if (diff < 0 && currentPage === 1) goToPage(0);
       }
+    });
+
+    // 鼠标拖拽翻页（电脑端）
+    container.addEventListener('mousedown', function(e) {
+      startX = e.clientX;
+      dragging = true;
+      e.preventDefault();
+    });
+    document.addEventListener('mouseup', function(e) {
+      if (!dragging) return;
+      dragging = false;
+      var diff = startX - e.clientX;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0 && currentPage === 0) goToPage(1);
+        else if (diff < 0 && currentPage === 1) goToPage(0);
+      }
+    });
+
+    // 键盘左右翻页
+    document.addEventListener('keydown', function(e) {
+      if (!overlay.classList.contains('show')) return;
+      if (e.key === 'ArrowRight' && currentPage === 0) goToPage(1);
+      if (e.key === 'ArrowLeft' && currentPage === 1) goToPage(0);
+      if (e.key === 'Escape') closeDetail();
     });
   </script>
 </body>

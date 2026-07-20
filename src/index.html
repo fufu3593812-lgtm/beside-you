@@ -109,31 +109,17 @@
     <a class="dock-item glass" href="collection.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span class="d-en">Collection</span><span class="d-cn">收藏</span></a>
   </div>
   <script>
-    var CDN = 'https://cdn.jsdelivr.net/gh/fufu3593812-lgtm/beside-you@35d053f2/assets/';
     (function() {
       var charImg = document.getElementById('charImg');
       var outfitImg = localStorage.getItem('bsy_outfit_img');
-      var charSrc = (outfitImg && outfitImg.length > 0) ? outfitImg : CDN + '%E7%9D%A1%E8%A3%99.PNG';
+      var charSrc = (outfitImg && outfitImg.length > 0) ? outfitImg : '../assets/睡裙.PNG';
       charImg.onload = function() { charImg.classList.add('loaded'); };
       charImg.src = charSrc;
       var bgRoom = document.getElementById('bgRoom');
       var bgImg = localStorage.getItem('bsy_bg');
-      var bgSrc = (bgImg && bgImg.length > 0) ? bgImg : CDN + '%E5%8D%A7%E5%AE%A4.png';
+      var bgSrc = (bgImg && bgImg.length > 0) ? bgImg : '../assets/卧室.png';
       var img = new Image();
-      img.onload = function() {
-        img.classList.add('loaded');
-        bgRoom.appendChild(img);
-        // 取背景底部中间像素颜色作为融合色
-        try {
-          var canvas = document.createElement('canvas');
-          canvas.width = 1; canvas.height = 1;
-          var ctx = canvas.getContext('2d');
-          ctx.drawImage(img, Math.floor(img.naturalWidth/2), img.naturalHeight - 2, 1, 1, 0, 0, 1, 1);
-          var px = ctx.getImageData(0, 0, 1, 1).data;
-          var blendColor = 'rgb(' + px[0] + ',' + px[1] + ',' + px[2] + ')';
-          document.querySelector('.char-wrap').style.setProperty('--bg-blend', blendColor);
-        } catch(e) {}
-      };
+      img.onload = function() { img.classList.add('loaded'); bgRoom.appendChild(img); };
       img.src = bgSrc;
     })();
     (function() {

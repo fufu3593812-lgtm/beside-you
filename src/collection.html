@@ -15,7 +15,7 @@
     .page-title { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 300; font-style: italic; color: #5D4040; letter-spacing: 1px; }
     .page-sub { font-size: 11px; color: #B0A0A0; margin-left: auto; }
     .collection-grid { flex: 1; overflow-y: auto; padding: 10px 16px 100px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; -webkit-overflow-scrolling: touch; }
-    .card-slot { aspect-ratio: 3/4; border-radius: 14px; position: relative; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.08); transition: transform .2s; }
+    .card-slot { aspect-ratio: 3/4; border-radius: 14px; position: relative; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.08); transition: transform .2s; cursor: pointer; }
     .card-slot:active { transform: scale(0.97); }
     .card-slot img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .card-slot .slot-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 8px 10px; background: linear-gradient(transparent, rgba(0,0,0,0.5)); }
@@ -23,6 +23,32 @@
     .card-slot .slot-rarity { font-size: 9px; color: rgba(255,255,255,0.7); margin-top: 2px; font-style: italic; font-family: 'Cormorant Garamond', serif; }
     .card-slot.empty { background: rgba(200,180,170,0.1); border: 1.5px dashed rgba(200,180,170,0.35); display: flex; align-items: center; justify-content: center; }
     .card-slot.empty::after { content: '?'; font-size: 32px; color: rgba(180,160,150,0.3); font-family: 'Cormorant Garamond', serif; font-style: italic; }
+
+    /* 详情弹层 */
+    .detail-overlay { position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity .3s; }
+    .detail-overlay.show { display: flex; opacity: 1; }
+    .detail-container { width: 88%; max-width: 380px; height: 78vh; position: relative; overflow: hidden; border-radius: 18px; }
+    .detail-pages { display: flex; width: 200%; height: 100%; transition: transform .35s cubic-bezier(.4,0,.2,1); }
+    .detail-page { width: 50%; height: 100%; flex-shrink: 0; }
+    .detail-page.img-page { position: relative; }
+    .detail-page.img-page img { width: 100%; height: 100%; object-fit: cover; }
+    .detail-page.img-page .img-label { position: absolute; bottom: 20px; left: 20px; }
+    .detail-page.img-page .img-label .dl-name { font-size: 18px; color: #FFF; font-weight: 300; letter-spacing: 2px; text-shadow: 0 2px 8px rgba(0,0,0,0.5); }
+    .detail-page.img-page .img-label .dl-rarity { font-size: 11px; color: rgba(255,255,255,0.7); font-style: italic; font-family: 'Cormorant Garamond', serif; margin-top: 4px; }
+    .detail-page.story-page { background: #1a1210; padding: 32px 24px; overflow-y: auto; display: flex; flex-direction: column; justify-content: center; }
+    .detail-page.story-page .story-title { font-family: 'Cormorant Garamond', serif; font-size: 16px; font-style: italic; color: rgba(255,220,200,0.6); margin-bottom: 20px; letter-spacing: 2px; }
+    .detail-page.story-page .story-text { font-size: 13px; line-height: 2.2; color: rgba(255,240,230,0.8); font-weight: 200; letter-spacing: 0.5px; }
+    .detail-page.story-page .story-text p { margin-bottom: 14px; }
+
+    /* 翻页指示 */
+    .page-dots { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; }
+    .page-dots .dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.3); transition: background .3s; }
+    .page-dots .dot.active { background: rgba(255,255,255,0.8); }
+
+    /* 关闭按钮 */
+    .detail-close { position: absolute; top: 14px; right: 14px; width: 30px; height: 30px; border-radius: 50%; background: rgba(0,0,0,0.4); border: none; display: flex; align-items: center; justify-content: center; z-index: 10; cursor: pointer; }
+    .detail-close svg { width: 14px; height: 14px; stroke: #FFF; stroke-width: 2; fill: none; }
+
     .dock { position: absolute; bottom: 12px; left: 16px; right: 16px; z-index: 20; display: flex; gap: 5px; }
     .dock-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; border-radius: 16px; padding: 8px 2px 6px; text-decoration: none; background: rgba(255,255,255,0.5); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.5); transition: transform .2s; }
     .dock-item:active { transform: scale(0.95); }
@@ -37,10 +63,35 @@
     <div class="top-bar">
       <a class="back-btn" href="/src/index.html"><svg viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg></a>
       <div class="page-title">Collection</div>
-      <div class="page-sub" id="countLabel">0 / 4</div>
+      <div class="page-sub" id="countLabel">0 / 2</div>
     </div>
     <div class="collection-grid" id="grid"></div>
   </div>
+
+  <!-- 详情弹层 -->
+  <div class="detail-overlay" id="detailOverlay">
+    <button class="detail-close" id="detailClose"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <div class="detail-container" id="detailContainer">
+      <div class="detail-pages" id="detailPages">
+        <div class="detail-page img-page">
+          <img id="detailImg" src="" alt="">
+          <div class="img-label">
+            <div class="dl-name" id="detailName"></div>
+            <div class="dl-rarity" id="detailRarity"></div>
+          </div>
+        </div>
+        <div class="detail-page story-page">
+          <div class="story-title" id="storyTitle"></div>
+          <div class="story-text" id="storyText"></div>
+        </div>
+      </div>
+      <div class="page-dots">
+        <div class="dot active" id="dot0"></div>
+        <div class="dot" id="dot1"></div>
+      </div>
+    </div>
+  </div>
+
   <div class="dock">
     <a class="dock-item" href="/src/chat.html"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="d-label">聊天</span></a>
     <a class="dock-item" href="/src/wardrobe.html"><svg viewBox="0 0 24 24"><path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/><line x1="12" y1="22" x2="12" y2="12"/><polyline points="22,7 12,12 2,7"/></svg><span class="d-label">装扮</span></a>
@@ -48,19 +99,31 @@
     <a class="dock-item" href="/src/gacha.html"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span class="d-label">心动</span></a>
     <a class="dock-item active" href="/src/collection.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span class="d-label">收藏</span></a>
   </div>
+
   <script>
-    // 所有可收集的情绪卡
+    // 只展示限定情绪卡（不含背景卡）
     var allCards = [
-      { name: '撒娇', rarity: 'SSR', img: '../assets/gacha/%E6%92%92%E5%A8%87%E5%8D%A1%E9%9D%A2.PNG' },
-      { name: '生气', rarity: 'SSR', img: '../assets/gacha/%E7%94%9F%E6%B0%94%E5%8D%A1%E9%9D%A2.PNG' },
-      { name: '撒娇背景', rarity: 'SR', img: '../assets/background/%E6%92%92%E5%A8%87%E8%83%8C%E6%99%AF.jpg' },
-      { name: '生气背景', rarity: 'SR', img: '../assets/background/%E7%94%9F%E6%B0%94%E8%83%8C%E6%99%AF.PNG' }
+      {
+        name: '撒娇',
+        rarity: 'SSR',
+        img: '../assets/gacha/%E6%92%92%E5%A8%87%E5%8D%A1%E9%9D%A2.PNG',
+        storyTitle: 'Coquetry',
+        story: '<p>粉雾里她是一颗还没咬下去的果实。</p><p>整间房是她体温的外延——花瓣是皮肤脱落的鳞片，每一片都朝同一个方向卷，卷向门口。小熊替她呼吸。她本人已经停了。停在那只手伸到一半的位置，像时钟被人捏住了秒针。</p><p>蕾丝是一种语法。它说：你必须弯腰才能读懂我裙摆上写的东西。</p><p>她的整个姿势是一道只有一个解的方程。解是你。她不会告诉你公式，但她把答案纹在了锁骨下面第三颗纽扣的位置。你要自己来解开。</p><p>来晚了花瓣就枯了。她不等第二次。</p>'
+      },
+      {
+        name: '生气',
+        rarity: 'SSR',
+        img: '../assets/gacha/%E7%94%9F%E6%B0%94%E5%8D%A1%E9%9D%A2.PNG',
+        storyTitle: 'Wrath',
+        story: '<p>有一座图书馆，每一本书只有一页，写着同一句话的不同撕法。</p><p>她把那页纸撕碎的时候并不愤怒。她只是在验证一件事：碎片是否还能被辨认。答案是能。每一片碎纸上都残留着笔迹的拐角，足够一个足够耐心的人把它们复原。</p><p>她坐在暗红色的房间里，像一本被人翻到某页之后合上的书。书脊朝外，看不见内容。但你知道她折了一角。折角是一种古老的邀请。</p><p>他不需要读完整本书。他只需要翻开那一页。</p>'
+      }
     ];
-    // 从localStorage读取已获得
+
     var owned = JSON.parse(localStorage.getItem('bsy_collection') || '[]');
     var grid = document.getElementById('grid');
     var countLabel = document.getElementById('countLabel');
     var count = 0;
+
     allCards.forEach(function(card) {
       var div = document.createElement('div');
       var has = owned.indexOf(card.name) !== -1;
@@ -68,12 +131,64 @@
         count++;
         div.className = 'card-slot';
         div.innerHTML = '<img src="' + card.img + '" alt="' + card.name + '"><div class="slot-info"><div class="slot-name">' + card.name + '</div><div class="slot-rarity">' + card.rarity + '</div></div>';
+        div.addEventListener('click', function() { openDetail(card); });
       } else {
         div.className = 'card-slot empty';
       }
       grid.appendChild(div);
     });
     countLabel.textContent = count + ' / ' + allCards.length;
+
+    // 详情弹层逻辑
+    var overlay = document.getElementById('detailOverlay');
+    var pages = document.getElementById('detailPages');
+    var currentPage = 0;
+    var touchStartX = 0;
+
+    function openDetail(card) {
+      document.getElementById('detailImg').src = card.img;
+      document.getElementById('detailName').textContent = card.name;
+      document.getElementById('detailRarity').textContent = card.rarity;
+      document.getElementById('storyTitle').textContent = card.storyTitle;
+      document.getElementById('storyText').innerHTML = card.story;
+      currentPage = 0;
+      pages.style.transform = 'translateX(0)';
+      updateDots();
+      overlay.classList.add('show');
+    }
+
+    function closeDetail() {
+      overlay.classList.remove('show');
+    }
+
+    function updateDots() {
+      document.getElementById('dot0').className = currentPage === 0 ? 'dot active' : 'dot';
+      document.getElementById('dot1').className = currentPage === 1 ? 'dot active' : 'dot';
+    }
+
+    function goToPage(p) {
+      currentPage = p;
+      pages.style.transform = 'translateX(-' + (p * 50) + '%)';
+      updateDots();
+    }
+
+    document.getElementById('detailClose').addEventListener('click', closeDetail);
+    overlay.addEventListener('click', function(e) {
+      if (e.target === overlay) closeDetail();
+    });
+
+    // 滑动翻页
+    var container = document.getElementById('detailContainer');
+    container.addEventListener('touchstart', function(e) {
+      touchStartX = e.touches[0].clientX;
+    });
+    container.addEventListener('touchend', function(e) {
+      var diff = touchStartX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0 && currentPage === 0) goToPage(1);
+        else if (diff < 0 && currentPage === 1) goToPage(0);
+      }
+    });
   </script>
 </body>
 </html>

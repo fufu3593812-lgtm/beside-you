@@ -134,6 +134,9 @@
     .outfit-card .thumb { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 120%; height: 100%; object-fit: cover; object-position: center 40%; }
     .outfit-card .name { position: relative; z-index: 2; font-size: 9px; color: #6D5050; text-align: center; background: rgba(255, 248, 245, 0.85); padding: 2px 6px; border-radius: 8px; border: 1px solid rgba(232, 190, 190, 0.2); }
     .outfit-card .rarity { position: absolute; top: 5px; left: 5px; font-size: 9px; font-weight: 700; font-style: italic; z-index: 2; color: #C89030; }
+    .outfit-card.locked { border: 1.5px dashed rgba(200,180,170,0.4); }
+    .outfit-card.locked .thumb { filter: brightness(0.5) grayscale(0.6); }
+    .outfit-card .lock-badge { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 3; font-size: 9px; color: #B8A0A0; background: rgba(255,255,255,0.85); padding: 3px 8px; border-radius: 10px; border: 1px solid rgba(200,180,170,0.3); white-space: nowrap; }
 
     .bg-card {
       aspect-ratio: 16/10;
@@ -183,6 +186,30 @@
     .btn-secondary { background: rgba(255, 255, 255, 0.65); border: 1.5px solid rgba(232, 190, 190, 0.4); color: #7D5555; }
     .toast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8); background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1.5px solid rgba(232, 180, 180, 0.4); border-radius: 16px; padding: 16px 28px; font-size: 13px; color: #5D4040; opacity: 0; pointer-events: none; transition: opacity 0.3s ease, transform 0.3s ease; z-index: 100; }
     .toast.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+    .confirm-dialog {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.3);
+    }
+    .confirm-dialog.show { display: flex; }
+    .confirm-box {
+      background: #FFF;
+      border-radius: 20px;
+      padding: 28px 24px 20px;
+      width: 260px;
+      text-align: center;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    }
+    .confirm-box .msg { font-size: 14px; color: #5D4040; margin-bottom: 20px; line-height: 1.6; }
+    .confirm-box .btns { display: flex; gap: 10px; }
+    .confirm-box .btns button { flex: 1; height: 36px; border-radius: 18px; border: none; font-size: 13px; cursor: pointer; }
+    .confirm-box .btn-cancel { background: #F5F0F0; color: #8D7070; }
+    .confirm-box .btn-ok { background: linear-gradient(135deg, #F5C4C4, #E8A0A0); color: #fff; }
   </style>
 </head>
 <body>
@@ -214,19 +241,60 @@
     <button class="btn btn-primary" id="btn-wear">换上</button>
   </div>
   <div class="toast" id="toast"></div>
+  <div class="confirm-dialog" id="confirmDialog">
+    <div class="confirm-box">
+      <div class="msg" id="confirmMsg"></div>
+      <div class="btns">
+        <button class="btn-cancel" id="confirmCancel">取消</button>
+        <button class="btn-ok" id="confirmOk">购买</button>
+      </div>
+    </div>
+  </div>
   <script>
     var CDN = 'https://cdn.jsdelivr.net/gh/fufu3593812-lgtm/beside-you@35d053f2/assets/';
+    var GACHA_CDN = '/assets/gacha/';
+
+    // unlock: 'free' = 默认拥有, 'gacha:撒娇' = 抽到撒娇情绪卡解锁, 'buy:200' = 200 token购买
     var outfits = [
-      { name: '月光睡裙', cat: 'limited', rarity: 'SR', img: CDN + '%E7%9D%A1%E8%A3%99.PNG' },
-      { name: '慵懒卫衣', cat: 'daily', rarity: 'R', img: CDN + '%E5%8D%AB%E8%A1%A3.PNG' },
-      { name: '初恋JK', cat: 'daily', rarity: 'R', img: CDN + 'jk.PNG' },
-      { name: '碎花裙', cat: 'daily', rarity: 'SR', img: CDN + '%E7%A2%8E%E8%8A%B1%E8%A3%99.PNG' }
+      { name: '月光睡裙', cat: 'limited', rarity: 'SR', img: CDN + '%E7%9D%A1%E8%A3%99.PNG', unlock: 'free' },
+      { name: '慵懒卫衣', cat: 'daily', rarity: 'R', img: CDN + '%E5%8D%AB%E8%A1%A3.PNG', unlock: 'free' },
+      { name: '初恋JK', cat: 'daily', rarity: 'R', img: CDN + 'jk.PNG', unlock: 'buy:200' },
+      { name: '碎花裙', cat: 'daily', rarity: 'SR', img: CDN + '%E7%A2%8E%E8%8A%B1%E8%A3%99.PNG', unlock: 'buy:200' },
+      { name: '撒娇立绘', cat: 'limited', rarity: 'SSR', img: GACHA_CDN + '%E6%92%92%E5%A8%87%E7%AB%8B%E7%BB%98.png', unlock: 'gacha:撒娇' },
+      { name: '生气立绘', cat: 'limited', rarity: 'SSR', img: GACHA_CDN + '%E7%94%9F%E6%B0%94%E7%AB%8B%E7%BB%98.png', unlock: 'gacha:生气' }
     ];
     var backgrounds = [
       { name: '默认卧室', img: CDN + '%E5%8D%A7%E5%AE%A4.png', locked: false },
       { name: '撒娇背景', img: CDN + 'background/%E6%92%92%E5%A8%87%E8%83%8C%E6%99%AF.jpg', locked: true },
       { name: '生气背景', img: CDN + 'background/%E7%94%9F%E6%B0%94%E8%83%8C%E6%99%AF.PNG', locked: true }
     ];
+
+    function getTokens() { return parseInt(localStorage.getItem('bsy_tokens') || '1600'); }
+    function setTokens(n) { localStorage.setItem('bsy_tokens', n.toString()); }
+
+    function isOutfitUnlocked(o) {
+      if (o.unlock === 'free') return true;
+      var purchased = JSON.parse(localStorage.getItem('bsy_purchased_outfits') || '[]');
+      if (purchased.indexOf(o.name) !== -1) return true;
+      if (o.unlock.indexOf('gacha:') === 0) {
+        var need = o.unlock.replace('gacha:', '');
+        var collection = JSON.parse(localStorage.getItem('bsy_collection') || '[]');
+        return collection.indexOf(need) !== -1;
+      }
+      return false;
+    }
+
+    function getLockText(o) {
+      if (o.unlock.indexOf('buy:') === 0) {
+        var price = o.unlock.replace('buy:', '');
+        return price + ' token';
+      }
+      if (o.unlock.indexOf('gacha:') === 0) {
+        return '抽卡解锁';
+      }
+      return '锁定';
+    }
+
     (function() {
       var wardrobeGrid = document.getElementById('wardrobe-grid');
       var bgGrid = document.getElementById('bg-grid');
@@ -235,21 +303,39 @@
       var btnWear = document.getElementById('btn-wear');
       var toast = document.getElementById('toast');
       var tabs = document.querySelectorAll('.tab');
+      var confirmDialog = document.getElementById('confirmDialog');
+      var confirmMsg = document.getElementById('confirmMsg');
+      var confirmCancel = document.getElementById('confirmCancel');
+      var confirmOk = document.getElementById('confirmOk');
       var currentOutfit = localStorage.getItem('bsy_outfit') || '月光睡裙';
       var selectedCard = null;
       var selectedData = null;
       var mode = 'outfit';
+      var pendingPurchase = null;
 
       outfits.forEach(function(o) {
+        var unlocked = isOutfitUnlocked(o);
         var card = document.createElement('div');
-        card.className = 'outfit-card' + (o.name === currentOutfit ? ' active' : '');
+        card.className = 'outfit-card' + (o.name === currentOutfit ? ' active' : '') + (!unlocked ? ' locked' : '');
         card.dataset.name = o.name;
         card.dataset.cat = o.cat;
         card.dataset.img = o.img;
+        card.dataset.unlock = o.unlock;
         card.innerHTML = '<span class="rarity">' + o.rarity + '</span><img class="thumb" src="' + o.img + '" alt="' + o.name + '"><div class="name">' + o.name + '</div>';
+        if (!unlocked) {
+          card.innerHTML += '<div class="lock-badge">' + getLockText(o) + '</div>';
+        }
         wardrobeGrid.appendChild(card);
-        if (o.name === currentOutfit) { selectedCard = card; selectedData = o; previewImg.src = o.img; outfitName.textContent = o.name; }
+        if (o.name === currentOutfit && unlocked) { selectedCard = card; selectedData = o; previewImg.src = o.img; outfitName.textContent = o.name; }
       });
+
+      // 如果当前装备的衣服没找到，用第一件
+      if (!selectedData) {
+        var first = outfits[0];
+        previewImg.src = first.img;
+        outfitName.textContent = first.name;
+        selectedData = first;
+      }
 
       var owned = JSON.parse(localStorage.getItem('bsy_collection') || '[]');
       backgrounds.forEach(function(b) {
@@ -293,6 +379,18 @@
 
       outfitCards.forEach(function(card) {
         card.addEventListener('click', function() {
+          if (card.classList.contains('locked')) {
+            var unlock = card.dataset.unlock;
+            if (unlock.indexOf('buy:') === 0) {
+              var price = parseInt(unlock.replace('buy:', ''));
+              pendingPurchase = { card: card, name: card.dataset.name, price: price };
+              confirmMsg.innerHTML = '购买「' + card.dataset.name + '」<br>需要 ' + price + ' token';
+              confirmDialog.classList.add('show');
+            } else {
+              showToast('去抽卡解锁吧');
+            }
+            return;
+          }
           outfitCards.forEach(function(c) { c.classList.remove('active'); });
           card.classList.add('active');
           selectedCard = card;
@@ -301,6 +399,31 @@
           setTimeout(function() { previewImg.src = card.dataset.img; outfitName.textContent = card.dataset.name; previewImg.classList.remove('switching'); }, 250);
         });
       });
+
+      // 购买确认
+      confirmCancel.onclick = function() { confirmDialog.classList.remove('show'); pendingPurchase = null; };
+      confirmOk.onclick = function() {
+        if (!pendingPurchase) return;
+        var tokens = getTokens();
+        if (tokens < pendingPurchase.price) {
+          confirmDialog.classList.remove('show');
+          showToast('token 不足');
+          pendingPurchase = null;
+          return;
+        }
+        setTokens(tokens - pendingPurchase.price);
+        var purchased = JSON.parse(localStorage.getItem('bsy_purchased_outfits') || '[]');
+        purchased.push(pendingPurchase.name);
+        localStorage.setItem('bsy_purchased_outfits', JSON.stringify(purchased));
+        // 解锁卡片UI
+        var c = pendingPurchase.card;
+        c.classList.remove('locked');
+        var badge = c.querySelector('.lock-badge');
+        if (badge) badge.remove();
+        confirmDialog.classList.remove('show');
+        showToast('✿ 已解锁「' + pendingPurchase.name + '」');
+        pendingPurchase = null;
+      };
 
       bgCards.forEach(function(card) {
         card.addEventListener('click', function() {

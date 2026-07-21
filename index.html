@@ -8,7 +8,7 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: -apple-system, 'PingFang SC', sans-serif;
-      background: linear-gradient(180deg, #FFF8F7 0%, #FFE8E0 50%, #FFDDD4 100%);
+      background: linear-gradient(180deg, #FFFBFA 0%, #FFF0ED 50%, #FFE8E4 100%);
       min-height: 100vh;
       display: flex;
       align-items: center;
@@ -38,7 +38,7 @@
     .tab-bar {
       display: flex;
       margin-bottom: 32px;
-      border-bottom: 1px solid rgba(200, 170, 170, 0.3);
+      border-bottom: 1px solid rgba(200, 170, 170, 0.2);
     }
     .tab {
       flex: 1;
@@ -51,7 +51,7 @@
     }
     .tab.active {
       color: #3D3333;
-      border-bottom-color: #E8A0A0;
+      border-bottom-color: #F0B8B8;
     }
     .form { display: none; }
     .form.active { display: block; }
@@ -59,26 +59,26 @@
       width: 100%;
       padding: 14px 16px;
       margin-bottom: 16px;
-      background: rgba(255, 255, 255, 0.6);
+      background: rgba(255, 255, 255, 0.7);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.8);
       border-radius: 12px;
       color: #3D3333;
       font-size: 14px;
       outline: none;
       transition: border-color 0.3s, box-shadow 0.3s;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
     }
     input:focus {
-      border-color: #E8A0A0;
-      box-shadow: 0 2px 12px rgba(232, 160, 160, 0.15);
+      border-color: #F0B8B8;
+      box-shadow: 0 2px 12px rgba(240, 184, 184, 0.12);
     }
-    input::placeholder { color: #C4A8A8; }
+    input::placeholder { color: #CDB8B8; }
     .btn {
       width: 100%;
       padding: 14px;
-      background: linear-gradient(135deg, #F5C4C4, #E8A0A0);
+      background: linear-gradient(135deg, #FCDADA, #F0B8B8);
       color: #fff;
       border: none;
       border-radius: 12px;
@@ -87,7 +87,7 @@
       cursor: pointer;
       margin-top: 8px;
       transition: opacity 0.3s, transform 0.2s;
-      box-shadow: 0 4px 12px rgba(232, 160, 160, 0.3);
+      box-shadow: 0 4px 12px rgba(240, 184, 184, 0.25);
       letter-spacing: 1px;
     }
     .btn:active { opacity: 0.9; transform: scale(0.98); }
@@ -103,7 +103,7 @@
       color: #B8A0A0;
       margin-top: 24px;
     }
-    .gift span { color: #E8A0A0; font-weight: 500; }
+    .gift span { color: #F0B8B8; font-weight: 500; }
   </style>
 </head>
 <body>

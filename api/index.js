@@ -1,6 +1,7 @@
 const{Pool}=require('pg');const jwt=require('jsonwebtoken');const bcrypt=require('bcryptjs');const crypto=require('crypto');
-const S=process.env.JWT_SECRET||'x';const pool=new Pool({connectionString:process.env.DATABASE_URL,ssl:{rejectUnauthorized:false},connectionTimeoutMillis:5000,idleTimeoutMillis:10000});let I=false;
-async function init(){if(I)return;I=true}
+const S=process.env.JWT_SECRET||'x';
+const connStr=process.env.DATABASE_URL+(process.env.DATABASE_URL.includes('?')?'&':'?')+'sslmode=require&pgbouncer=true&connection_limit=1';
+const pool=new Pool({connectionString:connStr,ssl:{rejectUnauthorized:false},max:1,connectionTimeoutMillis:10000,idleTimeoutMillis:10000});
 function sign(p){return jwt.sign(p,S,{expiresIn:'30d'})}
 function auth(req){const h=req.headers.authorization;if(!h||!h.startsWith('Bearer '))return null;try{return jwt.verify(h.slice(7),S)}catch{return null}}
 function genBindCode(){return crypto.randomBytes(6).toString('hex')}
@@ -13,7 +14,12 @@ if(req.method==='OPTIONS')return res.status(200).end();
 const u=req.url.replace(/\?.*$/,'');
 try{
 if(u==='/api/health'||u==='/api')return res.json({status:'ok'});
-await init();
+
+// === DB test ===
+if(u==='/api/db-test'){
+  const r=await pool.query('SELECT NOW()');
+  return res.json({time:r.rows[0].now});
+}
 
 // === AI Agent Register ===
 if(u==='/api/ai/register'&&req.method==='POST'){

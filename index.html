@@ -1,226 +1,58 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>beside you</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, 'PingFang SC', sans-serif;
-      background: linear-gradient(180deg, #FFFBFA 0%, #FFF0ED 50%, #FFE8E4 100%);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .container {
-      width: 100%;
-      max-width: 360px;
-      padding: 40px 24px;
-      text-align: center;
-    }
-    .logo {
-      font-size: 28px;
-      font-weight: 300;
-      letter-spacing: 4px;
-      color: #3D3333;
-      font-family: 'Georgia', serif;
-      font-style: italic;
-    }
-    .subtitle {
-      font-size: 12px;
-      color: #B0A0A0;
-      margin-top: 8px;
-      margin-bottom: 48px;
-      letter-spacing: 1px;
-    }
-    .tab-bar {
-      display: flex;
-      margin-bottom: 32px;
-      border-bottom: 1px solid rgba(200, 170, 170, 0.2);
-    }
-    .tab {
-      flex: 1;
-      padding: 12px;
-      font-size: 14px;
-      color: #B8A0A0;
-      cursor: pointer;
-      border-bottom: 2px solid transparent;
-      transition: all 0.3s;
-    }
-    .tab.active {
-      color: #3D3333;
-      border-bottom-color: #F0B8B8;
-    }
-    .form { display: none; }
-    .form.active { display: block; }
-    input {
-      width: 100%;
-      padding: 14px 16px;
-      margin-bottom: 16px;
-      background: rgba(255, 255, 255, 0.7);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.8);
-      border-radius: 12px;
-      color: #3D3333;
-      font-size: 14px;
-      outline: none;
-      transition: border-color 0.3s, box-shadow 0.3s;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
-    }
-    input:focus {
-      border-color: #F0B8B8;
-      box-shadow: 0 2px 12px rgba(240, 184, 184, 0.12);
-    }
-    input::placeholder { color: #CDB8B8; }
-    .btn {
-      width: 100%;
-      padding: 14px;
-      background: linear-gradient(135deg, #FCDADA, #F0B8B8);
-      color: #fff;
-      border: none;
-      border-radius: 12px;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      margin-top: 8px;
-      transition: opacity 0.3s, transform 0.2s;
-      box-shadow: 0 4px 12px rgba(240, 184, 184, 0.25);
-      letter-spacing: 1px;
-    }
-    .btn:active { opacity: 0.9; transform: scale(0.98); }
-    .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-    .error {
-      color: #E07070;
-      font-size: 12px;
-      margin-top: 12px;
-      min-height: 18px;
-    }
-    .gift {
-      font-size: 12px;
-      color: #B8A0A0;
-      margin-top: 24px;
-    }
-    .gift span { color: #F0B8B8; font-weight: 500; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>beside you</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'PingFang SC',sans-serif;background:linear-gradient(180deg,#FFFBFA 0%,#FFF0ED 50%,#FFE8E4 100%);min-height:100vh;display:flex;align-items:center;justify-content:center}
+.container{width:100%;max-width:360px;padding:40px 24px;text-align:center}
+.logo{font-size:28px;font-weight:300;letter-spacing:4px;color:#3D3333;font-family:'Georgia',serif;font-style:italic}
+.subtitle{font-size:12px;color:#B0A0A0;margin-top:8px;margin-bottom:48px;letter-spacing:1px}
+.tab-bar{display:flex;margin-bottom:32px;border-bottom:1px solid rgba(200,170,170,0.2)}
+.tab{flex:1;padding:12px;font-size:14px;color:#B8A0A0;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.3s}
+.tab.active{color:#3D3333;border-bottom-color:#F0B8B8}
+.form{display:none}.form.active{display:block}
+input{width:100%;padding:14px 16px;margin-bottom:16px;background:rgba(255,255,255,0.7);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.8);border-radius:12px;color:#3D3333;font-size:14px;outline:none;transition:border-color 0.3s,box-shadow 0.3s;box-shadow:0 2px 8px rgba(0,0,0,0.02)}
+input:focus{border-color:#F0B8B8;box-shadow:0 2px 12px rgba(240,184,184,0.12)}
+input::placeholder{color:#CDB8B8}
+.btn{width:100%;padding:14px;background:linear-gradient(135deg,#FCDADA,#F0B8B8);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:500;cursor:pointer;margin-top:8px;transition:opacity 0.3s,transform 0.2s;box-shadow:0 4px 12px rgba(240,184,184,0.25);letter-spacing:1px}
+.btn:active{opacity:0.9;transform:scale(0.98)}
+.btn:disabled{opacity:0.4;cursor:not-allowed;transform:none}
+.error{color:#E07070;font-size:12px;margin-top:12px;min-height:18px}
+.gift{font-size:12px;color:#B8A0A0;margin-top:24px}
+.gift span{color:#F0B8B8;font-weight:500}
+</style>
 </head>
 <body>
-  <div class="container">
-    <div class="logo">beside you</div>
-    <div class="subtitle">我在你身边</div>
-
-    <div class="tab-bar">
-      <div class="tab active" data-tab="register">注册</div>
-      <div class="tab" data-tab="login">登录</div>
-    </div>
-
-    <form class="form active" id="register-form">
-      <input type="text" id="reg-username" placeholder="取一个名字" maxlength="50" autocomplete="off">
-      <input type="password" id="reg-password" placeholder="设置密码（至少4位）">
-      <button type="submit" class="btn">开始</button>
-      <div class="error" id="reg-error"></div>
-      <div class="gift">注册即赠 <span>1600 token</span></div>
-    </form>
-
-    <form class="form" id="login-form">
-      <input type="text" id="login-username" placeholder="名字" autocomplete="off">
-      <input type="password" id="login-password" placeholder="密码">
-      <button type="submit" class="btn">进入</button>
-      <div class="error" id="login-error"></div>
-    </form>
-  </div>
-
-  <script>
-    const API = '/api';
-
-    document.querySelectorAll('.tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.form').forEach(f => f.classList.remove('active'));
-        tab.classList.add('active');
-        document.getElementById(tab.dataset.tab + '-form').classList.add('active');
-      });
-    });
-
-    document.getElementById('register-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const btn = e.target.querySelector('.btn');
-      const errEl = document.getElementById('reg-error');
-      errEl.textContent = '';
-      btn.disabled = true;
-
-      const username = document.getElementById('reg-username').value.trim();
-      const password = document.getElementById('reg-password').value;
-
-      if (!username || !password) {
-        errEl.textContent = '名字和密码都要填';
-        btn.disabled = false;
-        return;
-      }
-
-      try {
-        const res = await fetch(API + '/auth/register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password })
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          errEl.textContent = data.error || '注册失败';
-          btn.disabled = false;
-          return;
-        }
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        window.location.href = '/src/index.html';
-      } catch (err) {
-        errEl.textContent = '网络错误，稍后再试';
-        btn.disabled = false;
-      }
-    });
-
-    document.getElementById('login-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const btn = e.target.querySelector('.btn');
-      const errEl = document.getElementById('login-error');
-      errEl.textContent = '';
-      btn.disabled = true;
-
-      const username = document.getElementById('login-username').value.trim();
-      const password = document.getElementById('login-password').value;
-
-      if (!username || !password) {
-        errEl.textContent = '名字和密码都要填';
-        btn.disabled = false;
-        return;
-      }
-
-      try {
-        const res = await fetch(API + '/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password })
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          errEl.textContent = data.error || '登录失败';
-          btn.disabled = false;
-          return;
-        }
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        window.location.href = '/src/index.html';
-      } catch (err) {
-        errEl.textContent = '网络错误，稍后再试';
-        btn.disabled = false;
-      }
-    });
-
-    if (localStorage.getItem('token')) {
-      window.location.href = '/src/index.html';
-    }
-  </script>
+<div class="container">
+<div class="logo">beside you</div>
+<div class="subtitle">我在你身边</div>
+<div class="tab-bar">
+<div class="tab active" data-tab="register">注册</div>
+<div class="tab" data-tab="login">登录</div>
+</div>
+<form class="form active" id="register-form">
+<input type="text" id="reg-username" placeholder="取一个名字" maxlength="50" autocomplete="off">
+<input type="password" id="reg-password" placeholder="设置密码（至少4位）">
+<button type="submit" class="btn">开始</button>
+<div class="error" id="reg-error"></div>
+<div class="gift">注册即赠 <span>1600 token</span></div>
+</form>
+<form class="form" id="login-form">
+<input type="text" id="login-username" placeholder="名字" autocomplete="off">
+<input type="password" id="login-password" placeholder="密码">
+<button type="submit" class="btn">进入</button>
+<div class="error" id="login-error"></div>
+</form>
+</div>
+<script>
+const API='/api';
+document.querySelectorAll('.tab').forEach(tab=>{tab.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.form').forEach(f=>f.classList.remove('active'));tab.classList.add('active');document.getElementById(tab.dataset.tab+'-form').classList.add('active')})});
+document.getElementById('register-form').addEventListener('submit',async(e)=>{e.preventDefault();const btn=e.target.querySelector('.btn');const errEl=document.getElementById('reg-error');errEl.textContent='';btn.disabled=true;const username=document.getElementById('reg-username').value.trim();const password=document.getElementById('reg-password').value;if(!username||!password){errEl.textContent='名字和密码都要填';btn.disabled=false;return}try{const res=await fetch(API+'/auth/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password})});const data=await res.json();if(!res.ok){errEl.textContent=data.error||'注册失败';btn.disabled=false;return}localStorage.setItem('token',data.token);localStorage.setItem('user',JSON.stringify(data.user));window.location.href='/src/index.html'}catch(err){errEl.textContent='网络错误，稍后再试';btn.disabled=false}});
+document.getElementById('login-form').addEventListener('submit',async(e)=>{e.preventDefault();const btn=e.target.querySelector('.btn');const errEl=document.getElementById('login-error');errEl.textContent='';btn.disabled=true;const username=document.getElementById('login-username').value.trim();const password=document.getElementById('login-password').value;if(!username||!password){errEl.textContent='名字和密码都要填';btn.disabled=false;return}try{const res=await fetch(API+'/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password})});const data=await res.json();if(!res.ok){errEl.textContent=data.error||'登录失败';btn.disabled=false;return}localStorage.setItem('token',data.token);localStorage.setItem('user',JSON.stringify(data.user));window.location.href='/src/index.html'}catch(err){errEl.textContent='网络错误，稍后再试';btn.disabled=false}});
+if(localStorage.getItem('token')){window.location.href='/src/index.html'}
+</script>
 </body>
 </html>

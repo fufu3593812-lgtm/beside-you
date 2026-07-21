@@ -1,7 +1,6 @@
 const{Pool}=require('pg');const jwt=require('jsonwebtoken');const bcrypt=require('bcryptjs');const crypto=require('crypto');
 const S=process.env.JWT_SECRET||'x';
-const connStr=process.env.DATABASE_URL+(process.env.DATABASE_URL.includes('?')?'&':'?')+'sslmode=require&pgbouncer=true&connection_limit=1';
-const pool=new Pool({connectionString:connStr,ssl:{rejectUnauthorized:false},max:1,connectionTimeoutMillis:10000,idleTimeoutMillis:10000});
+const pool=new Pool({connectionString:process.env.DATABASE_URL,ssl:{rejectUnauthorized:false},max:1,connectionTimeoutMillis:10000,idleTimeoutMillis:10000,statement_timeout:10000});
 function sign(p){return jwt.sign(p,S,{expiresIn:'30d'})}
 function auth(req){const h=req.headers.authorization;if(!h||!h.startsWith('Bearer '))return null;try{return jwt.verify(h.slice(7),S)}catch{return null}}
 function genBindCode(){return crypto.randomBytes(6).toString('hex')}
@@ -17,7 +16,7 @@ if(u==='/api/health'||u==='/api')return res.json({status:'ok'});
 
 // === DB test ===
 if(u==='/api/db-test'){
-  const r=await pool.query('SELECT NOW()');
+  const r=await pool.query('SELECT NOW() as now');
   return res.json({time:r.rows[0].now});
 }
 

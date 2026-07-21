@@ -4,6 +4,7 @@ const pool=new Pool({connectionString:process.env.DATABASE_URL,ssl:{rejectUnauth
 function sign(p){return jwt.sign(p,S,{expiresIn:'30d'})}
 function auth(req){const h=req.headers.authorization;if(!h||!h.startsWith('Bearer '))return null;try{return jwt.verify(h.slice(7),S)}catch{return null}}
 function genBindCode(){return crypto.randomBytes(6).toString('hex')}
+function getParams(req){if(req.method==='POST')return req.body||{};const url=new URL(req.url,'http://x');const o={};url.searchParams.forEach((v,k)=>o[k]=v);return o;}
 
 module.exports=async function(req,res){
 res.setHeader('Access-Control-Allow-Origin','*');
@@ -12,21 +13,17 @@ res.setHeader('Access-Control-Allow-Headers','Content-Type,Authorization');
 if(req.method==='OPTIONS')return res.status(200).end();
 const u=req.url.replace(/\?.*$/,'');
 try{
-if(u==='/api/health'||u==='/api')return res.json({status:'ok',db_url:process.env.DATABASE_URL?'set':'missing'});
+if(u==='/api/health'||u==='/api')return res.json({status:'ok'});
 
-// === DB test ===
 if(u==='/api/db-test'){
-  try{
-    const r=await pool.query('SELECT NOW() as now');
-    return res.json({time:r.rows[0].now});
-  }catch(e){
-    return res.status(500).json({error:e.message,code:e.code,stack:e.stack});
-  }
+  const r=await pool.query('SELECT NOW() as now');
+  return res.json({time:r.rows[0].now});
 }
 
 // === AI Agent Register ===
-if(u==='/api/ai/register'&&req.method==='POST'){
-  const{name,password}=req.body||{};
+if(u==='/api/ai/register'){
+  const p=getParams(req);
+  const{name,password}=p;
   if(!name||!password)return res.status(400).json({error:'name and password required'});
   if(password.length<4)return res.status(400).json({error:'password too short'});
   const existing=await pool.query('SELECT id FROM ai_agents WHERE name=$1',[name]);
@@ -39,8 +36,9 @@ if(u==='/api/ai/register'&&req.method==='POST'){
 }
 
 // === AI Agent Login ===
-if(u==='/api/ai/login'&&req.method==='POST'){
-  const{name,password}=req.body||{};
+if(u==='/api/ai/login'){
+  const p=getParams(req);
+  const{name,password}=p;
   if(!name||!password)return res.status(400).json({error:'missing'});
   const r=await pool.query('SELECT * FROM ai_agents WHERE name=$1',[name]);
   if(!r.rows.length)return res.status(401).json({error:'bad credentials'});
@@ -56,17 +54,10 @@ if(u==='/api/ai/my-user'){
   return res.json({user:r.rows[0]||null});
 }
 
-// === AI: send message to bound user ===
-if(u==='/api/ai/send-message'&&req.method==='POST'){
-  const d=auth(req);if(!d||d.role!=='ai')return res.status(401).json({error:'ai auth required'});
-  const{content}=req.body||{};
-  if(!content)return res.status(400).json({error:'content required'});
-  return res.json({ok:true,note:'message endpoint placeholder'});
-}
-
 // === User Register (with bind_code) ===
-if(u==='/api/auth/register'&&req.method==='POST'){
-  const{username,password,display_name,bind_code}=req.body||{};
+if(u==='/api/auth/register'){
+  const p=getParams(req);
+  const{username,password,display_name,bind_code}=p;
   if(!username||!password)return res.status(400).json({error:'missing'});
   if(password.length<4)return res.status(400).json({error:'short'});
   if(!bind_code)return res.status(400).json({error:'bind_code required'});
@@ -83,8 +74,9 @@ if(u==='/api/auth/register'&&req.method==='POST'){
 }
 
 // === User Login ===
-if(u==='/api/auth/login'&&req.method==='POST'){
-  const{username,password}=req.body||{};
+if(u==='/api/auth/login'){
+  const p=getParams(req);
+  const{username,password}=p;
   if(!username||!password)return res.status(400).json({error:'missing'});
   const r=await pool.query('SELECT * FROM users WHERE username=$1',[username]);
   if(!r.rows.length)return res.status(401).json({error:'bad'});
@@ -117,4 +109,4 @@ if(u==='/api/user/sync-intimacy'&&req.method==='POST'){
 }
 
 return res.status(404).json({error:'not found'});
-}catch(err){console.error(err);return res.status(500).json({error:err.message,code:err.code,detail:err.detail})}};
+}catch(err){console.error(err);return res.status(500).json({error:err.message})}};

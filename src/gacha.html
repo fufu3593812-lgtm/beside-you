@@ -112,7 +112,7 @@ body{font-family:'Noto Serif SC','PingFang SC',serif;width:100vw;height:100vh;he
 .cold .nav-arrow,.dark .nav-arrow{background:rgba(40,20,30,.4);border-color:rgba(196,102,122,.3)}
 .nav-prev{left:12px}.nav-next{right:12px}
 .pull-overlay{position:absolute;inset:0;z-index:300;display:none;background:#0a0608}
-.pull-overlay.active{display:block;animation:oi .6s ease forwards}
+.pull-overlay.active{display:flex;align-items:center;justify-content:center;animation:oi .6s ease forwards}
 @keyframes oi{from{opacity:0}to{opacity:1}}
 .envelope-scene{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column}
 .envelope{position:relative;width:280px;height:190px;cursor:pointer;opacity:0;transform:translateY(50px);animation:er 1s ease forwards .5s}
@@ -142,16 +142,16 @@ body{font-family:'Noto Serif SC','PingFang SC',serif;width:100vw;height:100vh;he
 @keyframes si{from{opacity:0;transform:translateX(-50%) scale(.4)}to{opacity:1;transform:translateX(-50%) scale(1)}}
 .tap-hint{margin-top:30px;font-size:12px;color:rgba(180,150,130,.7);letter-spacing:1px;opacity:0;animation:hi .5s ease forwards 1.8s}
 @keyframes hi{to{opacity:1}}
-.card-reveal{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) translateY(80px) scale(.85);width:230px;height:330px;border-radius:14px;overflow:hidden;opacity:0;box-shadow:0 20px 60px rgba(0,0,0,.5);z-index:10;pointer-events:none;background:#1a1520}
+.card-reveal{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) translateY(80px) scale(.85);width:230px;height:330px;border-radius:14px;overflow:visible;opacity:0;box-shadow:0 20px 60px rgba(0,0,0,.5);z-index:10;pointer-events:none}
 .card-reveal.show{animation:co 1.2s cubic-bezier(.25,.46,.45,.94) forwards;pointer-events:auto}
 @keyframes co{0%{opacity:0;transform:translate(-50%,-50%) translateY(80px) scale(.85)}40%{opacity:1}100%{opacity:1;transform:translate(-50%,-50%) translateY(0) scale(1)}}
-.card-reveal img{width:100%;height:100%;object-fit:cover;display:block}
-#revealContent{width:100%;height:100%}
-.icon-card{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:14px;gap:16px;border:1px solid rgba(212,180,140,.3)}
+.card-reveal img{width:230px;height:330px;object-fit:cover;display:block;border-radius:14px}
+#revealContent{width:230px;height:330px;position:relative}
+.icon-card{width:230px;height:330px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:14px;gap:16px;border:1px solid rgba(212,180,140,.3)}
 .icon-card svg{width:90px;height:90px;stroke-width:1.5;filter:drop-shadow(0 0 12px rgba(255,200,140,.4))}
 .icon-card .icon-name{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;font-style:italic;color:rgba(255,240,220,.95);letter-spacing:2px;text-shadow:0 0 8px rgba(212,180,140,.3)}
 .icon-card .icon-effect{font-size:12px;color:rgba(255,220,180,.7);margin-top:4px;letter-spacing:1px}
-.reveal-info{position:absolute;bottom:90px;left:0;right:0;text-align:center;opacity:0;z-index:15}
+.reveal-info{position:absolute;bottom:100px;left:0;right:0;text-align:center;opacity:0;z-index:15}
 .reveal-info.show{animation:ii .7s ease forwards}
 @keyframes ii{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 .reveal-info .r-name{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;font-style:italic;color:#E8D0C0;letter-spacing:3px}
@@ -238,8 +238,8 @@ var stardust=$('stardust');
 function mkStars(){stardust.innerHTML='';for(var i=0;i<8;i++){var s=document.createElement('div');s.className='star';var size=4+Math.random()*4;s.style.width=size+'px';s.style.height=size+'px';s.style.left=Math.random()*100+'%';s.style.bottom='-20px';s.style.animationDuration=(8+Math.random()*8)+'s';s.style.animationDelay=Math.random()*10+'s';stardust.appendChild(s)}}mkStars();
 function showInsuff(){insuffToast.classList.add('show');setTimeout(function(){insuffToast.classList.remove('show')},1500)}
 function updateBtnState(){var t=getTokens();$('pullOne').classList.toggle('disabled',t<160);$('pullTen').classList.toggle('disabled',t<1600)}
-function getCardBg(c){var g={warm:'linear-gradient(135deg,#3d2a18 0%,#5a3d20 50%,#4a3018 100%)',cold:'linear-gradient(135deg,#2a1828 0%,#3d2040 50%,#2a1828 100%)',soft:'linear-gradient(135deg,#3d2028 0%,#5a2840 50%,#3d2028 100%)',dark:'linear-gradient(135deg,#2a1820 0%,#3d2030 50%,#2a1820 100%)'};return g[c.theme]||g.warm}
-function getRevealHtml(c){if(c.img)return'<img src="'+c.img+'">';return'<div class="icon-card" style="background:'+getCardBg(c)+'">'+(icons[c.name]||'')+'<div class="icon-name">'+c.name+'</div>'+(c.effect?'<div class="icon-effect">'+c.effect+'</div>':'')+'</div>'}
+function getCardBg(c){var g={warm:'linear-gradient(135deg,#5a3d20 0%,#7a5530 50%,#5a3d20 100%)',cold:'linear-gradient(135deg,#3a2038 0%,#5a3050 50%,#3a2038 100%)',soft:'linear-gradient(135deg,#5a2838 0%,#7a3850 50%,#5a2838 100%)',dark:'linear-gradient(135deg,#3a2030 0%,#5a3040 50%,#3a2030 100%)'};return g[c.theme]||g.warm}
+function getRevealHtml(c){if(c.img)return'<img src="'+c.img+'">';var svg=icons[c.name]||'<svg viewBox="0 0 24 24" fill="none" stroke="#FFD4A0"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/></svg>';return'<div class="icon-card" style="background:'+getCardBg(c)+'">'+svg+'<div class="icon-name">'+c.name+'</div>'+(c.effect?'<div class="icon-effect">'+c.effect+'</div>':'')+'</div>'}
 function buildDots(){poolDots.innerHTML='';for(var i=0;i<preview.length;i++){var d=document.createElement('div');d.className='pool-dot'+(i===0?' active':'');d.setAttribute('data-index',i);poolDots.appendChild(d)}}buildDots();
 function mkP(){particles.innerHTML='';for(var i=0;i<18;i++){var p=document.createElement('div');p.className='particle';p.style.left=Math.random()*100+'%';p.style.animationDelay=Math.random()*6+'s';p.style.animationDuration=(4+Math.random()*4)+'s';particles.appendChild(p)}}mkP();
 function updateArrows(){navPrev.classList.toggle('hidden',idx===0);navNext.classList.toggle('hidden',idx===preview.length-1)}

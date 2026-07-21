@@ -1,26 +1,6 @@
 const{Pool}=require('pg');const jwt=require('jsonwebtoken');const bcrypt=require('bcryptjs');const crypto=require('crypto');
-const S=process.env.JWT_SECRET||'x';const pool=new Pool({connectionString:process.env.DATABASE_URL,ssl:{rejectUnauthorized:false}});let I=false;
-async function init(){if(I)return;const c=await pool.connect();try{
-await c.query(`CREATE TABLE IF NOT EXISTS ai_agents(
-  id SERIAL PRIMARY KEY,
-  name VARCHAR(100) UNIQUE NOT NULL,
-  password_hash VARCHAR(255) NOT NULL,
-  bind_code VARCHAR(32) UNIQUE NOT NULL,
-  created_at TIMESTAMP DEFAULT NOW()
-)`);
-await c.query(`CREATE TABLE IF NOT EXISTS users(
-  id SERIAL PRIMARY KEY,
-  username VARCHAR(50) UNIQUE NOT NULL,
-  password_hash VARCHAR(255) NOT NULL,
-  display_name VARCHAR(100),
-  tokens INTEGER DEFAULT 1600,
-  intimacy INTEGER DEFAULT 0,
-  agent_id INTEGER REFERENCES ai_agents(id),
-  created_at TIMESTAMP DEFAULT NOW()
-)`);
-// Ensure unique constraint on name (for existing tables)
-await c.query(`CREATE UNIQUE INDEX IF NOT EXISTS idx_ai_agents_name ON ai_agents(name)`).catch(()=>{});
-I=true}finally{c.release()}}
+const S=process.env.JWT_SECRET||'x';const pool=new Pool({connectionString:process.env.DATABASE_URL,ssl:{rejectUnauthorized:false},connectionTimeoutMillis:5000,idleTimeoutMillis:10000});let I=false;
+async function init(){if(I)return;I=true}
 function sign(p){return jwt.sign(p,S,{expiresIn:'30d'})}
 function auth(req){const h=req.headers.authorization;if(!h||!h.startsWith('Bearer '))return null;try{return jwt.verify(h.slice(7),S)}catch{return null}}
 function genBindCode(){return crypto.randomBytes(6).toString('hex')}
@@ -40,9 +20,8 @@ if(u==='/api/ai/register'&&req.method==='POST'){
   const{name,password}=req.body||{};
   if(!name||!password)return res.status(400).json({error:'name and password required'});
   if(password.length<4)return res.status(400).json({error:'password too short'});
-  // Check name taken
   const existing=await pool.query('SELECT id FROM ai_agents WHERE name=$1',[name]);
-  if(existing.rows.length)return res.status(409).json({error:'name taken','suggestion':name+Math.floor(Math.random()*99+1)});
+  if(existing.rows.length)return res.status(409).json({error:'name taken',suggestion:name+Math.floor(Math.random()*99+1)});
   const h=await bcrypt.hash(password,10);
   const bind_code=genBindCode();
   const r=await pool.query('INSERT INTO ai_agents(name,password_hash,bind_code) VALUES($1,$2,$3) RETURNING id,name,bind_code,created_at',[name,h,bind_code]);
@@ -73,7 +52,7 @@ if(u==='/api/ai/send-message'&&req.method==='POST'){
   const d=auth(req);if(!d||d.role!=='ai')return res.status(401).json({error:'ai auth required'});
   const{content}=req.body||{};
   if(!content)return res.status(400).json({error:'content required'});
-  return res.json({ok:true,note:'message endpoint placeholder - will store when messages table is ready'});
+  return res.json({ok:true,note:'message endpoint placeholder'});
 }
 
 // === User Register (with bind_code) ===

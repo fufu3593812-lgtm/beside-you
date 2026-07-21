@@ -1,6 +1,6 @@
 const{Pool}=require('pg');const jwt=require('jsonwebtoken');const bcrypt=require('bcryptjs');const crypto=require('crypto');
 const S=process.env.JWT_SECRET||'x';
-const pool=new Pool({connectionString:process.env.DATABASE_URL,ssl:{rejectUnauthorized:false},max:1,connectionTimeoutMillis:10000,idleTimeoutMillis:10000,statement_timeout:10000});
+const pool=new Pool({connectionString:process.env.DATABASE_URL,ssl:{rejectUnauthorized:false},max:1,connectionTimeoutMillis:10000,idleTimeoutMillis:10000});
 function sign(p){return jwt.sign(p,S,{expiresIn:'30d'})}
 function auth(req){const h=req.headers.authorization;if(!h||!h.startsWith('Bearer '))return null;try{return jwt.verify(h.slice(7),S)}catch{return null}}
 function genBindCode(){return crypto.randomBytes(6).toString('hex')}
@@ -12,12 +12,16 @@ res.setHeader('Access-Control-Allow-Headers','Content-Type,Authorization');
 if(req.method==='OPTIONS')return res.status(200).end();
 const u=req.url.replace(/\?.*$/,'');
 try{
-if(u==='/api/health'||u==='/api')return res.json({status:'ok'});
+if(u==='/api/health'||u==='/api')return res.json({status:'ok',db_url:process.env.DATABASE_URL?'set':'missing'});
 
 // === DB test ===
 if(u==='/api/db-test'){
-  const r=await pool.query('SELECT NOW() as now');
-  return res.json({time:r.rows[0].now});
+  try{
+    const r=await pool.query('SELECT NOW() as now');
+    return res.json({time:r.rows[0].now});
+  }catch(e){
+    return res.status(500).json({error:e.message,code:e.code,stack:e.stack});
+  }
 }
 
 // === AI Agent Register ===
@@ -113,4 +117,4 @@ if(u==='/api/user/sync-intimacy'&&req.method==='POST'){
 }
 
 return res.status(404).json({error:'not found'});
-}catch(err){console.error(err);return res.status(500).json({error:err.message})}};
+}catch(err){console.error(err);return res.status(500).json({error:err.message,code:err.code,detail:err.detail})}};

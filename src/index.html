@@ -68,11 +68,11 @@
 <body>
   <div class="bg-room" id="bgRoom"></div>
   <div class="char-wrap" id="charWrap">
-    <img class="character" id="charImg" alt="珩">
+    <img class="character" id="charImg" alt="角色">
   </div>
   <div class="top-left fade-in fade-in-delay-1">
     <div class="greet" id="greet-text">Good evening,</div>
-    <div class="name">珩</div>
+    <div class="name" id="display-name">珩</div>
     <div class="subtitle" id="subtitle-text">今天也辛苦了，<br>我一直都在这里等你。</div>
   </div>
   <div class="top-right fade-in fade-in-delay-2">
@@ -115,6 +115,18 @@
     <a class="dock-item glass" href="/src/collection.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span class="d-en">Collection</span><span class="d-cn">收藏</span></a>
   </div>
   <script>
+    (function() {
+      // Display user's name from localStorage (saved at login/register)
+      var nameEl = document.getElementById('display-name');
+      var user = localStorage.getItem('bsy_user');
+      if (user) {
+        try {
+          var u = JSON.parse(user);
+          if (u.display_name) nameEl.textContent = u.display_name;
+          else if (u.username) nameEl.textContent = u.username;
+        } catch(e) {}
+      }
+    })();
     (function() {
       var charImg = document.getElementById('charImg');
       var outfitImg = localStorage.getItem('bsy_outfit_img');

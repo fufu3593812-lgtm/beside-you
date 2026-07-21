@@ -1,2 +1,2 @@
-// placeholder - not a function
-module.exports = {};
+// removed
+module.exports = undefined;

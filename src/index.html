@@ -116,9 +116,9 @@
   </div>
   <script>
     (function() {
-      // Display user's name from localStorage (saved at login/register)
+      // Display user's name from localStorage (saved at login/register as 'user')
       var nameEl = document.getElementById('display-name');
-      var user = localStorage.getItem('bsy_user');
+      var user = localStorage.getItem('user');
       if (user) {
         try {
           var u = JSON.parse(user);

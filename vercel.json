@@ -1,1 +1,1 @@
-{"rewrites":[{"source":"/api/(.*)", "destination":"/api"}]}
+{"rewrites":[{"source":"/api/auth/register","destination":"/api"},{"source":"/api/auth/login","destination":"/api"},{"source":"/api/user/me","destination":"/api"},{"source":"/api/user/sync-tokens","destination":"/api"},{"source":"/api/user/sync-intimacy","destination":"/api"},{"source":"/api/gacha/pull","destination":"/api"},{"source":"/api/gacha/buy-outfit","destination":"/api"},{"source":"/api/health","destination":"/api"},{"source":"/api/:path*","destination":"/api"}]}

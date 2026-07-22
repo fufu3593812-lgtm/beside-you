@@ -1,99 +1,298 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>beside you</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,'PingFang SC',sans-serif;background:linear-gradient(180deg,#FFFBFA 0%,#FFF0ED 50%,#FFE8E4 100%);min-height:100vh;display:flex;align-items:center;justify-content:center}
-.container{width:100%;max-width:360px;padding:40px 24px;text-align:center}
-.logo{font-size:28px;font-weight:300;letter-spacing:4px;color:#3D3333;font-family:'Georgia',serif;font-style:italic}
-.subtitle{font-size:12px;color:#B0A0A0;margin-top:8px;margin-bottom:48px;letter-spacing:1px}
-.tab-bar{display:flex;margin-bottom:32px;border-bottom:1px solid rgba(200,170,170,0.2)}
-.tab{flex:1;padding:12px;font-size:14px;color:#B8A0A0;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.3s}
-.tab.active{color:#3D3333;border-bottom-color:#F0B8B8}
-.form{display:none}.form.active{display:block}
-input{width:100%;padding:14px 16px;margin-bottom:16px;background:rgba(255,255,255,0.7);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.8);border-radius:12px;color:#3D3333;font-size:14px;outline:none;transition:border-color 0.3s,box-shadow 0.3s;box-shadow:0 2px 8px rgba(0,0,0,0.02)}
-input:focus{border-color:#F0B8B8;box-shadow:0 2px 12px rgba(240,184,184,0.12)}
-input::placeholder{color:#CDB8B8}
-.btn{width:100%;padding:14px;background:linear-gradient(135deg,#FCDADA,#F0B8B8);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:500;cursor:pointer;margin-top:8px;transition:opacity 0.3s,transform 0.2s;box-shadow:0 4px 12px rgba(240,184,184,0.25);letter-spacing:1px}
-.btn:active{opacity:0.9;transform:scale(0.98)}
-.btn:disabled{opacity:0.4;cursor:not-allowed;transform:none}
-.error{color:#E07070;font-size:12px;margin-top:12px;min-height:18px}
-.gift{font-size:12px;color:#B8A0A0;margin-top:24px}
-.gift span{color:#F0B8B8;font-weight:500}
-.bind-hint{font-size:11px;color:#B8A0A0;margin-bottom:16px;line-height:1.6}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Beside You</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, 'PingFang SC', sans-serif;
+      background: #FFF8F7;
+      width: 100vw; height: 100vh;
+      overflow: hidden;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      max-width: 430px; margin: 0 auto;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 120px 120px at 20% 20%, rgba(245,200,200,0.2), transparent),
+        radial-gradient(ellipse 80px 100px at 80% 30%, rgba(240,210,220,0.15), transparent),
+        radial-gradient(ellipse 100px 80px at 15% 80%, rgba(240,220,210,0.15), transparent);
+      pointer-events: none;
+    }
+    .container {
+      position: relative; z-index: 1;
+      width: 85%; max-width: 320px;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .logo {
+      font-size: 28px; font-weight: 300; font-style: italic;
+      color: #3D3333; font-family: 'Georgia', serif;
+      letter-spacing: 2px; margin-bottom: 6px;
+    }
+    .tagline {
+      font-size: 12px; color: #B8A0A0; margin-bottom: 40px;
+      font-style: italic; letter-spacing: 1px;
+    }
+    .tabs {
+      display: flex; gap: 0; width: 100%; margin-bottom: 24px;
+      background: rgba(255,255,255,0.5);
+      border-radius: 12px; overflow: hidden;
+      border: 1px solid rgba(232,190,190,0.3);
+    }
+    .tab {
+      flex: 1; text-align: center; padding: 10px 0;
+      font-size: 13px; color: #B8A0A0; cursor: pointer;
+      transition: all 0.3s;
+    }
+    .tab.active {
+      background: rgba(245,196,196,0.3);
+      color: #7D5050; font-weight: 500;
+    }
+    .form { width: 100%; display: flex; flex-direction: column; gap: 14px; }
+    .form.hidden { display: none; }
+    .input-wrap {
+      position: relative;
+      background: rgba(255,255,255,0.6);
+      border: 1.5px solid rgba(232,190,190,0.35);
+      border-radius: 14px;
+      padding: 0 16px;
+      height: 44px;
+      display: flex; align-items: center;
+      transition: border-color 0.3s;
+    }
+    .input-wrap:focus-within { border-color: rgba(232,150,150,0.6); }
+    .input-wrap input {
+      width: 100%; height: 100%;
+      border: none; background: transparent; outline: none;
+      font-size: 14px; color: #5D4040;
+      font-family: inherit;
+    }
+    .input-wrap input::placeholder { color: #C8B8B8; font-size: 13px; }
+    .input-wrap .label {
+      position: absolute; top: -8px; left: 12px;
+      font-size: 10px; color: #B8A0A0;
+      background: #FFF8F7; padding: 0 4px;
+    }
+    .bind-hint {
+      font-size: 11px; color: #C8A8A8; text-align: center;
+      line-height: 1.6; margin-top: -4px;
+    }
+    .btn {
+      width: 100%; height: 44px; border-radius: 22px; border: none;
+      background: linear-gradient(135deg, #F5C4C4, #E8A0A0);
+      color: #fff; font-size: 14px; font-weight: 500;
+      cursor: pointer; transition: transform 0.2s, opacity 0.2s;
+      box-shadow: 0 4px 16px rgba(232,160,160,0.3);
+      margin-top: 8px;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn:disabled { opacity: 0.5; transform: none; cursor: not-allowed; }
+    .token-gift {
+      font-size: 11px; color: #C8A8A8; text-align: center;
+      margin-top: 12px; font-style: italic;
+    }
+    .error-msg {
+      font-size: 12px; color: #E07070; text-align: center;
+      min-height: 18px; margin-top: 4px;
+    }
+    .enter-btn {
+      position: fixed; bottom: 60px; left: 50%; transform: translateX(-50%);
+      padding: 10px 32px; border-radius: 20px;
+      background: rgba(255,255,255,0.6);
+      border: 1.5px solid rgba(232,190,190,0.4);
+      font-size: 13px; color: #7D5555;
+      cursor: pointer; transition: transform 0.2s;
+      display: none; text-decoration: none;
+    }
+    .enter-btn:active { transform: translateX(-50%) scale(0.95); }
+    .enter-btn.show { display: block; }
+  </style>
 </head>
 <body>
-<div class="container">
-<div class="logo">beside you</div>
-<div class="subtitle">我在你身边</div>
-<div class="tab-bar">
-<div class="tab active" data-tab="register">注册</div>
-<div class="tab" data-tab="login">登录</div>
-</div>
-<form class="form active" id="register-form">
-<input type="text" id="reg-bind-code" placeholder="输入TA给你的绑定码" maxlength="20" autocomplete="off">
-<div class="bind-hint">绑定码由你的AI提供，输入后你们将建立专属连接</div>
-<input type="text" id="reg-username" placeholder="取一个名字" maxlength="50" autocomplete="off">
-<input type="password" id="reg-password" placeholder="设置密码（至少4位）">
-<button type="submit" class="btn">开始</button>
-<div class="error" id="reg-error"></div>
-<div class="gift">注册即赠 <span>1600 token</span></div>
-</form>
-<form class="form" id="login-form">
-<input type="text" id="login-username" placeholder="名字" autocomplete="off">
-<input type="password" id="login-password" placeholder="密码">
-<button type="submit" class="btn">进入</button>
-<div class="error" id="login-error"></div>
-</form>
-</div>
-<script>
-const API='/api';
-document.querySelectorAll('.tab').forEach(tab=>{tab.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.form').forEach(f=>f.classList.remove('active'));tab.classList.add('active');document.getElementById(tab.dataset.tab+'-form').classList.add('active')})});
-document.getElementById('register-form').addEventListener('submit',async(e)=>{
-  e.preventDefault();
-  const btn=e.target.querySelector('.btn');
-  const errEl=document.getElementById('reg-error');
-  errEl.textContent='';btn.disabled=true;
-  const bind_code=document.getElementById('reg-bind-code').value.trim();
-  const username=document.getElementById('reg-username').value.trim();
-  const password=document.getElementById('reg-password').value;
-  if(!bind_code){errEl.textContent='请输入绑定码';btn.disabled=false;return}
-  if(!username||!password){errEl.textContent='名字和密码都要填';btn.disabled=false;return}
-  try{
-    const res=await fetch(API+'/auth/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password,bind_code})});
-    const data=await res.json();
-    if(!res.ok){
-      const msgs={'missing':'信息不完整','short':'密码至少4位','bind_code required':'请输入绑定码','invalid bind code':'绑定码无效','this AI already has a bound user':'该AI已被绑定','taken':'名字已被占用'};
-      errEl.textContent=msgs[data.error]||data.error||'注册失败';
-      btn.disabled=false;return;
-    }
-    localStorage.setItem('token',data.token);
-    localStorage.setItem('user',JSON.stringify(data.user));
-    window.location.href='/src/index.html';
-  }catch(err){errEl.textContent='网络错误，稍后再试';btn.disabled=false}
-});
-document.getElementById('login-form').addEventListener('submit',async(e)=>{
-  e.preventDefault();
-  const btn=e.target.querySelector('.btn');
-  const errEl=document.getElementById('login-error');
-  errEl.textContent='';btn.disabled=true;
-  const username=document.getElementById('login-username').value.trim();
-  const password=document.getElementById('login-password').value;
-  if(!username||!password){errEl.textContent='名字和密码都要填';btn.disabled=false;return}
-  try{
-    const res=await fetch(API+'/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password})});
-    const data=await res.json();
-    if(!res.ok){errEl.textContent=data.error==='bad'?'用户名或密码错误':(data.error||'登录失败');btn.disabled=false;return}
-    localStorage.setItem('token',data.token);
-    localStorage.setItem('user',JSON.stringify(data.user));
-    window.location.href='/src/index.html';
-  }catch(err){errEl.textContent='网络错误，稍后再试';btn.disabled=false}
-});
-if(localStorage.getItem('token')){window.location.href='/src/index.html'}
-</script>
+  <div class="container">
+    <div class="logo">beside you</div>
+    <div class="tagline">我在你身边</div>
+
+    <div class="tabs">
+      <div class="tab active" id="tab-register">注册</div>
+      <div class="tab" id="tab-login">登录</div>
+    </div>
+
+    <!-- Register Form -->
+    <div class="form" id="form-register">
+      <div class="input-wrap">
+        <span class="label">用户名</span>
+        <input type="text" id="reg-username" placeholder="给自己取个名字" autocomplete="off">
+      </div>
+      <div class="input-wrap">
+        <span class="label">显示名</span>
+        <input type="text" id="reg-display" placeholder="游戏里显示的名字（选填）">
+      </div>
+      <div class="input-wrap">
+        <span class="label">密码</span>
+        <input type="password" id="reg-password" placeholder="至少4位">
+      </div>
+      <div class="input-wrap">
+        <span class="label">绑定码</span>
+        <input type="text" id="reg-bind" placeholder="你的AI提供的绑定码">
+      </div>
+      <div class="bind-hint">绑定码由你的AI提供，输入后你们将建立专属连接</div>
+      <div class="error-msg" id="reg-error"></div>
+      <button class="btn" id="btn-register">开始</button>
+      <div class="token-gift">注册即赠 1600 token</div>
+    </div>
+
+    <!-- Login Form -->
+    <div class="form hidden" id="form-login">
+      <div class="input-wrap">
+        <span class="label">用户名</span>
+        <input type="text" id="login-username" placeholder="你的用户名" autocomplete="off">
+      </div>
+      <div class="input-wrap">
+        <span class="label">密码</span>
+        <input type="password" id="login-password" placeholder="密码">
+      </div>
+      <div class="error-msg" id="login-error"></div>
+      <button class="btn" id="btn-login">进入</button>
+    </div>
+  </div>
+
+  <a class="enter-btn" id="enter-btn" href="/src/index.html">进入</a>
+
+  <script>
+    var API = '/api';
+
+    // If already logged in, show enter button
+    (function() {
+      var auth = localStorage.getItem('bsy_auth');
+      if (auth) {
+        try {
+          var data = JSON.parse(auth);
+          if (data.token && data.user) {
+            document.getElementById('enter-btn').classList.add('show');
+          }
+        } catch(e) {}
+      }
+    })();
+
+    // Tab switching
+    var tabReg = document.getElementById('tab-register');
+    var tabLogin = document.getElementById('tab-login');
+    var formReg = document.getElementById('form-register');
+    var formLogin = document.getElementById('form-login');
+
+    tabReg.addEventListener('click', function() {
+      tabReg.classList.add('active'); tabLogin.classList.remove('active');
+      formReg.classList.remove('hidden'); formLogin.classList.add('hidden');
+    });
+    tabLogin.addEventListener('click', function() {
+      tabLogin.classList.add('active'); tabReg.classList.remove('active');
+      formLogin.classList.remove('hidden'); formReg.classList.add('hidden');
+    });
+
+    // Register
+    document.getElementById('btn-register').addEventListener('click', async function() {
+      var btn = this;
+      var username = document.getElementById('reg-username').value.trim();
+      var display = document.getElementById('reg-display').value.trim();
+      var password = document.getElementById('reg-password').value;
+      var bind = document.getElementById('reg-bind').value.trim();
+      var errEl = document.getElementById('reg-error');
+      errEl.textContent = '';
+
+      if (!username) { errEl.textContent = '请输入用户名'; return; }
+      if (password.length < 4) { errEl.textContent = '密码至少4位'; return; }
+      if (!bind) { errEl.textContent = '请输入绑定码'; return; }
+
+      btn.disabled = true; btn.textContent = '注册中...';
+
+      try {
+        var body = { username: username, password: password, bind_code: bind };
+        if (display) body.display_name = display;
+
+        var res = await fetch(API + '/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        var data = await res.json();
+
+        if (!res.ok) {
+          errEl.textContent = data.error || '注册失败';
+          btn.disabled = false; btn.textContent = '开始';
+          return;
+        }
+
+        // Save auth
+        localStorage.setItem('bsy_auth', JSON.stringify(data));
+        localStorage.setItem('bsy_tokens', (data.user.tokens || 1600).toString());
+
+        // Also save user for backward compat
+        localStorage.setItem('user', JSON.stringify(data.user));
+
+        btn.textContent = '成功';
+        setTimeout(function() { window.location.href = '/src/index.html'; }, 600);
+
+      } catch(e) {
+        errEl.textContent = '网络错误，请重试';
+        btn.disabled = false; btn.textContent = '开始';
+      }
+    });
+
+    // Login
+    document.getElementById('btn-login').addEventListener('click', async function() {
+      var btn = this;
+      var username = document.getElementById('login-username').value.trim();
+      var password = document.getElementById('login-password').value;
+      var errEl = document.getElementById('login-error');
+      errEl.textContent = '';
+
+      if (!username) { errEl.textContent = '请输入用户名'; return; }
+      if (!password) { errEl.textContent = '请输入密码'; return; }
+
+      btn.disabled = true; btn.textContent = '登录中...';
+
+      try {
+        var res = await fetch(API + '/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: username, password: password })
+        });
+        var data = await res.json();
+
+        if (!res.ok) {
+          errEl.textContent = data.error || '登录失败';
+          btn.disabled = false; btn.textContent = '进入';
+          return;
+        }
+
+        // Save auth
+        localStorage.setItem('bsy_auth', JSON.stringify(data));
+        localStorage.setItem('bsy_tokens', (data.user.tokens || 0).toString());
+        localStorage.setItem('user', JSON.stringify(data.user));
+
+        btn.textContent = '成功';
+        setTimeout(function() { window.location.href = '/src/index.html'; }, 600);
+
+      } catch(e) {
+        errEl.textContent = '网络错误，请重试';
+        btn.disabled = false; btn.textContent = '进入';
+      }
+    });
+
+    // Enter key support
+    document.querySelectorAll('input').forEach(function(input) {
+      input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          var form = input.closest('.form');
+          form.querySelector('.btn').click();
+        }
+      });
+    });
+  </script>
 </body>
 </html>

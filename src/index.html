@@ -10,31 +10,25 @@
     .bg-room { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; background: linear-gradient(180deg, #FFF5F0 0%, #FFE8E0 30%, #FFDDD4 60%, #F5D0C8 100%); }
     .bg-room img { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease; }
     .bg-room img.loaded { opacity: 1; }
-
-    /* Overlays - only visible in dark mode */
     .overlay-top, .overlay-bottom { position: absolute; left: 0; right: 0; z-index: 0; pointer-events: none; opacity: 0; transition: opacity 0.4s; }
     .overlay-top { top: 0; height: 200px; background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.1) 60%, transparent 100%); }
     .overlay-bottom { bottom: 0; height: 180px; background: linear-gradient(0deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.1) 50%, transparent 100%); }
     body.dark-bg .overlay-top, body.dark-bg .overlay-bottom { opacity: 1; }
-
     .char-wrap { position: absolute; bottom: 80px; left: 0; right: 0; height: 70vh; z-index: 1; display: flex; justify-content: center; align-items: flex-end; animation: breathe 3s ease-in-out infinite; cursor: pointer; pointer-events: none; }
+    .char-wrap.hidden { display: none; }
     .character { height: 100%; max-width: 85vw; object-fit: contain; opacity: 0; transition: opacity 0.6s ease; pointer-events: auto; }
     .character.loaded { opacity: 1; }
     @keyframes breathe { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-6px) scale(1.003); } }
-
-    /* === LIGHT MODE (default) === */
     .top-left { position: absolute; top: 56px; left: 24px; z-index: 10; }
     .top-left .greet { font-size: 13px; color: #C4A08A; font-style: italic; letter-spacing: 0.5px; transition: color 0.4s, text-shadow 0.4s; }
     .top-left .name { font-size: 40px; font-weight: 300; font-style: italic; color: #B8807A; margin-top: 4px; font-family: 'Georgia', serif; transition: color 0.4s, text-shadow 0.4s; }
     .top-left .subtitle { font-size: 12px; color: #B0A0A0; margin-top: 8px; line-height: 1.7; max-width: 180px; transition: color 0.4s, text-shadow 0.4s; }
-
     .top-right { position: absolute; top: 56px; right: 20px; z-index: 10; display: flex; gap: 12px; }
     .icon-btn { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; transition: transform 0.2s ease, background 0.4s, border-color 0.4s; text-decoration: none; background: rgba(255,255,255,0.55); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.6); box-shadow: 0 4px 16px rgba(0,0,0,0.04); }
     .icon-btn:active { transform: scale(0.95); }
     .icon-btn svg { width: 20px; height: 20px; stroke: #8D7676; stroke-width: 1.8; fill: none; transition: stroke 0.4s; }
     .dot { position: absolute; top: 7px; right: 7px; width: 6px; height: 6px; background: #F28B82; border-radius: 50%; }
     .dot.hidden { display: none; }
-
     .right-cards { position: absolute; top: 148px; right: 16px; z-index: 10; display: flex; flex-direction: column; gap: 12px; }
     .r-card { border-radius: 16px; padding: 14px 16px; min-width: 120px; background: rgba(255,255,255,0.55); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.6); box-shadow: 0 4px 16px rgba(0,0,0,0.04); transition: background 0.4s, border-color 0.4s; }
     .r-card .label { font-size: 10px; color: #B8A0A0; display: flex; align-items: center; gap: 4px; transition: color 0.4s; }
@@ -43,18 +37,15 @@
     .r-card .value small { font-size: 12px; color: #B8A8A8; transition: color 0.4s; }
     .progress-bar { margin-top: 8px; height: 3px; background: #F0E0E0; border-radius: 2px; overflow: hidden; transition: background 0.4s; }
     .progress-bar .fill { height: 100%; background: linear-gradient(90deg, #F5C4C4, #E8A0A0); border-radius: 2px; transition: width 0.5s ease; }
-
     .mood-card { position: absolute; bottom: 130px; left: 16px; z-index: 10; border-radius: 16px; padding: 14px 18px; text-align: center; background: rgba(255,255,255,0.55); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.6); box-shadow: 0 4px 16px rgba(0,0,0,0.04); transition: background 0.4s, border-color 0.4s; }
     .mood-card .title { font-size: 10px; color: #B8A0A0; text-align: center; transition: color 0.4s; }
     .mood-card .mood-icon { margin-top: 8px; display: flex; justify-content: center; }
     .mood-card .mood-icon svg { width: 28px; height: 28px; stroke: #E8A0A0; stroke-width: 1.6; fill: none; }
     .mood-card .mood-text { font-size: 11px; color: #9A8888; margin-top: 6px; text-align: center; transition: color 0.4s; }
-
     .story-btn { position: absolute; bottom: 130px; right: 20px; z-index: 10; width: 52px; height: 52px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s ease, background 0.4s, border-color 0.4s; text-decoration: none; background: rgba(255,255,255,0.55); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.6); box-shadow: 0 4px 16px rgba(0,0,0,0.04); }
     .story-btn:active { transform: scale(0.95); }
     .story-btn svg { width: 22px; height: 22px; stroke: #8D7676; stroke-width: 1.8; fill: none; transition: stroke 0.4s; }
     .story-btn .text { font-size: 8px; color: #B8A0A0; margin-top: 3px; transition: color 0.4s; }
-
     .dock { position: absolute; bottom: 16px; left: 16px; right: 16px; z-index: 20; display: flex; justify-content: space-between; gap: 8px; }
     .dock-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; border-radius: 20px; padding: 12px 4px 10px; cursor: pointer; transition: transform 0.2s ease, background 0.4s, border-color 0.4s; text-decoration: none; background: rgba(255,255,255,0.55); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.6); box-shadow: 0 4px 16px rgba(0,0,0,0.04); }
     .dock-item:active { transform: scale(0.95); }
@@ -63,8 +54,6 @@
     .dock-item.active svg { stroke: #C07070; }
     .dock-item .d-en { font-size: 8px; color: #8D7676; margin-top: 2px; transition: color 0.4s; }
     .dock-item .d-cn { font-size: 8px; color: #B8A8A8; transition: color 0.4s; }
-
-    /* === DARK MODE === */
     body.dark-bg .top-left .greet { color: rgba(255,255,255,0.85); text-shadow: 0 1px 4px rgba(0,0,0,0.4); }
     body.dark-bg .top-left .name { color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,0.4); }
     body.dark-bg .top-left .subtitle { color: rgba(255,255,255,0.8); text-shadow: 0 1px 3px rgba(0,0,0,0.4); }
@@ -87,7 +76,6 @@
     body.dark-bg .dock-item.active svg { stroke: #FFD4D4; }
     body.dark-bg .dock-item .d-en { color: rgba(255,255,255,0.7); }
     body.dark-bg .dock-item .d-cn { color: rgba(255,255,255,0.5); }
-
     .fade-in { opacity: 0; animation: fadeIn 0.6s ease forwards; }
     .fade-in-delay-1 { animation-delay: 0.1s; }
     .fade-in-delay-2 { animation-delay: 0.2s; }
@@ -155,7 +143,6 @@
     <a class="dock-item" href="/src/collection.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span class="d-en">Collection</span><span class="d-cn">收藏</span></a>
   </div>
   <script>
-    // Detect background brightness and toggle dark/light mode
     function detectBrightness(imgEl) {
       try {
         var canvas = document.createElement('canvas');
@@ -170,7 +157,6 @@
           total += (data[i] * 0.299 + data[i+1] * 0.587 + data[i+2] * 0.114);
         }
         var avg = total / count;
-        // threshold: below 140 = dark
         if (avg < 140) {
           document.body.classList.add('dark-bg');
           document.body.classList.remove('light-bg');
@@ -179,7 +165,6 @@
           document.body.classList.add('light-bg');
         }
       } catch(e) {
-        // Cross-origin or error: default to light
         document.body.classList.add('light-bg');
       }
     }
@@ -196,10 +181,18 @@
 
     (function() {
       var charImg = document.getElementById('charImg');
-      var outfitImg = localStorage.getItem('bsy_outfit_img');
-      var charSrc = (outfitImg && outfitImg.length > 0) ? outfitImg : '../assets/睡裙.PNG';
-      charImg.onload = function() { charImg.classList.add('loaded'); };
-      charImg.src = charSrc;
+      var charWrap = document.getElementById('charWrap');
+      var bgMode = localStorage.getItem('bsy_bg_mode') || 'normal';
+
+      // If card mode, hide character
+      if (bgMode === 'card') {
+        charWrap.classList.add('hidden');
+      } else {
+        var outfitImg = localStorage.getItem('bsy_outfit_img');
+        var charSrc = (outfitImg && outfitImg.length > 0) ? outfitImg : '../assets/睡裙.PNG';
+        charImg.onload = function() { charImg.classList.add('loaded'); };
+        charImg.src = charSrc;
+      }
 
       var bgRoom = document.getElementById('bgRoom');
       var bgImgSrc = localStorage.getItem('bsy_bg');
@@ -212,7 +205,6 @@
         detectBrightness(img);
       };
       img.onerror = function() {
-        // Fallback: try without crossOrigin
         var img2 = new Image();
         img2.onload = function() { img2.classList.add('loaded'); bgRoom.appendChild(img2); document.body.classList.add('light-bg'); };
         img2.src = bgSrc;

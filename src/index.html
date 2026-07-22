@@ -198,7 +198,6 @@
       var bgImgSrc = localStorage.getItem('bsy_bg');
       var bgSrc = (bgImgSrc && bgImgSrc.length > 0) ? bgImgSrc : '../assets/卧室.png';
       var img = new Image();
-      img.crossOrigin = 'anonymous';
       img.onload = function() {
         img.classList.add('loaded');
         bgRoom.appendChild(img);

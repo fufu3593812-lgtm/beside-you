@@ -37,11 +37,23 @@
     .r-card .value small { font-size: 12px; color: #B8A8A8; transition: color 0.4s; }
     .progress-bar { margin-top: 8px; height: 3px; background: #F0E0E0; border-radius: 2px; overflow: hidden; transition: background 0.4s; }
     .progress-bar .fill { height: 100%; background: linear-gradient(90deg, #F5C4C4, #E8A0A0); border-radius: 2px; transition: width 0.5s ease; }
-    .mood-card { position: absolute; bottom: 130px; left: 16px; z-index: 10; border-radius: 16px; padding: 14px 18px; text-align: center; background: rgba(255,255,255,0.55); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.6); box-shadow: 0 4px 16px rgba(0,0,0,0.04); transition: background 0.4s, border-color 0.4s; }
+    .mood-card { position: absolute; bottom: 130px; left: 16px; z-index: 10; border-radius: 16px; padding: 14px 18px; text-align: center; background: rgba(255,255,255,0.55); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.6); box-shadow: 0 4px 16px rgba(0,0,0,0.04); transition: background 0.4s, border-color 0.4s; cursor: pointer; }
+    .mood-card:active { transform: scale(0.95); }
     .mood-card .title { font-size: 10px; color: #B8A0A0; text-align: center; transition: color 0.4s; }
     .mood-card .mood-icon { margin-top: 8px; display: flex; justify-content: center; }
     .mood-card .mood-icon svg { width: 28px; height: 28px; stroke: #E8A0A0; stroke-width: 1.6; fill: none; }
     .mood-card .mood-text { font-size: 11px; color: #9A8888; margin-top: 6px; text-align: center; transition: color 0.4s; }
+    .mood-picker { position: fixed; bottom: 0; left: 0; right: 0; z-index: 200; max-width: 430px; margin: 0 auto; background: rgba(255,255,255,0.96); backdrop-filter: blur(20px); border-radius: 20px 20px 0 0; padding: 20px 16px 36px; box-shadow: 0 -4px 30px rgba(0,0,0,0.1); transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.4,0,0.2,1); }
+    .mood-picker.show { transform: translateY(0); }
+    .mood-picker .mp-title { font-size: 13px; color: #7D6666; text-align: center; margin-bottom: 16px; font-weight: 500; }
+    .mood-picker .mp-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .mood-picker .mp-item { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 8px; border-radius: 14px; cursor: pointer; transition: background 0.2s, transform 0.2s; border: 1.5px solid transparent; }
+    .mood-picker .mp-item:active { transform: scale(0.92); }
+    .mood-picker .mp-item.selected { background: rgba(232,160,160,0.15); border-color: rgba(232,160,160,0.5); }
+    .mood-picker .mp-item svg { width: 30px; height: 30px; stroke: #E8A0A0; stroke-width: 1.6; fill: none; }
+    .mood-picker .mp-item .mp-label { font-size: 11px; color: #9A8888; }
+    .mood-overlay { position: fixed; inset: 0; z-index: 199; background: rgba(0,0,0,0.3); opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+    .mood-overlay.show { opacity: 1; pointer-events: auto; }
     .story-btn { position: absolute; bottom: 130px; right: 20px; z-index: 10; width: 52px; height: 52px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s ease, background 0.4s, border-color 0.4s; text-decoration: none; background: rgba(255,255,255,0.55); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.6); box-shadow: 0 4px 16px rgba(0,0,0,0.04); }
     .story-btn:active { transform: scale(0.95); }
     .story-btn svg { width: 22px; height: 22px; stroke: #8D7676; stroke-width: 1.8; fill: none; transition: stroke 0.4s; }
@@ -114,7 +126,7 @@
     </a>
   </div>
   <div class="checkin-toast" id="checkinToast">签到成功 +160 token</div>
-  <div class="tap-toast" id="tapToast">♥ 亲密度 +5</div>
+  <div class="tap-toast" id="tapToast">&#9829; 亲密度 +5</div>
   <div class="right-cards fade-in fade-in-delay-2">
     <div class="r-card">
       <div class="label"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>亲密度</div>
@@ -126,10 +138,15 @@
       <div class="value" style="font-size:18px;" id="companion-time">00:00:00</div>
     </div>
   </div>
-  <div class="mood-card fade-in fade-in-delay-3">
+  <div class="mood-card fade-in fade-in-delay-3" id="moodCard">
     <div class="title">今日心情</div>
-    <div class="mood-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>
-    <div class="mood-text">开心</div>
+    <div class="mood-icon" id="moodIcon"></div>
+    <div class="mood-text" id="moodText">开心</div>
+  </div>
+  <div class="mood-overlay" id="moodOverlay"></div>
+  <div class="mood-picker" id="moodPicker">
+    <div class="mp-title">选择今日心情</div>
+    <div class="mp-grid" id="moodGrid"></div>
   </div>
   <a class="story-btn fade-in fade-in-delay-3" href="/src/story.html">
     <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="13" y2="11"/></svg>
@@ -153,6 +170,18 @@
       '粉雾呢喃':'/assets/gacha/%E6%92%92%E5%A8%87%E7%AB%8B%E7%BB%98.png',
       '血月静默':'/assets/gacha/%E7%94%9F%E6%B0%94%E7%AB%8B%E7%BB%98.png'
     };
+
+    // === Mood data ===
+    var MOODS = [
+      { id: 'happy', label: '开心', icon: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>' },
+      { id: 'calm', label: '平静', icon: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="8" y1="14" x2="16" y2="14"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>' },
+      { id: 'tired', label: '疲惫', icon: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 15s1.5-1 4-1 4 1 4 1"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>' },
+      { id: 'miss', label: '想你', icon: '<svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>' },
+      { id: 'sad', label: '难过', icon: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>' },
+      { id: 'anxious', label: '焦虑', icon: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 15h8"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/><path d="M8 8l2-1"/><path d="M14 8l2-1"/></svg>' },
+      { id: 'excited', label: '兴奋', icon: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5 3 4 3 4-3 4-3"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>' },
+      { id: 'sleepy', label: '困困', icon: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 1 4 1 4-1 4-1"/><path d="M9 9.5c0 .5-.5 1-1 1s-1-.5-1-1"/><path d="M17 9.5c0 .5-.5 1-1 1s-1-.5-1-1"/></svg>' }
+    ];
 
     function detectBrightness(imgEl) {
       try {
@@ -198,12 +227,12 @@
           var r=await fetch(API+'/api/user/wardrobe',{headers:{'Authorization':'Bearer '+token}});
           if(r.ok){
             var d=await r.json();
-            if(d.ok){
-              if(d.outfit)localStorage.setItem('bsy_outfit',d.outfit);
-              if(d.bg_img)localStorage.setItem('bsy_bg',d.bg_img);
-              if(d.bg_mode)localStorage.setItem('bsy_bg_mode',d.bg_mode);
-              if(d.outfit && OUTFIT_MAP[d.outfit]){
-                localStorage.setItem('bsy_outfit_img',OUTFIT_MAP[d.outfit]);
+            if(d.wardrobe){
+              if(d.wardrobe.outfit)localStorage.setItem('bsy_outfit',d.wardrobe.outfit);
+              if(d.wardrobe.bg_img)localStorage.setItem('bsy_bg',d.wardrobe.bg_img);
+              if(d.wardrobe.bg_mode)localStorage.setItem('bsy_bg_mode',d.wardrobe.bg_mode);
+              if(d.wardrobe.outfit && OUTFIT_MAP[d.wardrobe.outfit]){
+                localStorage.setItem('bsy_outfit_img',OUTFIT_MAP[d.wardrobe.outfit]);
               }
             }
           }
@@ -242,6 +271,7 @@
       img.src = bgSrc;
     })();
 
+    // Greet based on time
     (function() {
       var hour = new Date().getHours();
       var greetEl = document.getElementById('greet-text');
@@ -252,6 +282,7 @@
       else { greetEl.textContent = 'Late night,'; subEl.innerHTML = '夜深了，<br>该休息了，我陪着你。'; }
     })();
 
+    // Companion timer
     (function() {
       var el = document.getElementById('companion-time');
       var start = Date.now();
@@ -260,6 +291,7 @@
       setInterval(update, 1000); update();
     })();
 
+    // Checkin
     (function() {
       var btn = document.getElementById('checkinBtn');
       var dot = document.getElementById('checkinDot');
@@ -296,6 +328,7 @@
       });
     })();
 
+    // Tap character -> hearts + intimacy +5/day + sync to DB
     (function() {
       var charWrap = document.getElementById('charWrap');
       var tapToast = document.getElementById('tapToast');
@@ -309,6 +342,7 @@
         intimacy = Math.min(intimacy + 5, 100);
         localStorage.setItem('bsy_intimacy', intimacy.toString());
         updateIntimacy();
+        syncIntimacyToDB(intimacy);
         tapToast.classList.add('show');
         setTimeout(function() { tapToast.classList.remove('show'); }, 2000);
       });
@@ -329,6 +363,20 @@
       }
     })();
 
+    // Sync intimacy to database
+    function syncIntimacyToDB(value) {
+      try {
+        var auth = JSON.parse(localStorage.getItem('bsy_auth') || '{}');
+        if (!auth.token) return;
+        fetch(API+'/api/user/sync-intimacy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + auth.token },
+          body: JSON.stringify({ intimacy: value })
+        }).catch(function(){});
+      } catch(e) {}
+    }
+
+    // Letter dot
     (function() {
       var letterDot = document.getElementById('letterDot');
       var readList = JSON.parse(localStorage.getItem('bsy_mail_read') || '[]');
@@ -337,6 +385,7 @@
       if (!hasUnread) letterDot.classList.add('hidden');
     })();
 
+    // Intimacy display
     (function() { updateIntimacy(); })();
     function updateIntimacy() {
       var intimacy = parseInt(localStorage.getItem('bsy_intimacy') || '0');
@@ -344,6 +393,64 @@
       document.getElementById('intimacy-value').innerHTML = intimacy + '<small>/100</small>';
       document.getElementById('intimacy-fill').style.width = intimacy + '%';
     }
+
+    // === Mood card interactive picker ===
+    (function() {
+      var moodCard = document.getElementById('moodCard');
+      var moodIcon = document.getElementById('moodIcon');
+      var moodText = document.getElementById('moodText');
+      var moodPicker = document.getElementById('moodPicker');
+      var moodOverlay = document.getElementById('moodOverlay');
+      var moodGrid = document.getElementById('moodGrid');
+
+      // Load saved mood
+      var savedMood = localStorage.getItem('bsy_mood') || 'happy';
+      renderMood(savedMood);
+
+      // Build picker grid
+      MOODS.forEach(function(m) {
+        var item = document.createElement('div');
+        item.className = 'mp-item' + (m.id === savedMood ? ' selected' : '');
+        item.innerHTML = m.icon + '<span class="mp-label">' + m.label + '</span>';
+        item.setAttribute('data-mood', m.id);
+        item.addEventListener('click', function() {
+          selectMood(m.id);
+        });
+        moodGrid.appendChild(item);
+      });
+
+      // Open picker
+      moodCard.addEventListener('click', function() {
+        moodPicker.classList.add('show');
+        moodOverlay.classList.add('show');
+      });
+
+      // Close picker
+      moodOverlay.addEventListener('click', function() {
+        moodPicker.classList.remove('show');
+        moodOverlay.classList.remove('show');
+      });
+
+      function selectMood(id) {
+        localStorage.setItem('bsy_mood', id);
+        renderMood(id);
+        // Update selected state
+        moodGrid.querySelectorAll('.mp-item').forEach(function(el) {
+          el.classList.toggle('selected', el.getAttribute('data-mood') === id);
+        });
+        // Close picker
+        setTimeout(function() {
+          moodPicker.classList.remove('show');
+          moodOverlay.classList.remove('show');
+        }, 200);
+      }
+
+      function renderMood(id) {
+        var mood = MOODS.find(function(m) { return m.id === id; }) || MOODS[0];
+        moodIcon.innerHTML = mood.icon;
+        moodText.textContent = mood.label;
+      }
+    })();
   </script>
 </body>
 </html>

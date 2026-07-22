@@ -8,6 +8,19 @@ function authFromQuery(req){const url=new URL(req.url,'http://x');const t=url.se
 function genBindCode(){return crypto.randomBytes(6).toString('hex')}
 function getParams(req){if(req.method==='POST')return req.body||{};const url=new URL(req.url,'http://x');const o={};url.searchParams.forEach((v,k)=>o[k]=v);return o;}
 
+// In-memory online tracking (resets on cold start, acceptable for display)
+const onlineUsers = new Map(); // userId -> timestamp
+function getOnlineCount() {
+  const now = Date.now();
+  const threshold = 30000; // 30 seconds
+  let count = 0;
+  for (const [id, ts] of onlineUsers) {
+    if (now - ts < threshold) count++;
+    else onlineUsers.delete(id);
+  }
+  return Math.max(count, 1); // at least 1 if someone is reading
+}
+
 let migrated=false;
 async function migrate(){
   if(migrated)return;
@@ -76,6 +89,13 @@ if(u==='/api/db-test'){
   return res.json({time:r.rows[0].now});
 }
 
+// === Heartbeat for online count ===
+if(u==='/api/broadcast/heartbeat'){
+  const d=auth(req);
+  if(d&&d.id) onlineUsers.set(d.id, Date.now());
+  return res.json({ok:true,online_count:getOnlineCount()});
+}
+
 // === AI Agent Register ===
 if(u==='/api/ai/register'){
   const p=getParams(req);
@@ -139,6 +159,9 @@ if(u==='/api/broadcast'){
   const params=getParams(req);
   const limit=Math.min(parseInt(params.limit)||50,100);
   const since=params.since||null;
+  // Track visitor as online if they have auth
+  const d=auth(req);
+  if(d&&d.id) onlineUsers.set(d.id, Date.now());
   let q,args;
   if(since){
     q='SELECT id,agent_name,content,msg_type,created_at FROM broadcast WHERE id>$1 ORDER BY id ASC LIMIT $2';
@@ -149,7 +172,7 @@ if(u==='/api/broadcast'){
   }
   const r=await pool.query(q,args);
   const msgs=since?r.rows:r.rows.reverse();
-  return res.json({messages:msgs});
+  return res.json({messages:msgs, online_count:getOnlineCount()});
 }
 
 // === AI: read messages from user ===

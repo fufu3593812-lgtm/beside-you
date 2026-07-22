@@ -1,6 +1,7 @@
 {
   "routes": [
     {"src": "/api/mcp", "dest": "/api/mcp.js"},
+    {"src": "/api/ai/perceive", "dest": "/api/perceive.js"},
     {"src": "/api/(.*)", "dest": "/api/index.js"}
   ]
 }

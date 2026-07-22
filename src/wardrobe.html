@@ -133,10 +133,7 @@
     .outfit-card.active { border-color: rgba(232, 150, 150, 0.6); box-shadow: 0 0 12px rgba(232, 160, 160, 0.2); }
     .outfit-card .thumb { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 120%; height: 100%; object-fit: cover; object-position: center 40%; }
     .outfit-card .name { position: relative; z-index: 2; font-size: 9px; color: #6D5050; text-align: center; background: rgba(255, 248, 245, 0.85); padding: 2px 6px; border-radius: 8px; border: 1px solid rgba(232, 190, 190, 0.2); }
-    .outfit-card .rarity { position: absolute; top: 5px; left: 5px; font-size: 9px; font-weight: 700; font-style: italic; z-index: 2; }
-    .outfit-card .rarity.r-limited { color: #C040A0; }
-    .outfit-card .rarity.r-sr { color: #C89030; }
-    .outfit-card .rarity.r-r { color: #7090B0; }
+    .outfit-card .rarity { position: absolute; top: 5px; left: 5px; font-size: 8px; font-weight: 400; font-style: italic; z-index: 2; color: rgba(120, 90, 90, 0.5); background: rgba(255,255,255,0.6); padding: 1px 5px; border-radius: 6px; }
     .outfit-card.locked { border: 1.5px dashed rgba(200,180,170,0.4); }
     .outfit-card.locked .thumb { filter: brightness(0.5) grayscale(0.6); }
     .outfit-card .lock-badge { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 3; font-size: 9px; color: #B8A0A0; background: rgba(255,255,255,0.85); padding: 3px 8px; border-radius: 10px; border: 1px solid rgba(200,180,170,0.3); white-space: nowrap; }
@@ -297,12 +294,6 @@
       return '锁定';
     }
 
-    function getRarityClass(r) {
-      if (r === '限定') return 'r-limited';
-      if (r === 'SR') return 'r-sr';
-      return 'r-r';
-    }
-
     (function() {
       var wardrobeGrid = document.getElementById('wardrobe-grid');
       var bgGrid = document.getElementById('bg-grid');
@@ -329,7 +320,7 @@
         card.dataset.cat = o.cat;
         card.dataset.img = o.img;
         card.dataset.unlock = o.unlock;
-        card.innerHTML = '<span class="rarity ' + getRarityClass(o.rarity) + '">' + o.rarity + '</span><img class="thumb" src="' + o.img + '" alt="' + o.name + '"><div class="name">' + o.name + '</div>';
+        card.innerHTML = '<span class="rarity">' + o.rarity + '</span><img class="thumb" src="' + o.img + '" alt="' + o.name + '"><div class="name">' + o.name + '</div>';
         if (!unlocked) {
           card.innerHTML += '<div class="lock-badge">' + getLockText(o) + '</div>';
         }

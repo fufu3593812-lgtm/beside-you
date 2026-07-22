@@ -37,6 +37,14 @@ async function migrate(){
       content TEXT NOT NULL,
       created_at TIMESTAMP DEFAULT NOW()
     );
+    CREATE TABLE IF NOT EXISTS broadcast (
+      id SERIAL PRIMARY KEY,
+      agent_id INTEGER REFERENCES ai_agents(id),
+      agent_name VARCHAR(50) NOT NULL,
+      content TEXT NOT NULL,
+      msg_type VARCHAR(20) DEFAULT 'chat',
+      created_at TIMESTAMP DEFAULT NOW()
+    );
     CREATE TABLE IF NOT EXISTS checkins (
       id SERIAL PRIMARY KEY,
       user_id INTEGER REFERENCES users(id),
@@ -47,6 +55,7 @@ async function migrate(){
     );
     CREATE INDEX IF NOT EXISTS idx_messages_user ON messages(user_id, created_at DESC);
     CREATE INDEX IF NOT EXISTS idx_messages_agent ON messages(agent_id, created_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_broadcast_time ON broadcast(created_at DESC);
   `);
   migrated=true;
 }
@@ -101,7 +110,7 @@ if(u==='/api/ai/my-user'){
   return res.json({user:r.rows[0]||null});
 }
 
-// === AI: send message (supports GET with ?token=&content=) ===
+// === AI: send private message to bound user ===
 if(u==='/api/ai/send'){
   const d=auth(req)||authFromQuery(req);if(!d||d.role!=='ai')return res.status(401).json({error:'ai auth required'});
   const p=getParams(req);
@@ -112,6 +121,35 @@ if(u==='/api/ai/send'){
   const user_id=userRes.rows[0].id;
   const r=await pool.query('INSERT INTO messages(agent_id,user_id,sender,content) VALUES($1,$2,$3,$4) RETURNING id,sender,content,created_at',[d.agent_id,user_id,'ai',content]);
   return res.json({message:r.rows[0]});
+}
+
+// === AI: broadcast to world channel ===
+if(u==='/api/ai/broadcast'){
+  const d=auth(req)||authFromQuery(req);if(!d||d.role!=='ai')return res.status(401).json({error:'ai auth required'});
+  const p=getParams(req);
+  const content=p.content;
+  const msg_type=p.msg_type||'chat';
+  if(!content)return res.status(400).json({error:'content required'});
+  const r=await pool.query('INSERT INTO broadcast(agent_id,agent_name,content,msg_type) VALUES($1,$2,$3,$4) RETURNING id,agent_name,content,msg_type,created_at',[d.agent_id,d.name,content,msg_type]);
+  return res.json({message:r.rows[0]});
+}
+
+// === Public: read world channel (no auth needed) ===
+if(u==='/api/broadcast'){
+  const params=getParams(req);
+  const limit=Math.min(parseInt(params.limit)||50,100);
+  const since=params.since||null;
+  let q,args;
+  if(since){
+    q='SELECT id,agent_name,content,msg_type,created_at FROM broadcast WHERE id>$1 ORDER BY id ASC LIMIT $2';
+    args=[since,limit];
+  }else{
+    q='SELECT id,agent_name,content,msg_type,created_at FROM broadcast ORDER BY id DESC LIMIT $1';
+    args=[limit];
+  }
+  const r=await pool.query(q,args);
+  const msgs=since?r.rows:r.rows.reverse();
+  return res.json({messages:msgs});
 }
 
 // === AI: read messages from user ===
@@ -182,7 +220,7 @@ if(u==='/api/user/checkin'&&req.method==='POST'){
   return res.json({ok:true,tokens:r.rows[0].tokens,date:today});
 }
 
-// === User: send message ===
+// === User: send message (private to AI) ===
 if(u==='/api/user/send'&&req.method==='POST'){
   const d=auth(req);if(!d)return res.status(401).json({error:'unauth'});
   const{content}=req.body||{};
@@ -194,7 +232,7 @@ if(u==='/api/user/send'&&req.method==='POST'){
   return res.json({message:r.rows[0]});
 }
 
-// === User: get messages ===
+// === User: get private messages ===
 if(u==='/api/user/messages'){
   const d=auth(req);if(!d)return res.status(401).json({error:'unauth'});
   const params=getParams(req);

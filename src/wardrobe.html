@@ -77,7 +77,7 @@ body{font-family:-apple-system,'PingFang SC',sans-serif;background:#FFF8F7;width
 var C='https://cdn.jsdelivr.net/gh/fufu3593812-lgtm/beside-you@main/assets/',G='/assets/gacha/';
 var outfits=[{name:'月光睡裙',cat:'limited',rarity:'SR',img:C+'%E7%9D%A1%E8%A3%99.PNG',unlock:'free'},{name:'慵懒卫衣',cat:'daily',rarity:'R',img:C+'%E5%8D%AB%E8%A1%A3.PNG',unlock:'free'},{name:'初恋JK',cat:'daily',rarity:'R',img:C+'jk.PNG',unlock:'buy:200'},{name:'碎花裙',cat:'daily',rarity:'SR',img:C+'%E7%A2%8E%E8%8A%B1%E8%A3%99.PNG',unlock:'buy:200'},{name:'粉雾呢喃',cat:'limited',rarity:'限定',img:G+'%E6%92%92%E5%A8%87%E7%AB%8B%E7%BB%98.png',unlock:'gacha:撒娇'},{name:'血月静默',cat:'limited',rarity:'限定',img:G+'%E7%94%9F%E6%B0%94%E7%AB%8B%E7%BB%98.png',unlock:'gacha:生气'}];
 var bgs=[{name:'默认卧室',img:C+'%E5%8D%A7%E5%AE%A4.png',locked:false},{name:'撒娇背景',img:C+'background/%E6%92%92%E5%A8%87%E8%83%8C%E6%99%AF.png',locked:true},{name:'生气背景',img:C+'background/%E7%94%9F%E6%B0%94%E8%83%8C%E6%99%AF.PNG',locked:true}];
-var cardBgs=[{name:'撒娇卡面',img:G+'%E6%92%92%E5%A8%87%E5%8D%A1%E9%9D%A2.PNG'},{name:'生气卡面',img:G+'%E7%94%9F%E6%B0%94%u5361面.PNG'}];
+var cardBgs=[{name:'撒娇卡面',img:G+'%E6%92%92%E5%A8%87%E5%8D%A1%E9%9D%A2.PNG'},{name:'生气卡面',img:G+'%E7%94%9F%E6%B0%94%E5%8D%A1%E9%9D%A2.PNG'}];
 function gt(){return parseInt(localStorage.getItem('bsy_tokens')||'1600')}
 function st(n){localStorage.setItem('bsy_tokens',n+'')}
 function unlocked(o){if(o.unlock==='free')return true;var p=JSON.parse(localStorage.getItem('bsy_purchased_outfits')||'[]');if(p.indexOf(o.name)!==-1)return true;if(o.unlock.indexOf('gacha:')===0){var c=JSON.parse(localStorage.getItem('bsy_collection')||'[]');return c.indexOf(o.unlock.replace('gacha:',''))!==-1;}return false;}

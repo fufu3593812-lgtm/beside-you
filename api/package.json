@@ -1,9 +1,0 @@
-{
-  "name": "beside-you-api",
-  "private": true,
-  "dependencies": {
-    "bcryptjs": "2.4.3",
-    "jsonwebtoken": "9.0.2",
-    "pg": "8.12.0"
-  }
-}

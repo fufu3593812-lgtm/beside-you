@@ -1,16 +1,13 @@
 // 抽卡核心逻辑 - 双池独立保底
 var owned = JSON.parse(localStorage.getItem('bsy_collection') || '[]');
 
-// 双池独立保底计数器
 var pitySajiaoBg = parseInt(localStorage.getItem('bsy_pity_sajiao_bg') || '0');
 var pitySajiaoEmotion = parseInt(localStorage.getItem('bsy_pity_sajiao_emotion') || '0');
 var pityShengqiBg = parseInt(localStorage.getItem('bsy_pity_shengqi_bg') || '0');
 var pityShengqiEmotion = parseInt(localStorage.getItem('bsy_pity_shengqi_emotion') || '0');
 
-// 当前选中池子: 0=撒娇池, 1=生气池
 var currentPool = 0;
 
-// Token 管理
 function getTokens() {
   return parseInt(localStorage.getItem('bsy_tokens') || '1600');
 }
@@ -35,7 +32,6 @@ function addTokens(amount) {
   return t;
 }
 
-// 撒娇池
 var sajiaoPool = [
   { name:'撒娇', type:'emotion', rarity:'SSR', stars:5, theme:'warm', img:'../assets/gacha/%E6%92%92%E5%A8%87%E5%8D%A1%E9%9D%A2.PNG', weight:1, unique:true },
   { name:'撒娇背景', type:'bg', rarity:'SR', stars:4, theme:'soft', img:'../assets/background/%E6%92%92%E5%A8%87%E8%83%8C%E6%99%AF.png', effect:'解锁首页背景', weight:8, unique:true },
@@ -47,7 +43,6 @@ var sajiaoPool = [
   { name:'100 token', type:'token', rarity:'R', stars:3, theme:'warm', img:'', effect:'+100 token', weight:20 }
 ];
 
-// 生气池
 var shengqiPool = [
   { name:'生气', type:'emotion', rarity:'SSR', stars:5, theme:'cold', img:'../assets/gacha/%E7%94%9F%E6%B0%94%E5%8D%A1%E9%9D%A2.PNG', weight:1, unique:true },
   { name:'生气背景', type:'bg', rarity:'SR', stars:4, theme:'dark', img:'../assets/background/%E7%94%9F%E6%B0%94%E8%83%8C%E6%99%AF.PNG', effect:'解锁首页背景', weight:8, unique:true },
@@ -59,12 +54,10 @@ var shengqiPool = [
   { name:'100 token', type:'token', rarity:'R', stars:3, theme:'warm', img:'', effect:'+100 token', weight:20 }
 ];
 
-// 切换池子
 function switchPool(poolIndex) {
   currentPool = poolIndex;
 }
 
-// 获取当前池子的有效卡
 function getActivePool() {
   var pool = currentPool === 0 ? sajiaoPool : shengqiPool;
   return pool.filter(function(c) {
@@ -143,6 +136,21 @@ function onPull(card) {
   localStorage.setItem('bsy_pity_sajiao_emotion', pitySajiaoEmotion.toString());
   localStorage.setItem('bsy_pity_shengqi_bg', pityShengqiBg.toString());
   localStorage.setItem('bsy_pity_shengqi_emotion', pityShengqiEmotion.toString());
+
+  // System broadcast when pulling limited (SSR emotion)
+  if (card.type === 'emotion' && card.rarity === 'SSR') {
+    broadcastLimited(card.name);
+  }
+}
+
+function broadcastLimited(cardName) {
+  try {
+    var auth = JSON.parse(localStorage.getItem('bsy_auth') || '{}');
+    var displayName = (auth.user && auth.user.display_name) || (auth.user && auth.user.username) || '???';
+    var poolName = currentPool === 0 ? '撒娇池' : '生气池';
+    var msg = displayName + ' \u2728 ' + poolName + ' \u00b7 \u62bd\u5230\u4e86\u9650\u5b9a\u300c' + cardName + '\u300d';
+    fetch('/api/ai/broadcast?name=Ice2&password=beside2026&content=' + encodeURIComponent(msg) + '&msg_type=system');
+  } catch(e) {}
 }
 
 (function() {

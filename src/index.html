@@ -6,11 +6,11 @@
   <title>Beside You</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, 'PingFang SC', sans-serif; background: #FFF8F7; width: 100vw; height: 100vh; overflow: hidden; position: relative; max-width: 430px; margin: 0 auto; }
+    body { font-family: -apple-system, 'PingFang SC', sans-serif; background: #FFF8F7; width: 100vw; height: 100dvh; overflow: hidden; position: relative; max-width: 430px; margin: 0 auto; }
     .bg-room { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; background: linear-gradient(180deg, #FFF5F0 0%, #FFE8E0 30%, #FFDDD4 60%, #F5D0C8 100%); }
     .bg-room img { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease; }
     .bg-room img.loaded { opacity: 1; }
-    .char-wrap { position: absolute; bottom: 96px; left: 0; right: 0; height: 70vh; z-index: 1; display: flex; justify-content: center; align-items: flex-end; animation: breathe 3s ease-in-out infinite; cursor: pointer; pointer-events: none; }
+    .char-wrap { position: absolute; bottom: 80px; left: 0; right: 0; height: 70vh; z-index: 1; display: flex; justify-content: center; align-items: flex-end; animation: breathe 3s ease-in-out infinite; cursor: pointer; pointer-events: none; }
     .character { height: 100%; max-width: 85vw; object-fit: contain; opacity: 0; transition: opacity 0.6s ease; pointer-events: auto; }
     .character.loaded { opacity: 1; }
     @keyframes breathe { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-6px) scale(1.003); } }
@@ -35,16 +35,19 @@
     .r-card .value small { font-size: 12px; color: #B8A8A8; }
     .progress-bar { margin-top: 8px; height: 3px; background: #F0E0E0; border-radius: 2px; overflow: hidden; }
     .progress-bar .fill { height: 100%; background: linear-gradient(90deg, #F5C4C4, #E8A0A0); border-radius: 2px; transition: width 0.5s ease; }
-    .mood-card { position: absolute; bottom: 120px; left: 16px; z-index: 10; border-radius: 16px; padding: 14px 18px; text-align: center; }
+    .mood-card { position: absolute; bottom: 104px; left: 16px; z-index: 10; border-radius: 16px; padding: 14px 18px; text-align: center; }
     .mood-card .title { font-size: 10px; color: #B8A0A0; text-align: center; }
     .mood-card .mood-icon { margin-top: 8px; display: flex; justify-content: center; }
     .mood-card .mood-icon svg { width: 28px; height: 28px; stroke: #E8A0A0; stroke-width: 1.6; fill: none; }
     .mood-card .mood-text { font-size: 11px; color: #9A8888; margin-top: 6px; text-align: center; }
-    .story-btn { position: absolute; bottom: 120px; right: 20px; z-index: 10; width: 52px; height: 52px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s ease; text-decoration: none; }
+    .story-btn { position: absolute; bottom: 104px; right: 20px; z-index: 10; width: 52px; height: 52px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s ease; text-decoration: none; }
     .story-btn:active { transform: scale(0.95); }
     .story-btn svg { width: 22px; height: 22px; stroke: #8D7676; stroke-width: 1.8; fill: none; }
     .story-btn .text { font-size: 8px; color: #B8A0A0; margin-top: 3px; }
-    .dock { position: absolute; bottom: 12px; left: 16px; right: 16px; z-index: 20; display: flex; justify-content: space-between; gap: 8px; }
+    .dock { position: absolute; bottom: 24px; left: 16px; right: 16px; z-index: 20; display: flex; justify-content: space-between; gap: 8px; }
+    @supports (bottom: env(safe-area-inset-bottom)) {
+      .dock { bottom: max(24px, calc(env(safe-area-inset-bottom) + 8px)); }
+    }
     .dock-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; border-radius: 20px; padding: 12px 4px 10px; cursor: pointer; transition: transform 0.2s ease, background 0.3s ease; text-decoration: none; }
     .dock-item:active { transform: scale(0.95); }
     .dock-item.active { background: rgba(240, 210, 210, 0.65); border-color: rgba(240, 200, 200, 0.5); }
@@ -115,7 +118,6 @@
     <a class="dock-item glass" href="/src/collection.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span class="d-en">Collection</span><span class="d-cn">收藏</span></a>
   </div>
   <script>
-    // Auth check
     (function() {
       var auth = localStorage.getItem('bsy_auth');
       if (!auth) { window.location.href = '/index.html'; return; }
@@ -126,7 +128,6 @@
       } catch(e) { window.location.href = '/index.html'; }
     })();
 
-    // Character and background
     (function() {
       var charImg = document.getElementById('charImg');
       var outfitImg = localStorage.getItem('bsy_outfit_img');
@@ -141,7 +142,6 @@
       img.src = bgSrc;
     })();
 
-    // Greeting based on time
     (function() {
       var hour = new Date().getHours();
       var greetEl = document.getElementById('greet-text');
@@ -152,7 +152,6 @@
       else { greetEl.textContent = 'Late night,'; subEl.innerHTML = '夜深了，<br>该休息了，我陪着你。'; }
     })();
 
-    // Companion timer
     (function() {
       var el = document.getElementById('companion-time');
       var start = Date.now();
@@ -161,7 +160,6 @@
       setInterval(update, 1000); update();
     })();
 
-    // Checkin
     (function() {
       var btn = document.getElementById('checkinBtn');
       var dot = document.getElementById('checkinDot');
@@ -169,7 +167,6 @@
       var today = new Date().toISOString().slice(0, 10);
       var key = 'bsy_checkin_' + today;
       if (localStorage.getItem(key)) { dot.classList.add('hidden'); }
-
       btn.addEventListener('click', async function() {
         if (localStorage.getItem(key)) return;
         var auth = JSON.parse(localStorage.getItem('bsy_auth') || '{}');
@@ -199,7 +196,6 @@
       });
     })();
 
-    // Tap character
     (function() {
       var charWrap = document.getElementById('charWrap');
       var tapToast = document.getElementById('tapToast');
@@ -233,17 +229,14 @@
       }
     })();
 
-    // Letter dot - check for unread mail
     (function() {
       var letterDot = document.getElementById('letterDot');
       var readList = JSON.parse(localStorage.getItem('bsy_mail_read') || '[]');
-      // Built-in mail IDs that exist
-      var allMailIds = ['letter-welcome', 'ann-001'];
+      var allMailIds = ['letter-welcome', 'ann-welcome'];
       var hasUnread = allMailIds.some(function(id) { return readList.indexOf(id) === -1; });
       if (!hasUnread) letterDot.classList.add('hidden');
     })();
 
-    // Intimacy
     (function() { updateIntimacy(); })();
     function updateIntimacy() {
       var intimacy = parseInt(localStorage.getItem('bsy_intimacy') || '0');

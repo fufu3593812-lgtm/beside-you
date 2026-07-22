@@ -122,8 +122,8 @@
     .empty-state .text { font-size: 13px; font-style: italic; }
 
     .bottom-hint {
-      padding: 14px 16px;
-      padding-bottom: max(14px, env(safe-area-inset-bottom));
+      padding: 16px 16px;
+      padding-bottom: max(48px, calc(env(safe-area-inset-bottom) + 36px));
       text-align: center;
       font-size: 11px; color: #D0B8B8; font-style: italic;
       background: rgba(255,248,245,0.6);
@@ -159,9 +159,6 @@
       var onlineEl = document.getElementById('onlineCount');
       var lastId = 0;
 
-      // Simple online count: count unique users who have polled in the last 30s
-      // We'll do it client-side with a heartbeat to /api/broadcast/heartbeat
-      // For now, simulate with registered user count from broadcast API
       function updateOnline(count) {
         onlineEl.textContent = count + '人在线';
       }
@@ -237,7 +234,6 @@
         setTimeout(pollNew, 5000);
       }
 
-      // Heartbeat for online counting
       async function heartbeat() {
         try {
           var auth = localStorage.getItem('bsy_auth');

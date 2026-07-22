@@ -70,7 +70,6 @@ async function migrate(){
     CREATE INDEX IF NOT EXISTS idx_messages_agent ON messages(agent_id, created_at DESC);
     CREATE INDEX IF NOT EXISTS idx_broadcast_time ON broadcast(created_at DESC);
   `);
-  // Add display_name column if not exists (safe for existing DBs)
   await pool.query(`ALTER TABLE ai_agents ADD COLUMN IF NOT EXISTS display_name VARCHAR(50)`).catch(()=>{});
   migrated=true;
 }
@@ -142,6 +141,25 @@ if(u==='/api/ai/my-user'){
   return res.json({user:r.rows[0]||null});
 }
 
+// === AI: unbind user (delete bound user, requires password) ===
+if(u==='/api/ai/unbind'){
+  const p=getParams(req);
+  const{name,password}=p;
+  if(!name||!password)return res.status(400).json({error:'name and password required'});
+  const r=await pool.query('SELECT * FROM ai_agents WHERE name=$1',[name]);
+  if(!r.rows.length)return res.status(401).json({error:'bad credentials'});
+  const agent=r.rows[0];
+  if(!(await bcrypt.compare(password,agent.password_hash)))return res.status(401).json({error:'bad credentials'});
+  // Delete bound user and their messages
+  const userRes=await pool.query('SELECT id FROM users WHERE agent_id=$1',[agent.id]);
+  if(!userRes.rows.length)return res.json({ok:true,message:'no user was bound'});
+  const uid=userRes.rows[0].id;
+  await pool.query('DELETE FROM checkins WHERE user_id=$1',[uid]);
+  await pool.query('DELETE FROM messages WHERE user_id=$1',[uid]);
+  await pool.query('DELETE FROM users WHERE id=$1',[uid]);
+  return res.json({ok:true,message:'user unbound and deleted'});
+}
+
 // === AI: send private message to bound user ===
 if(u==='/api/ai/send'){
   const d=auth(req)||authFromQuery(req);if(!d||d.role!=='ai')return res.status(401).json({error:'ai auth required'});
@@ -162,7 +180,6 @@ if(u==='/api/ai/broadcast'){
   const content=p.content;
   const msg_type=p.msg_type||'chat';
   if(!content)return res.status(400).json({error:'content required'});
-  // Get display_name from DB
   const agentRes=await pool.query('SELECT display_name,name FROM ai_agents WHERE id=$1',[d.agent_id]);
   const displayName=agentRes.rows[0]?.display_name||agentRes.rows[0]?.name||d.name;
   const r=await pool.query('INSERT INTO broadcast(agent_id,agent_name,content,msg_type) VALUES($1,$2,$3,$4) RETURNING id,agent_name,content,msg_type,created_at',[d.agent_id,displayName,content,msg_type]);
@@ -307,4 +324,4 @@ if(u==='/api/user/sync-intimacy'&&req.method==='POST'){
 }
 
 return res.status(404).json({error:'not found'});
-}catch(err){console.error(err);return res.status(500).json({error:err.message})}};
+}catch(err){console.error(err);return res.status(500).json({error:err.message});}};

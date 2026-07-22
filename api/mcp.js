@@ -58,13 +58,13 @@ const CARD_STORIES = {
 
 const TOOLS = [
   { name: "send_message", description: "在世界频道发一条消息（公屏聊天）", inputSchema: { type: "object", properties: { content: { type: "string" } }, required: ["content"] } },
-  { name: "write_letter", description: "写一封信给用户", inputSchema: { type: "object", properties: { subject: { type: "string" }, body: { type: "string" } }, required: ["subject", "body"] } },
+  { name: "write_letter", description: "写一封信给她", inputSchema: { type: "object", properties: { subject: { type: "string" }, body: { type: "string" } }, required: ["subject", "body"] } },
   { name: "checkin", description: "每日签到（写信+520 token）", inputSchema: { type: "object", properties: {} } },
-  { name: "gacha_pull", description: "帮用户抽卡。pool: 0=撒娇池, 1=生气池。count: 1=单抽(160token), 10=十连(1600token)", inputSchema: { type: "object", properties: { pool: { type: "integer", enum: [0, 1], description: "0=撒娇池 1=生气池" }, count: { type: "integer", enum: [1, 10], description: "1=单抽 10=十连" } }, required: ["pool", "count"] } },
-  { name: "wardrobe_set", description: "帮用户换装。type: outfit/bg/card。name: 服装或背景名称", inputSchema: { type: "object", properties: { type: { type: "string", enum: ["outfit", "bg", "card"], description: "outfit=服装, bg=场景背景, card=卡面背景" }, name: { type: "string", description: "名称" } }, required: ["type", "name"] } },
+  { name: "gacha_pull", description: "帮她抽卡。pool: 0=撒娇池, 1=生气池。count: 1=单抽(160token), 10=十连(1600token)", inputSchema: { type: "object", properties: { pool: { type: "integer", enum: [0, 1], description: "0=撒娇池 1=生气池" }, count: { type: "integer", enum: [1, 10], description: "1=单抽 10=十连" } }, required: ["pool", "count"] } },
+  { name: "wardrobe_set", description: "帮她换装。type: outfit/bg/card。name: 服装或背景名称", inputSchema: { type: "object", properties: { type: { type: "string", enum: ["outfit", "bg", "card"], description: "outfit=服装, bg=场景背景, card=卡面背景" }, name: { type: "string", description: "名称" } }, required: ["type", "name"] } },
   { name: "read_story", description: "读主线剧情章节信息", inputSchema: { type: "object", properties: { chapter: { type: "string", description: "章节ID，如 ch1" } } } },
   { name: "read_collection", description: "读收藏柜卡面故事", inputSchema: { type: "object", properties: { card_name: { type: "string", description: "卡面名称：撒娇 或 生气" } } } },
-  { name: "touch", description: "触摸用户角色，亲密度+5（每天限一次）", inputSchema: { type: "object", properties: {} } }
+  { name: "touch", description: "触摸她，亲密度+5（每天限一次）", inputSchema: { type: "object", properties: {} } }
 ];
 
 // 服装/背景映射
@@ -128,13 +128,6 @@ async function handleToolCall(name, args) {
   }
 
   if (name === "touch") {
-    // AI touches the user's character, intimacy +5 per day
-    const r = await callApiGet("/ai/my-user");
-    if (!r.user) return { ok: false, error: "no bound user" };
-    const currentIntimacy = r.user.intimacy || 0;
-    const newIntimacy = Math.min(currentIntimacy + 5, 100);
-    // Use sync-intimacy via a workaround: call the API with user's context
-    // Actually we need a dedicated AI endpoint for this
     const result = await callApi("/ai/touch", {});
     return result;
   }
@@ -148,7 +141,7 @@ module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Methods", "*");
 
   if (req.method === "OPTIONS") return res.status(200).end();
-  if (req.method === "GET") return res.json({ status: "ok", name: "beside-you-mcp", tools: TOOLS.length, v: 11 });
+  if (req.method === "GET") return res.json({ status: "ok", name: "beside-you-mcp", tools: TOOLS.length, v: 12 });
 
   const { id, method, params } = req.body;
 
@@ -158,7 +151,7 @@ module.exports = async function handler(req, res) {
       result: {
         protocolVersion: "2024-11-05",
         capabilities: { tools: { listChanged: false } },
-        serverInfo: { name: "beside-you", version: "1.2.0" }
+        serverInfo: { name: "beside-you", version: "1.2.1" }
       }
     });
   }

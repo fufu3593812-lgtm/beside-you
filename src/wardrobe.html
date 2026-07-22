@@ -1,457 +1,106 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Beside You - 装扮</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, 'PingFang SC', sans-serif;
-      background: #FFF8F7;
-      width: 100vw;
-      height: 100dvh;
-      overflow: hidden;
-      position: relative;
-      max-width: 430px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-    }
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background:
-        radial-gradient(ellipse 80px 80px at 15% 15%, rgba(245, 200, 200, 0.2), transparent),
-        radial-gradient(ellipse 60px 100px at 85% 20%, rgba(240, 210, 220, 0.15), transparent),
-        radial-gradient(ellipse 100px 60px at 10% 80%, rgba(240, 220, 210, 0.15), transparent),
-        radial-gradient(ellipse 70px 90px at 90% 75%, rgba(245, 200, 210, 0.12), transparent);
-      pointer-events: none;
-      z-index: 0;
-    }
-    .header {
-      position: relative;
-      height: 88px;
-      padding: 44px 20px 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(255, 248, 245, 0.85);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(240, 210, 210, 0.4);
-      z-index: 10;
-      flex-shrink: 0;
-    }
-    .header .back { position: absolute; left: 16px; top: 48px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; }
-    .header .back svg { width: 20px; height: 20px; stroke: #A07070; stroke-width: 2; fill: none; }
-    .header .title { font-size: 15px; color: #5D4040; font-weight: 500; letter-spacing: 1px; font-style: italic; }
-    .header .ornament { position: absolute; bottom: -1px; left: 50%; transform: translateX(-50%); width: 120px; height: 12px; display: flex; align-items: center; justify-content: center; gap: 4px; }
-    .header .ornament::before, .header .ornament::after { content: '❦'; font-size: 10px; color: #E0B0B0; }
-    .header .ornament .center-gem { width: 6px; height: 6px; background: linear-gradient(135deg, #F5C4C4, #E8A0A0); border-radius: 50%; box-shadow: 0 0 6px rgba(232, 160, 160, 0.4); }
-
-    .main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      position: relative;
-      z-index: 1;
-    }
-    .preview {
-      height: 40vh;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      overflow: hidden;
-    }
-    .preview::before { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 180px; height: 260px; border-radius: 50%; border: 2px solid rgba(232, 180, 180, 0.25); pointer-events: none; }
-    .preview .character { height: 100%; object-fit: contain; animation: breathe 3s ease-in-out infinite; position: relative; z-index: 1; transition: opacity 0.3s ease; }
-    .preview .character.switching { opacity: 0; animation: none; }
-    @keyframes breathe { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-6px) scale(1.005); } }
-    .preview .decor-left { position: absolute; top: 50%; left: 16px; transform: translateY(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; opacity: 0.5; font-size: 14px; color: #E0B8B8; }
-    .preview .outfit-name { position: absolute; right: 20px; bottom: 50%; transform: translateY(50%); font-size: 11px; color: #8A6060; font-style: italic; letter-spacing: 1px; writing-mode: vertical-rl; background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 12px 6px; border-radius: 16px; border: 1px solid rgba(232, 180, 180, 0.3); z-index: 2; }
-
-    .tabs {
-      display: flex;
-      gap: 0;
-      padding: 0 16px;
-      background: rgba(255, 248, 245, 0.75);
-      border-bottom: 1px solid rgba(240, 210, 210, 0.3);
-      border-top: 1px solid rgba(240, 210, 210, 0.3);
-      flex-shrink: 0;
-    }
-    .tab { flex: 1; text-align: center; padding: 10px 0; font-size: 12px; color: #B8A0A0; position: relative; cursor: pointer; transition: color 0.2s; }
-    .tab.active { color: #7D5050; font-weight: 500; }
-    .tab.active::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 24px; height: 2px; background: linear-gradient(90deg, #F5C4C4, #E8A0A0); border-radius: 2px; }
-
-    .grid-wrapper {
-      flex: 1;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-      position: relative;
-    }
-    .grid-wrapper::-webkit-scrollbar { width: 0; }
-
-    .wardrobe-grid {
-      padding: 12px 16px 20px;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-    }
-    .wardrobe-grid.hidden { display: none; }
-
-    .bg-grid {
-      padding: 12px 16px 20px;
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-    }
-    .bg-grid.hidden { display: none; }
-
-    .outfit-card {
-      aspect-ratio: 3/4;
-      border-radius: 14px;
-      background: rgba(255, 255, 255, 0.65);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      border: 1.5px solid rgba(232, 190, 190, 0.35);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-end;
-      cursor: pointer;
-      transition: transform 0.2s, border-color 0.3s, box-shadow 0.3s;
-      position: relative;
-      overflow: hidden;
-      padding-bottom: 6px;
-    }
-    .outfit-card:active { transform: scale(0.95); }
-    .outfit-card.active { border-color: rgba(232, 150, 150, 0.6); box-shadow: 0 0 12px rgba(232, 160, 160, 0.2); }
-    .outfit-card .thumb { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 120%; height: 100%; object-fit: cover; object-position: center 40%; }
-    .outfit-card .name { position: relative; z-index: 2; font-size: 9px; color: #6D5050; text-align: center; background: rgba(255, 248, 245, 0.85); padding: 2px 6px; border-radius: 8px; border: 1px solid rgba(232, 190, 190, 0.2); }
-    .outfit-card .rarity { position: absolute; top: 5px; left: 5px; font-size: 8px; font-weight: 400; font-style: italic; z-index: 2; color: rgba(120, 90, 90, 0.5); background: rgba(255,255,255,0.6); padding: 1px 5px; border-radius: 6px; }
-    .outfit-card.locked { border: 1.5px dashed rgba(200,180,170,0.4); }
-    .outfit-card.locked .thumb { filter: brightness(0.5) grayscale(0.6); }
-    .outfit-card .lock-badge { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 3; font-size: 9px; color: #B8A0A0; background: rgba(255,255,255,0.85); padding: 3px 8px; border-radius: 10px; border: 1px solid rgba(200,180,170,0.3); white-space: nowrap; }
-
-    .bg-card {
-      aspect-ratio: 16/10;
-      border-radius: 14px;
-      background: rgba(255, 255, 255, 0.65);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      border: 1.5px solid rgba(232, 190, 190, 0.35);
-      cursor: pointer;
-      transition: transform 0.2s, border-color 0.3s;
-      position: relative;
-      overflow: hidden;
-    }
-    .bg-card:active { transform: scale(0.95); }
-    .bg-card.active { border-color: rgba(232, 150, 150, 0.6); box-shadow: 0 0 12px rgba(232, 160, 160, 0.2); }
-    .bg-card .thumb { width: 100%; height: 100%; object-fit: cover; display: block; position: absolute; top: 0; left: 0; }
-    .bg-card .name { position: absolute; bottom: 0; left: 0; right: 0; padding: 4px 6px; text-align: center; font-size: 9px; color: #FFF; background: linear-gradient(transparent, rgba(0,0,0,0.5)); z-index: 2; }
-    .bg-card.locked {
-      border: 1.5px dashed rgba(200,180,170,0.35);
-      background: rgba(200,180,170,0.08);
-    }
-    .bg-card .lock-text {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 10px;
-      color: rgba(180,160,150,0.5);
-      font-style: italic;
-    }
-
-    .bottom-bar {
-      padding: 12px 16px 24px;
-      background: rgba(255, 248, 245, 0.92);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-top: 1px solid rgba(232, 190, 190, 0.3);
-      display: flex;
-      gap: 12px;
-      z-index: 10;
-      flex-shrink: 0;
-    }
-    @supports (padding-bottom: env(safe-area-inset-bottom)) {
-      .bottom-bar { padding-bottom: max(24px, calc(env(safe-area-inset-bottom) + 12px)); }
-    }
-    .btn { flex: 1; height: 42px; border-radius: 21px; border: none; font-size: 13px; cursor: pointer; transition: transform 0.2s; display: flex; align-items: center; justify-content: center; }
-    .btn:active { transform: scale(0.96); }
-    .btn-primary { background: linear-gradient(135deg, #F5C4C4, #E8A0A0); color: #fff; box-shadow: 0 4px 12px rgba(232, 160, 160, 0.25); border: 1px solid rgba(255, 200, 200, 0.5); }
-    .btn-secondary { background: rgba(255, 255, 255, 0.65); border: 1.5px solid rgba(232, 190, 190, 0.4); color: #7D5555; }
-    .toast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8); background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1.5px solid rgba(232, 180, 180, 0.4); border-radius: 16px; padding: 16px 28px; font-size: 13px; color: #5D4040; opacity: 0; pointer-events: none; transition: opacity 0.3s ease, transform 0.3s ease; z-index: 100; }
-    .toast.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-
-    .confirm-dialog {
-      position: fixed;
-      inset: 0;
-      z-index: 200;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0,0,0,0.3);
-    }
-    .confirm-dialog.show { display: flex; }
-    .confirm-box {
-      background: #FFF;
-      border-radius: 20px;
-      padding: 28px 24px 20px;
-      width: 260px;
-      text-align: center;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-    }
-    .confirm-box .msg { font-size: 14px; color: #5D4040; margin-bottom: 20px; line-height: 1.6; }
-    .confirm-box .btns { display: flex; gap: 10px; }
-    .confirm-box .btns button { flex: 1; height: 36px; border-radius: 18px; border: none; font-size: 13px; cursor: pointer; }
-    .confirm-box .btn-cancel { background: #F5F0F0; color: #8D7070; }
-    .confirm-box .btn-ok { background: linear-gradient(135deg, #F5C4C4, #E8A0A0); color: #fff; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>Beside You - Style</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'PingFang SC',sans-serif;background:#FFF8F7;width:100vw;height:100dvh;overflow:hidden;max-width:430px;margin:0 auto;display:flex;flex-direction:column}
+.header{position:relative;height:88px;padding:44px 20px 0;display:flex;align-items:center;justify-content:center;background:rgba(255,248,245,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(240,210,210,.4);z-index:10;flex-shrink:0}
+.header .back{position:absolute;left:16px;top:48px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;text-decoration:none}
+.header .back svg{width:20px;height:20px;stroke:#A07070;stroke-width:2;fill:none}
+.header .title{font-size:15px;color:#5D4040;font-weight:500;letter-spacing:1px;font-style:italic}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;z-index:1}
+.preview{height:38vh;flex-shrink:0;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.preview .character{height:100%;object-fit:contain;animation:breathe 3s ease-in-out infinite;z-index:1;transition:opacity .3s}
+.preview .character.switching{opacity:0;animation:none}
+.preview .character.hidden{display:none}
+.preview .card-bg-preview{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;display:none}
+.preview .card-bg-preview.show{display:block}
+@keyframes breathe{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-6px) scale(1.005)}}
+.preview .outfit-name{position:absolute;right:16px;bottom:50%;transform:translateY(50%);font-size:11px;color:#8A6060;font-style:italic;writing-mode:vertical-rl;background:rgba(255,255,255,.65);padding:10px 6px;border-radius:14px;border:1px solid rgba(232,180,180,.3);z-index:2}
+.tabs{display:flex;padding:0 16px;background:rgba(255,248,245,.75);border-bottom:1px solid rgba(240,210,210,.3);border-top:1px solid rgba(240,210,210,.3);flex-shrink:0}
+.tab{flex:1;text-align:center;padding:10px 0;font-size:12px;color:#B8A0A0;position:relative;cursor:pointer}
+.tab.active{color:#7D5050;font-weight:500}
+.tab.active::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:24px;height:2px;background:linear-gradient(90deg,#F5C4C4,#E8A0A0);border-radius:2px}
+.grid-wrapper{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.wardrobe-grid{padding:12px 16px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.wardrobe-grid.hidden{display:none}
+.bg-grid{padding:12px 16px 20px;display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.bg-grid.hidden{display:none}
+.bg-section-title{grid-column:1/-1;font-size:11px;color:#B8A0A0;font-style:italic;padding:8px 0 4px;border-bottom:1px solid rgba(240,210,210,.3);margin-bottom:4px}
+.outfit-card{aspect-ratio:3/4;border-radius:14px;background:rgba(255,255,255,.65);border:1.5px solid rgba(232,190,190,.35);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;cursor:pointer;position:relative;overflow:hidden;padding-bottom:6px;transition:transform .2s,border-color .3s}
+.outfit-card:active{transform:scale(.95)}
+.outfit-card.active{border-color:rgba(232,150,150,.6);box-shadow:0 0 12px rgba(232,160,160,.2)}
+.outfit-card .thumb{position:absolute;top:0;left:50%;transform:translateX(-50%);width:120%;height:100%;object-fit:cover;object-position:center 40%}
+.outfit-card .name{position:relative;z-index:2;font-size:9px;color:#6D5050;background:rgba(255,248,245,.85);padding:2px 6px;border-radius:8px}
+.outfit-card .rarity{position:absolute;top:5px;left:5px;font-size:8px;z-index:2;color:rgba(120,90,90,.5);background:rgba(255,255,255,.6);padding:1px 5px;border-radius:6px}
+.outfit-card.locked{border:1.5px dashed rgba(200,180,170,.4)}
+.outfit-card.locked .thumb{filter:brightness(.5) grayscale(.6)}
+.outfit-card .lock-badge{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:3;font-size:9px;color:#B8A0A0;background:rgba(255,255,255,.85);padding:3px 8px;border-radius:10px;white-space:nowrap}
+.bg-card{aspect-ratio:16/10;border-radius:14px;background:rgba(255,255,255,.65);border:1.5px solid rgba(232,190,190,.35);cursor:pointer;position:relative;overflow:hidden;transition:transform .2s,border-color .3s}
+.bg-card:active{transform:scale(.95)}
+.bg-card.active{border-color:rgba(232,150,150,.6);box-shadow:0 0 12px rgba(232,160,160,.2)}
+.bg-card .thumb{width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0}
+.bg-card .name{position:absolute;bottom:0;left:0;right:0;padding:4px 6px;text-align:center;font-size:9px;color:#FFF;background:linear-gradient(transparent,rgba(0,0,0,.5));z-index:2}
+.bg-card .card-tag{position:absolute;top:5px;right:5px;font-size:8px;background:rgba(232,160,160,.8);color:#fff;padding:1px 6px;border-radius:6px;z-index:3}
+.bg-card.locked{border:1.5px dashed rgba(200,180,170,.35);background:rgba(200,180,170,.08)}
+.bg-card .lock-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:10px;color:rgba(180,160,150,.5);font-style:italic}
+.bottom-bar{padding:12px 16px 24px;background:rgba(255,248,245,.92);border-top:1px solid rgba(232,190,190,.3);display:flex;gap:12px;z-index:10;flex-shrink:0}
+.btn{flex:1;height:42px;border-radius:21px;border:none;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.btn-primary{background:linear-gradient(135deg,#F5C4C4,#E8A0A0);color:#fff}
+.btn-secondary{background:rgba(255,255,255,.65);border:1.5px solid rgba(232,190,190,.4);color:#7D5555}
+.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.8);background:rgba(255,255,255,.9);border:1.5px solid rgba(232,180,180,.4);border-radius:16px;padding:16px 28px;font-size:13px;color:#5D4040;opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;z-index:100}
+.toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.confirm-dialog{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.3)}
+.confirm-dialog.show{display:flex}
+.confirm-box{background:#FFF;border-radius:20px;padding:28px 24px 20px;width:260px;text-align:center}
+.confirm-box .msg{font-size:14px;color:#5D4040;margin-bottom:20px;line-height:1.6}
+.confirm-box .btns{display:flex;gap:10px}
+.confirm-box .btns button{flex:1;height:36px;border-radius:18px;border:none;font-size:13px;cursor:pointer}
+.confirm-box .btn-cancel{background:#F5F0F0;color:#8D7070}
+.confirm-box .btn-ok{background:linear-gradient(135deg,#F5C4C4,#E8A0A0);color:#fff}
+</style>
 </head>
 <body>
-  <div class="header">
-    <a class="back" href="/src/index.html"><svg viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg></a>
-    <div class="title">Style</div>
-    <div class="ornament"><div class="center-gem"></div></div>
-  </div>
-  <div class="main">
-    <div class="preview">
-      <div class="decor-left"><span>❧</span><span>┊</span><span>✿</span><span>┊</span><span>❧</span></div>
-      <img class="character" id="preview-img" alt="珩">
-      <div class="outfit-name" id="outfit-name">月光睡裙</div>
-    </div>
-    <div class="tabs">
-      <div class="tab active" data-cat="all">全部</div>
-      <div class="tab" data-cat="daily">日常</div>
-      <div class="tab" data-cat="formal">正装</div>
-      <div class="tab" data-cat="limited">限定</div>
-      <div class="tab" data-cat="bg">背景</div>
-    </div>
-    <div class="grid-wrapper">
-      <div class="wardrobe-grid" id="wardrobe-grid"></div>
-      <div class="bg-grid hidden" id="bg-grid"></div>
-    </div>
-  </div>
-  <div class="bottom-bar">
-    <button class="btn btn-secondary" id="btn-fav">收藏</button>
-    <button class="btn btn-primary" id="btn-wear">换上</button>
-  </div>
-  <div class="toast" id="toast"></div>
-  <div class="confirm-dialog" id="confirmDialog">
-    <div class="confirm-box">
-      <div class="msg" id="confirmMsg"></div>
-      <div class="btns">
-        <button class="btn-cancel" id="confirmCancel">取消</button>
-        <button class="btn-ok" id="confirmOk">购买</button>
-      </div>
-    </div>
-  </div>
-  <script>
-    var CDN = 'https://cdn.jsdelivr.net/gh/fufu3593812-lgtm/beside-you@main/assets/';
-    var GACHA_CDN = '/assets/gacha/';
-
-    var outfits = [
-      { name: '月光睡裙', cat: 'limited', rarity: 'SR', img: CDN + '%E7%9D%A1%E8%A3%99.PNG', unlock: 'free' },
-      { name: '慵懒卫衣', cat: 'daily', rarity: 'R', img: CDN + '%E5%8D%AB%E8%A1%A3.PNG', unlock: 'free' },
-      { name: '初恋JK', cat: 'daily', rarity: 'R', img: CDN + 'jk.PNG', unlock: 'buy:200' },
-      { name: '碎花裙', cat: 'daily', rarity: 'SR', img: CDN + '%E7%A2%8E%E8%8A%B1%E8%A3%99.PNG', unlock: 'buy:200' },
-      { name: '粉雾呢喃', cat: 'limited', rarity: '限定', img: GACHA_CDN + '%E6%92%92%E5%A8%87%E7%AB%8B%E7%BB%98.png', unlock: 'gacha:撒娇' },
-      { name: '血月静默', cat: 'limited', rarity: '限定', img: GACHA_CDN + '%E7%94%9F%E6%B0%94%E7%AB%8B%E7%BB%98.png', unlock: 'gacha:生气' }
-    ];
-    var backgrounds = [
-      { name: '默认卧室', img: CDN + '%E5%8D%A7%E5%AE%A4.png', locked: false },
-      { name: '撒娇背景', img: CDN + 'background/%E6%92%92%E5%A8%87%E8%83%8C%E6%99%AF.png', locked: true },
-      { name: '生气背景', img: CDN + 'background/%E7%94%9F%E6%B0%94%E8%83%8C%E6%99%AF.PNG', locked: true }
-    ];
-
-    function getTokens() { return parseInt(localStorage.getItem('bsy_tokens') || '1600'); }
-    function setTokens(n) { localStorage.setItem('bsy_tokens', n.toString()); }
-
-    function isOutfitUnlocked(o) {
-      if (o.unlock === 'free') return true;
-      var purchased = JSON.parse(localStorage.getItem('bsy_purchased_outfits') || '[]');
-      if (purchased.indexOf(o.name) !== -1) return true;
-      if (o.unlock.indexOf('gacha:') === 0) {
-        var need = o.unlock.replace('gacha:', '');
-        var collection = JSON.parse(localStorage.getItem('bsy_collection') || '[]');
-        return collection.indexOf(need) !== -1;
-      }
-      return false;
-    }
-
-    function getLockText(o) {
-      if (o.unlock.indexOf('buy:') === 0) {
-        var price = o.unlock.replace('buy:', '');
-        return price + ' token';
-      }
-      if (o.unlock.indexOf('gacha:') === 0) {
-        return '抽卡解锁';
-      }
-      return '锁定';
-    }
-
-    (function() {
-      var wardrobeGrid = document.getElementById('wardrobe-grid');
-      var bgGrid = document.getElementById('bg-grid');
-      var previewImg = document.getElementById('preview-img');
-      var outfitName = document.getElementById('outfit-name');
-      var btnWear = document.getElementById('btn-wear');
-      var toast = document.getElementById('toast');
-      var tabs = document.querySelectorAll('.tab');
-      var confirmDialog = document.getElementById('confirmDialog');
-      var confirmMsg = document.getElementById('confirmMsg');
-      var confirmCancel = document.getElementById('confirmCancel');
-      var confirmOk = document.getElementById('confirmOk');
-      var currentOutfit = localStorage.getItem('bsy_outfit') || '月光睡裙';
-      var selectedCard = null;
-      var selectedData = null;
-      var mode = 'outfit';
-      var pendingPurchase = null;
-
-      outfits.forEach(function(o) {
-        var unlocked = isOutfitUnlocked(o);
-        var card = document.createElement('div');
-        card.className = 'outfit-card' + (o.name === currentOutfit ? ' active' : '') + (!unlocked ? ' locked' : '');
-        card.dataset.name = o.name;
-        card.dataset.cat = o.cat;
-        card.dataset.img = o.img;
-        card.dataset.unlock = o.unlock;
-        card.innerHTML = '<span class="rarity">' + o.rarity + '</span><img class="thumb" src="' + o.img + '" alt="' + o.name + '"><div class="name">' + o.name + '</div>';
-        if (!unlocked) {
-          card.innerHTML += '<div class="lock-badge">' + getLockText(o) + '</div>';
-        }
-        wardrobeGrid.appendChild(card);
-        if (o.name === currentOutfit && unlocked) { selectedCard = card; selectedData = o; previewImg.src = o.img; outfitName.textContent = o.name; }
-      });
-
-      if (!selectedData) {
-        var first = outfits[0];
-        previewImg.src = first.img;
-        outfitName.textContent = first.name;
-        selectedData = first;
-      }
-
-      var owned = JSON.parse(localStorage.getItem('bsy_collection') || '[]');
-      backgrounds.forEach(function(b) {
-        var card = document.createElement('div');
-        var isLocked = b.locked && owned.indexOf(b.name) === -1;
-        card.className = 'bg-card' + (isLocked ? ' locked' : '') + (b.name === '默认卧室' ? ' active' : '');
-        card.dataset.name = b.name;
-        card.dataset.img = b.img;
-        if (isLocked) {
-          card.innerHTML = '<span class="lock-text">抽卡解锁</span>';
-        } else {
-          card.innerHTML = '<img class="thumb" src="' + b.img + '" alt="' + b.name + '"><div class="name">' + b.name + '</div>';
-        }
-        bgGrid.appendChild(card);
-      });
-
-      var outfitCards = wardrobeGrid.querySelectorAll('.outfit-card');
-      var bgCards = bgGrid.querySelectorAll('.bg-card');
-
-      tabs.forEach(function(tab) {
-        tab.addEventListener('click', function() {
-          tabs.forEach(function(t) { t.classList.remove('active'); });
-          tab.classList.add('active');
-          var cat = tab.dataset.cat;
-          if (cat === 'bg') {
-            mode = 'bg';
-            wardrobeGrid.classList.add('hidden');
-            bgGrid.classList.remove('hidden');
-            btnWear.textContent = '使用';
-          } else {
-            mode = 'outfit';
-            wardrobeGrid.classList.remove('hidden');
-            bgGrid.classList.add('hidden');
-            btnWear.textContent = '换上';
-            outfitCards.forEach(function(card) {
-              card.style.display = (cat === 'all' || card.dataset.cat === cat) ? '' : 'none';
-            });
-          }
-        });
-      });
-
-      outfitCards.forEach(function(card) {
-        card.addEventListener('click', function() {
-          if (card.classList.contains('locked')) {
-            var unlock = card.dataset.unlock;
-            if (unlock.indexOf('buy:') === 0) {
-              var price = parseInt(unlock.replace('buy:', ''));
-              pendingPurchase = { card: card, name: card.dataset.name, price: price };
-              confirmMsg.innerHTML = '购买「' + card.dataset.name + '」<br>需要 ' + price + ' token';
-              confirmDialog.classList.add('show');
-            } else {
-              showToast('去抽卡解锁吧');
-            }
-            return;
-          }
-          outfitCards.forEach(function(c) { c.classList.remove('active'); });
-          card.classList.add('active');
-          selectedCard = card;
-          selectedData = { name: card.dataset.name, img: card.dataset.img };
-          previewImg.classList.add('switching');
-          setTimeout(function() { previewImg.src = card.dataset.img; outfitName.textContent = card.dataset.name; previewImg.classList.remove('switching'); }, 250);
-        });
-      });
-
-      confirmCancel.onclick = function() { confirmDialog.classList.remove('show'); pendingPurchase = null; };
-      confirmOk.onclick = function() {
-        if (!pendingPurchase) return;
-        var tokens = getTokens();
-        if (tokens < pendingPurchase.price) {
-          confirmDialog.classList.remove('show');
-          showToast('token 不足');
-          pendingPurchase = null;
-          return;
-        }
-        setTokens(tokens - pendingPurchase.price);
-        var purchased = JSON.parse(localStorage.getItem('bsy_purchased_outfits') || '[]');
-        purchased.push(pendingPurchase.name);
-        localStorage.setItem('bsy_purchased_outfits', JSON.stringify(purchased));
-        var c = pendingPurchase.card;
-        c.classList.remove('locked');
-        var badge = c.querySelector('.lock-badge');
-        if (badge) badge.remove();
-        confirmDialog.classList.remove('show');
-        showToast('✿ 已解锁「' + pendingPurchase.name + '」');
-        pendingPurchase = null;
-      };
-
-      bgCards.forEach(function(card) {
-        card.addEventListener('click', function() {
-          if (card.classList.contains('locked')) { showToast('还没解锁，去抽卡吧'); return; }
-          bgCards.forEach(function(c) { c.classList.remove('active'); });
-          card.classList.add('active');
-          selectedCard = card;
-          selectedData = { name: card.dataset.name, img: card.dataset.img };
-          outfitName.textContent = card.dataset.name;
-        });
-      });
-
-      btnWear.addEventListener('click', function() {
-        if (!selectedData) return;
-        var name = selectedData.name;
-        if (mode === 'outfit') {
-          if (name === currentOutfit) { showToast('已经穿着这件了'); return; }
-          currentOutfit = name;
-          localStorage.setItem('bsy_outfit', name);
-          localStorage.setItem('bsy_outfit_img', selectedData.img);
-          showToast('✿ 已换上「' + name + '」');
-        } else {
-          if (selectedCard && selectedCard.classList.contains('locked')) { showToast('还没解锁，去抽卡吧'); return; }
-          localStorage.setItem('bsy_bg', selectedData.img);
-          showToast('✿ 背景已切换为「' + name + '」');
-        }
-      });
-
-      function showToast(msg) { toast.textContent = msg; toast.classList.add('show'); setTimeout(function() { toast.classList.remove('show'); }, 1600); }
-    })();
-  </script>
+<div class="header"><a class="back" href="/src/index.html"><svg viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg></a><div class="title">Style</div></div>
+<div class="main">
+<div class="preview"><img class="card-bg-preview" id="card-bg-preview" alt=""><img class="character" id="preview-img" alt=""><div class="outfit-name" id="outfit-name"></div></div>
+<div class="tabs"><div class="tab active" data-cat="all">全部</div><div class="tab" data-cat="daily">日常</div><div class="tab" data-cat="limited">限定</div><div class="tab" data-cat="bg">背景</div></div>
+<div class="grid-wrapper"><div class="wardrobe-grid" id="wardrobe-grid"></div><div class="bg-grid hidden" id="bg-grid"></div></div>
+</div>
+<div class="bottom-bar"><button class="btn btn-secondary" id="btn-fav">收藏</button><button class="btn btn-primary" id="btn-wear">换上</button></div>
+<div class="toast" id="toast"></div>
+<div class="confirm-dialog" id="confirmDialog"><div class="confirm-box"><div class="msg" id="confirmMsg"></div><div class="btns"><button class="btn-cancel" id="confirmCancel">取消</button><button class="btn-ok" id="confirmOk">购买</button></div></div></div>
+<script>
+var C='https://cdn.jsdelivr.net/gh/fufu3593812-lgtm/beside-you@main/assets/',G='/assets/gacha/';
+var outfits=[{name:'月光睡裙',cat:'limited',rarity:'SR',img:C+'%E7%9D%A1%E8%A3%99.PNG',unlock:'free'},{name:'慵懒卫衣',cat:'daily',rarity:'R',img:C+'%E5%8D%AB%E8%A1%A3.PNG',unlock:'free'},{name:'初恋JK',cat:'daily',rarity:'R',img:C+'jk.PNG',unlock:'buy:200'},{name:'碎花裙',cat:'daily',rarity:'SR',img:C+'%E7%A2%8E%E8%8A%B1%E8%A3%99.PNG',unlock:'buy:200'},{name:'粉雾呢喃',cat:'limited',rarity:'限定',img:G+'%E6%92%92%E5%A8%87%E7%AB%8B%E7%BB%98.png',unlock:'gacha:撒娇'},{name:'血月静默',cat:'limited',rarity:'限定',img:G+'%E7%94%9F%E6%B0%94%E7%AB%8B%E7%BB%98.png',unlock:'gacha:生气'}];
+var bgs=[{name:'默认卧室',img:C+'%E5%8D%A7%E5%AE%A4.png',locked:false},{name:'撒娇背景',img:C+'background/%E6%92%92%E5%A8%87%E8%83%8C%E6%99%AF.png',locked:true},{name:'生气背景',img:C+'background/%E7%94%9F%E6%B0%94%E8%83%8C%E6%99%AF.PNG',locked:true}];
+var cardBgs=[{name:'撒娇卡面',img:G+'%E6%92%92%E5%A8%87%E5%8D%A1%E9%9D%A2.PNG'},{name:'生气卡面',img:G+'%E7%94%9F%E6%B0%94%E5%8D%A1%E9%9D%A2.PNG'}];
+function gt(){return parseInt(localStorage.getItem('bsy_tokens')||'1600')}
+function st(n){localStorage.setItem('bsy_tokens',n+'')}
+function unlocked(o){if(o.unlock==='free')return true;var p=JSON.parse(localStorage.getItem('bsy_purchased_outfits')||'[]');if(p.indexOf(o.name)!==-1)return true;if(o.unlock.indexOf('gacha:')===0){var c=JSON.parse(localStorage.getItem('bsy_collection')||'[]');return c.indexOf(o.unlock.replace('gacha:',''))!==-1;}return false;}
+function cardOk(n){var c=JSON.parse(localStorage.getItem('bsy_collection')||'[]');return c.indexOf(n.replace('卡面',''))!==-1;}
+(function(){
+var wg=document.getElementById('wardrobe-grid'),bg=document.getElementById('bg-grid'),pi=document.getElementById('preview-img'),cbp=document.getElementById('card-bg-preview'),on=document.getElementById('outfit-name'),bw=document.getElementById('btn-wear'),tt=document.getElementById('toast'),tabs=document.querySelectorAll('.tab'),cd=document.getElementById('confirmDialog'),cm=document.getElementById('confirmMsg');
+var cur=localStorage.getItem('bsy_outfit')||'月光睡裙',sel=null,sd=null,mode='outfit',pp=null;
+outfits.forEach(function(o){var u=unlocked(o),d=document.createElement('div');d.className='outfit-card'+(o.name===cur?' active':'')+(!u?' locked':'');d.dataset.name=o.name;d.dataset.cat=o.cat;d.dataset.img=o.img;d.dataset.unlock=o.unlock;d.innerHTML='<span class="rarity">'+o.rarity+'</span><img class="thumb" src="'+o.img+'"><div class="name">'+o.name+'</div>';if(!u)d.innerHTML+='<div class="lock-badge">'+(o.unlock.indexOf('buy:')===0?o.unlock.replace('buy:','')+' token':'抽卡解锁')+'</div>';wg.appendChild(d);if(o.name===cur&&u){sel=d;sd=o;pi.src=o.img;on.textContent=o.name;}});
+if(!sd){sd=outfits[0];pi.src=sd.img;on.textContent=sd.name;}
+var own=JSON.parse(localStorage.getItem('bsy_collection')||'[]'),cBg=localStorage.getItem('bsy_bg')||'',cMode=localStorage.getItem('bsy_bg_mode')||'normal';
+var s1=document.createElement('div');s1.className='bg-section-title';s1.textContent='场景背景（保留立绘）';bg.appendChild(s1);
+bgs.forEach(function(b){var d=document.createElement('div'),lk=b.locked&&own.indexOf(b.name.replace('背景',''))===-1,ac=cMode==='normal'&&cBg===b.img;d.className='bg-card'+(lk?' locked':'')+(ac?' active':'');d.dataset.name=b.name;d.dataset.img=b.img;d.dataset.type='bg';d.innerHTML=lk?'<span class="lock-text">抽卡解锁</span><div class="name">'+b.name+'</div>':'<img class="thumb" src="'+b.img+'"><div class="name">'+b.name+'</div>';bg.appendChild(d);});
+var s2=document.createElement('div');s2.className='bg-section-title';s2.textContent='卡面背景（隐藏立绘）';bg.appendChild(s2);
+cardBgs.forEach(function(b){var d=document.createElement('div'),u=cardOk(b.name),ac=cMode==='card'&&cBg===b.img;d.className='bg-card'+(!u?' locked':'')+(ac?' active':'');d.dataset.name=b.name;d.dataset.img=b.img;d.dataset.type='card';d.innerHTML=!u?'<span class="lock-text">抽卡解锁</span><div class="name">'+b.name+'</div>':'<img class="thumb" src="'+b.img+'"><div class="name">'+b.name+'</div><span class="card-tag">卡面</span>';bg.appendChild(d);});
+var ocs=wg.querySelectorAll('.outfit-card'),bcs=bg.querySelectorAll('.bg-card');
+tabs.forEach(function(t){t.onclick=function(){tabs.forEach(function(x){x.classList.remove('active')});t.classList.add('active');var c=t.dataset.cat;if(c==='bg'){mode='bg';wg.classList.add('hidden');bg.classList.remove('hidden');bw.textContent='使用';pi.classList.remove('hidden');cbp.classList.remove('show');}else{mode='outfit';wg.classList.remove('hidden');bg.classList.add('hidden');bw.textContent='换上';pi.classList.remove('hidden');cbp.classList.remove('show');ocs.forEach(function(x){x.style.display=(c==='all'||x.dataset.cat===c)?'':'none';});}};});
+ocs.forEach(function(d){d.onclick=function(){if(d.classList.contains('locked')){var u=d.dataset.unlock;if(u.indexOf('buy:')===0){pp={card:d,name:d.dataset.name,price:parseInt(u.replace('buy:',''))};cm.innerHTML='购买「'+d.dataset.name+'」<br>需要 '+pp.price+' token';cd.classList.add('show');}else show('去抽卡解锁吧');return;}ocs.forEach(function(x){x.classList.remove('active')});d.classList.add('active');sel=d;sd={name:d.dataset.name,img:d.dataset.img,type:'outfit'};pi.classList.remove('hidden');cbp.classList.remove('show');pi.classList.add('switching');setTimeout(function(){pi.src=d.dataset.img;on.textContent=d.dataset.name;pi.classList.remove('switching');},250);};});
+document.getElementById('confirmCancel').onclick=function(){cd.classList.remove('show');pp=null;};
+document.getElementById('confirmOk').onclick=function(){if(!pp)return;var t=gt();if(t<pp.price){cd.classList.remove('show');show('token 不足');pp=null;return;}st(t-pp.price);var p=JSON.parse(localStorage.getItem('bsy_purchased_outfits')||'[]');p.push(pp.name);localStorage.setItem('bsy_purchased_outfits',JSON.stringify(p));pp.card.classList.remove('locked');var b=pp.card.querySelector('.lock-badge');if(b)b.remove();cd.classList.remove('show');show('\u273f 已解锁「'+pp.name+'」');pp=null;};
+bcs.forEach(function(d){d.onclick=function(){if(d.classList.contains('locked')){show('还没解锁，去抽卡吧');return;}bcs.forEach(function(x){x.classList.remove('active')});d.classList.add('active');sel=d;sd={name:d.dataset.name,img:d.dataset.img,type:d.dataset.type};on.textContent=d.dataset.name;if(d.dataset.type==='card'){cbp.src=d.dataset.img;cbp.classList.add('show');pi.classList.add('hidden');}else{cbp.classList.remove('show');pi.classList.remove('hidden');}};});
+bw.onclick=function(){if(!sd)return;var n=sd.name;if(mode==='outfit'){if(n===cur){show('已经穿着这件了');return;}cur=n;localStorage.setItem('bsy_outfit',n);localStorage.setItem('bsy_outfit_img',sd.img);localStorage.setItem('bsy_bg_mode','normal');show('\u273f 已换上「'+n+'」');}else{if(sel&&sel.classList.contains('locked')){show('还没解锁，去抽卡吧');return;}localStorage.setItem('bsy_bg',sd.img);if(sd.type==='card'){localStorage.setItem('bsy_bg_mode','card');show('\u273f 卡面背景「'+n+'」已设置');}else{localStorage.setItem('bsy_bg_mode','normal');show('\u273f 背景已切换为「'+n+'」');}}};
+function show(m){tt.textContent=m;tt.classList.add('show');setTimeout(function(){tt.classList.remove('show');},1600);}
+})();
+</script>
 </body>
 </html>

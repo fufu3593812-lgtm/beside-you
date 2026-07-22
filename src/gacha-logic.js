@@ -8,6 +8,38 @@ var pityShengqiEmotion = parseInt(localStorage.getItem('bsy_pity_shengqi_emotion
 
 var currentPool = 0;
 
+// === Token sync with database ===
+function syncTokensToDB(tokens) {
+  try {
+    var auth = JSON.parse(localStorage.getItem('bsy_auth') || '{}');
+    if (!auth.token) return;
+    fetch('/api/user/sync-tokens', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + auth.token },
+      body: JSON.stringify({ tokens: tokens })
+    }).catch(function(){});
+  } catch(e) {}
+}
+
+function loadTokensFromDB() {
+  try {
+    var auth = JSON.parse(localStorage.getItem('bsy_auth') || '{}');
+    if (!auth.token) return;
+    fetch('/api/user/me', {
+      headers: { 'Authorization': 'Bearer ' + auth.token }
+    }).then(function(r){ return r.json(); }).then(function(data) {
+      if (data.user && typeof data.user.tokens === 'number') {
+        var local = getTokens();
+        var db = data.user.tokens;
+        // Use the higher value (in case local earned tokens not yet synced)
+        var final = Math.max(local, db);
+        setTokens(final);
+        if (final !== db) syncTokensToDB(final);
+      }
+    }).catch(function(){});
+  } catch(e) {}
+}
+
 function getTokens() {
   return parseInt(localStorage.getItem('bsy_tokens') || '1600');
 }
@@ -23,12 +55,14 @@ function spendTokens(cost) {
   var t = getTokens();
   t -= cost;
   setTokens(t);
+  syncTokensToDB(t);
   return t;
 }
 function addTokens(amount) {
   var t = getTokens();
   t += amount;
   setTokens(t);
+  syncTokensToDB(t);
   return t;
 }
 
@@ -153,7 +187,9 @@ function broadcastLimited(cardName) {
   } catch(e) {}
 }
 
+// Init: display tokens and sync from DB
 (function() {
   var el = document.getElementById('tokenDisplay');
   if (el) el.textContent = getTokens();
+  loadTokensFromDB();
 })();

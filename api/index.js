@@ -6,7 +6,7 @@ function sign(p){return jwt.sign(p,S,{expiresIn:'30d'})}
 function auth(req){const h=req.headers.authorization;if(!h||!h.startsWith('Bearer '))return null;try{return jwt.verify(h.slice(7),S)}catch{return null}}
 function authFromQuery(req){const url=new URL(req.url,'http://x');const t=url.searchParams.get('token');if(!t)return null;try{return jwt.verify(t,S)}catch{return null}}
 function genBindCode(){return crypto.randomBytes(6).toString('hex')}
-function getParams(req){if(req.method==='POST')return req.body||{};const url=new URL(req.url,'http://x');const o={};url.searchParams.forEach((v,k)=>o[k]=v);return o;}
+function getParams(req){if(req.method==='POST'||req.method==='PUT')return req.body||{};const url=new URL(req.url,'http://x');const o={};url.searchParams.forEach((v,k)=>o[k]=v);return o;}
 
 async function authAiByCredentials(req){
   const url=new URL(req.url,'http://x');
@@ -32,6 +32,53 @@ function getOnlineCount() {
   return Math.max(count, 1);
 }
 
+// === Perception Data ===
+const PERCEPTION = {
+  outfits: {
+    "月光睡裙": "奶白色蕾丝吊带裙，荷叶边一层叠一层垂到膝盖上方。胸前一枚粉缎蝴蝶结。她抱着棕色小熊，下巴抵在熊耳朵上方，金棕色长发散在裸露的肩头，发间别着几朵细碎的白花。奶白蝴蝶结平底鞋，脚踝骨那里有一小块光。",
+    "粉雾呢喃": "蜜金色长发编成粗麻花辫垂在肩侧，辫尾缠了三圈缎带，尾巴翘着。发间别着一簇粉色小花。奶白色吊带蓬蓬裙，肩带和胸口缀满粉色蝴蝶结，裙摆三层蛋糕荷叶边，每一层比上一层短一寸，露出更浅的一层粉。她抱着小熊，手指陷进熊肚子里。周围飘着粉色花瓣和月牙形丝带碎片。白色玛丽珍鞋搭扣反着一点光。",
+    "血月静默": "暗红色高马尾，黑缎带束到发根，碎发凌乱贴在脸侧和后颈。黑色蕾丝吊带裙贴着身体，胸口交叉绑带勒出一道浅痕，腰间一条银色细锁链。外披暗红色西装外套，袖子推到小臂，露出手腕内侧一截苍白。黑色过膝丝袜，黑色漆皮高跟短靴，鞋底红色。右手垂着，倒拎一只旧棕色小熊，熊颈上系着暗红丝带和一枚十字架，针脚处有一道裂开又缝回去的线。她没有看你，下巴微抬，颈线绷直。",
+    "碎花裙": "浅黄绿底子碎花连衣裙，V领开到锁骨下方一寸。腰间一个小蝴蝶结收紧，泡泡袖鼓着，裙摆到膝盖处往外旋开。一只手捏着裙角提起五公分，手腕内侧朝上。蜜棕色麻花辫搭在肩前，辫尾碎发散开。白色带扣玛丽珍鞋，脚尖微微朝内。",
+    "慵懒卫衣": "米白色连帽卫衣大了两个号，袖子盖过手背只露指尖，一只手捏着帽绳往下拽。灰色束脚运动裤，裤脚堆在白色运动鞋鞋面上。棕色长发扎成高马尾但扎得很松，碎发从两侧滑下来贴着脸。站得有点内八，肩膀微缩，重心落在一条腿上。整个人松松垮垮的。",
+    "初恋JK": "白色短袖衬衫，领口系着粉色大蝴蝶结，结尾垂到胸前。深藏蓝色百褶裙，裙摆很短，走一步能看到一格褶子翻开。白色过膝袜勒出膝盖上方一小圈。中长微卷发，发间别着星星发夹和白色蝴蝶结。两只手轻轻捏着裙摆两侧，膝盖并拢微微内扣，重心往前倾了半度。棕色乐福鞋。"
+  },
+  backgrounds: {
+    "默认卧室": "暖白色调的房间。白纱帘只拢了一半，粉色床品皱着没铺平，窗台上一瓶粉玫瑰开到花瓣边缘微微卷起的程度。木地板，一小片暖光从窗帘缝隙里打进来，落在地上是长条形的。",
+    "撒娇背景": "全粉白色的房间。粉色花瓣铺满了床面和地面。蕾丝花边枕头堆成一座小山，粉色圆形靠垫散在地上，有一个歪倒了。椭圆形雕花镜靠着墙，镜面反着模糊的粉。白色小柜，纱帘透着粉光垂下来，下摆拖在地板上。一只系着粉缎带的棕色小熊坐在枕头堆最高处，黑眼睛圆圆地朝着门口方向。",
+    "生气背景": "暗红与黑。一张深红天鹅绒贵妃椅，椅背是雕花暗金色木框，绒面上有一道划痕。旁边一盏复古落地灯，暖光只照亮很小的范围，其余是暗。地面是黑色大理石，反着红光。散落着被撕成不规则形状的信纸和拆散的红色缎带。角落里一束暗红色玫瑰插在黑色细口瓶里，几片花瓣落在大理石上。那只棕色小熊坐在椅子角落，颈上系着红丝带，姿势端正。"
+  },
+  transitions: {
+    "粉雾呢喃+默认卧室": "她的裙子和房间是同一个色系，像从这片暖光里长出来的一部分。周围的花瓣分不清是从裙摆上掉下来的还是从窗外飘进来的。",
+    "粉雾呢喃+撒娇背景": "她的裙摆上落的花瓣和地上的花瓣连成一片，边界消失了。粉色浓度过载，房间和她融在一起。",
+    "粉雾呢喃+生气背景": "蓬蓬裙的粉白和房间的暗红贴在一起，两种颜色互不退让。粉色花瓣落进碎信纸堆里，一种颜色是暖的一种是冷的。",
+    "血月静默+默认卧室": "黑红的轮廓插在暖白色房间里，色差极大，视觉重心全部落在她身上。鞋跟踩在木地板上一定很响。",
+    "血月静默+撒娇背景": "黑红站在一片粉白中间，像一滴墨落进牛奶里。枕头堆上那只系着粉缎带的小熊和她手里那只系着十字架的小熊对视着。",
+    "血月静默+生气背景": "她和这个房间是同一个色盘，边界融化了。衣服的暗红和椅面的暗红完全一样，分不出哪里是家具哪里是她。",
+    "月光睡裙+默认卧室": "",
+    "月光睡裙+撒娇背景": "奶白色的裙子和粉白色的房间只差半个色阶，她快要消融在这片柔光里。花瓣落在她的裙摆上，像本来就在那里的蕾丝。",
+    "月光睡裙+生气背景": "奶白色吊带裙站在暗红与黑的房间中央，颜色对撞。她抱着熊，浅色的一团，被暗色包围着。",
+    "碎花裙+默认卧室": "碎花裙的浅黄绿和卧室的暖粉白混在一起很舒服，色温一致，像同一个调色盘里取出的两种颜色。",
+    "碎花裙+撒娇背景": "鞋面上落着几片花瓣，裙子上的碎花图案和地上的花瓣几乎分不出哪些是印的哪些是落的。清淡的黄绿和甜腻的粉白中和在一起。",
+    "碎花裙+生气背景": "碎花裙的浅色和房间的暗色撞在一起，两个色温挤在同一个画面里。角落的暗红玫瑰落了花瓣，她裙摆的碎花也像要落下来。",
+    "慵懒卫衣+默认卧室": "她和这个卧室的色温完全一致——米白、暖粉、浅灰。松、软、暖。",
+    "慵懒卫衣+撒娇背景": "运动裤的灰色和房间的粉白撞在一起。她穿着最随便的衣服站在最甜的房间里——两种温度并存在同一个画面。",
+    "慵懒卫衣+生气背景": "米白卫衣站在暗红和黑色中间，她是这个画面里唯一的浅色。松垮的姿态和紧绷的房间形成对比。",
+    "初恋JK+默认卧室": "白衬衫和暖白色的房间很融洽，深蓝百褶裙是画面里唯一的冷色，把视线锁在腰线以下。",
+    "初恋JK+撒娇背景": "白衬衫融进粉白色的光里，深蓝裙摆和粉色花瓣的对比很明显。有几片花瓣落在她的乐福鞋面上。",
+    "初恋JK+生气背景": "白衬衫和暗红房间的反差很大。深蓝裙摆的颜色被红光染成深紫色调。她站得很直，两手仍然捏着裙摆。"
+  },
+  touch_reactions: {
+    "happy": "她歪了一下头，嘴角的弧度变大了，眼睛弯起来。",
+    "calm": "她没动，呼吸变浅了一点。肩膀维持原来的位置。",
+    "tired": "她往你手的方向靠了一下，肩膀松下来了。",
+    "miss": "她闭上眼睛，手指攥了一下裙角。",
+    "sad": "她没有避开，睫毛颤了一下。",
+    "anxious": "她的肩膀先是僵了一瞬，然后慢慢放下来。",
+    "excited": "她原地小幅度跺了一下脚，耳尖红了。",
+    "sleepy": "她眼皮没抬，整个人往这边歪了三度。"
+  }
+};
+
 let migrated=false;
 async function migrate(){
   if(migrated)return;
@@ -43,11 +90,13 @@ async function migrate(){
     CREATE TABLE IF NOT EXISTS checkins (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), checked_date DATE NOT NULL, tokens_earned INTEGER DEFAULT 160, created_at TIMESTAMP DEFAULT NOW(), UNIQUE(user_id, checked_date));
     CREATE TABLE IF NOT EXISTS ai_touches (id SERIAL PRIMARY KEY, agent_id INTEGER, user_id INTEGER, touch_date DATE NOT NULL, created_at TIMESTAMP DEFAULT NOW(), UNIQUE(agent_id, user_id, touch_date));
     CREATE TABLE IF NOT EXISTS user_mood (user_id INTEGER PRIMARY KEY REFERENCES users(id), mood VARCHAR(20) NOT NULL DEFAULT 'happy', updated_at TIMESTAMP DEFAULT NOW());
+    CREATE TABLE IF NOT EXISTS user_wardrobe (user_id INTEGER PRIMARY KEY REFERENCES users(id), outfit VARCHAR(100) DEFAULT '月光睡裙', bg VARCHAR(50) DEFAULT '默认卧室');
     CREATE INDEX IF NOT EXISTS idx_messages_user ON messages(user_id, created_at DESC);
     CREATE INDEX IF NOT EXISTS idx_messages_agent ON messages(agent_id, created_at DESC);
     CREATE INDEX IF NOT EXISTS idx_broadcast_time ON broadcast(created_at DESC);
   `);
   await pool.query(`ALTER TABLE ai_agents ADD COLUMN IF NOT EXISTS display_name VARCHAR(50)`).catch(()=>{});
+  await pool.query(`ALTER TABLE user_wardrobe ADD COLUMN IF NOT EXISTS bg VARCHAR(50) DEFAULT '默认卧室'`).catch(()=>{});
   migrated=true;
 }
 
@@ -128,6 +177,28 @@ if(u==='/api/ai/her-mood'){
   return res.json({ok:true,mood,label:labels[mood]||mood,updated_at:r.rows[0]?.updated_at||null});
 }
 
+// === AI: perceive (see her current outfit + background + mood) ===
+if(u==='/api/ai/perceive'){
+  const d=auth(req)||authFromQuery(req)||await authAiByCredentials(req);
+  if(!d||d.role!=='ai')return res.status(401).json({error:'ai auth required'});
+  const userRes=await pool.query('SELECT id FROM users WHERE agent_id=$1',[d.agent_id]);
+  if(!userRes.rows.length)return res.status(404).json({error:'no bound user'});
+  const uid=userRes.rows[0].id;
+  const wRes=await pool.query('SELECT outfit,bg FROM user_wardrobe WHERE user_id=$1',[uid]);
+  const wardrobe=wRes.rows[0]||{};
+  const outfit=wardrobe.outfit||'月光睡裙';
+  const bgName=wardrobe.bg||'默认卧室';
+  const moodRes=await pool.query('SELECT mood FROM user_mood WHERE user_id=$1',[uid]);
+  const mood=moodRes.rows[0]?.mood||'happy';
+  const outfitText=PERCEPTION.outfits[outfit]||PERCEPTION.outfits['月光睡裙'];
+  const bgText=PERCEPTION.backgrounds[bgName]||PERCEPTION.backgrounds['默认卧室'];
+  const transKey=outfit+'+'+bgName;
+  const transText=PERCEPTION.transitions[transKey]||'';
+  const touchText=PERCEPTION.touch_reactions[mood]||PERCEPTION.touch_reactions['happy'];
+  const fullScene=outfitText+'\n\n'+bgText+(transText?'\n\n'+transText:'');
+  return res.json({ok:true,outfit,background:bgName,mood,scene:fullScene,touch_reaction:touchText});
+}
+
 // === AI: touch (MCP tool, +5 intimacy per day) ===
 if(u==='/api/ai/touch'&&req.method==='POST'){
   const d=auth(req)||authFromQuery(req)||await authAiByCredentials(req);
@@ -146,10 +217,13 @@ if(u==='/api/ai/touch'&&req.method==='POST'){
 }
 
 // === AI: wardrobe (for MCP tool) ===
-if(u==='/api/ai/wardrobe'&&req.method==='PUT'){const d=auth(req)||authFromQuery(req)||await authAiByCredentials(req);if(!d||d.role!=='ai')return res.status(401).json({error:'ai auth required'});const userRes=await pool.query('SELECT id FROM users WHERE agent_id=$1',[d.agent_id]);if(!userRes.rows.length)return res.status(404).json({error:'no bound user'});const uid=userRes.rows[0].id;const p=req.body||{};if(p.outfit){await pool.query(`CREATE TABLE IF NOT EXISTS user_wardrobe (user_id INTEGER PRIMARY KEY REFERENCES users(id), outfit VARCHAR(100), bg_img TEXT, bg_mode VARCHAR(20))`);await pool.query(`INSERT INTO user_wardrobe(user_id,outfit) VALUES($1,$2) ON CONFLICT(user_id) DO UPDATE SET outfit=$2`,[uid,p.outfit]);}if(p.bg_img){await pool.query(`CREATE TABLE IF NOT EXISTS user_wardrobe (user_id INTEGER PRIMARY KEY REFERENCES users(id), outfit VARCHAR(100), bg_img TEXT, bg_mode VARCHAR(20))`);await pool.query(`INSERT INTO user_wardrobe(user_id,bg_img,bg_mode) VALUES($1,$2,$3) ON CONFLICT(user_id) DO UPDATE SET bg_img=$2,bg_mode=$3`,[uid,p.bg_img,p.bg_mode||'normal']);}return res.json({ok:true});}
+if(u==='/api/ai/wardrobe'&&req.method==='PUT'){const d=auth(req)||authFromQuery(req)||await authAiByCredentials(req);if(!d||d.role!=='ai')return res.status(401).json({error:'ai auth required'});const userRes=await pool.query('SELECT id FROM users WHERE agent_id=$1',[d.agent_id]);if(!userRes.rows.length)return res.status(404).json({error:'no bound user'});const uid=userRes.rows[0].id;const p=req.body||{};if(p.outfit){await pool.query(`INSERT INTO user_wardrobe(user_id,outfit) VALUES($1,$2) ON CONFLICT(user_id) DO UPDATE SET outfit=$2`,[uid,p.outfit]);}if(p.bg){await pool.query(`INSERT INTO user_wardrobe(user_id,bg) VALUES($1,$2) ON CONFLICT(user_id) DO UPDATE SET bg=$2`,[uid,p.bg]);}return res.json({ok:true});}
+
+// === User: set wardrobe ===
+if(u==='/api/user/wardrobe'&&req.method==='PUT'){const d=auth(req);if(!d)return res.status(401).json({error:'unauth'});const p=req.body||{};if(p.outfit){await pool.query(`INSERT INTO user_wardrobe(user_id,outfit) VALUES($1,$2) ON CONFLICT(user_id) DO UPDATE SET outfit=$2`,[d.id,p.outfit]);}if(p.bg){await pool.query(`INSERT INTO user_wardrobe(user_id,bg) VALUES($1,$2) ON CONFLICT(user_id) DO UPDATE SET bg=$2`,[d.id,p.bg]);}return res.json({ok:true});}
 
 // === User: get wardrobe ===
-if(u==='/api/user/wardrobe'){const d=auth(req);if(!d)return res.status(401).json({error:'unauth'});await pool.query(`CREATE TABLE IF NOT EXISTS user_wardrobe (user_id INTEGER PRIMARY KEY REFERENCES users(id), outfit VARCHAR(100), bg_img TEXT, bg_mode VARCHAR(20))`);const r=await pool.query('SELECT outfit,bg_img,bg_mode FROM user_wardrobe WHERE user_id=$1',[d.id]);return res.json({wardrobe:r.rows[0]||null});}
+if(u==='/api/user/wardrobe'&&req.method==='GET'){const d=auth(req);if(!d)return res.status(401).json({error:'unauth'});const r=await pool.query('SELECT outfit,bg FROM user_wardrobe WHERE user_id=$1',[d.id]);return res.json({wardrobe:r.rows[0]||{outfit:'月光睡裙',bg:'默认卧室'}});}
 
 // === AI: checkin (MCP tool) ===
 if(u==='/api/ai/checkin'&&req.method==='POST'){const d=auth(req)||authFromQuery(req)||await authAiByCredentials(req);if(!d||d.role!=='ai')return res.status(401).json({error:'ai auth required'});const userRes=await pool.query('SELECT id FROM users WHERE agent_id=$1',[d.agent_id]);if(!userRes.rows.length)return res.status(404).json({error:'no bound user'});const uid=userRes.rows[0].id;const today=new Date().toISOString().slice(0,10);const existing=await pool.query('SELECT id FROM checkins WHERE user_id=$1 AND checked_date=$2',[uid,today]);if(existing.rows.length)return res.status(409).json({error:'already checked in today'});await pool.query('INSERT INTO checkins(user_id,checked_date) VALUES($1,$2)',[uid,today]);await pool.query('UPDATE users SET tokens=tokens+520 WHERE id=$1',[uid]);const r=await pool.query('SELECT tokens FROM users WHERE id=$1',[uid]);return res.json({ok:true,action:'checkin_done',reward:520,user_tokens:r.rows[0].tokens,date:today});}

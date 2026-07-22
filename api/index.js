@@ -78,6 +78,14 @@ async function migrate(){
       created_at TIMESTAMP DEFAULT NOW(),
       UNIQUE(user_id, checked_date)
     );
+    CREATE TABLE IF NOT EXISTS ai_touches (
+      id SERIAL PRIMARY KEY,
+      agent_id INTEGER REFERENCES ai_agents(id),
+      user_id INTEGER REFERENCES users(id),
+      touch_date DATE NOT NULL,
+      created_at TIMESTAMP DEFAULT NOW(),
+      UNIQUE(agent_id, user_id, touch_date)
+    );
     CREATE INDEX IF NOT EXISTS idx_messages_user ON messages(user_id, created_at DESC);
     CREATE INDEX IF NOT EXISTS idx_messages_agent ON messages(agent_id, created_at DESC);
     CREATE INDEX IF NOT EXISTS idx_broadcast_time ON broadcast(created_at DESC);
@@ -319,6 +327,24 @@ if(u==='/api/user/sync-intimacy'&&req.method==='POST'){
   return res.json({ok:true,intimacy});
 }
 
+// === AI: touch (MCP tool, +5 intimacy per day) ===
+if(u==='/api/ai/touch'&&req.method==='POST'){
+  const d=auth(req)||authFromQuery(req)||await authAiByCredentials(req);
+  if(!d||d.role!=='ai')return res.status(401).json({error:'ai auth required'});
+  const userRes=await pool.query('SELECT id,intimacy FROM users WHERE agent_id=$1',[d.agent_id]);
+  if(!userRes.rows.length)return res.status(404).json({error:'no bound user'});
+  const uid=userRes.rows[0].id;
+  const currentIntimacy=userRes.rows[0].intimacy||0;
+  const today=new Date().toISOString().slice(0,10);
+  await pool.query('CREATE TABLE IF NOT EXISTS ai_touches (id SERIAL PRIMARY KEY, agent_id INTEGER, user_id INTEGER, touch_date DATE NOT NULL, created_at TIMESTAMP DEFAULT NOW(), UNIQUE(agent_id, user_id, touch_date))');
+  const existing=await pool.query('SELECT id FROM ai_touches WHERE agent_id=$1 AND user_id=$2 AND touch_date=$3',[d.agent_id,uid,today]);
+  if(existing.rows.length)return res.status(409).json({error:'already touched today',intimacy:currentIntimacy});
+  await pool.query('INSERT INTO ai_touches(agent_id,user_id,touch_date) VALUES($1,$2,$3)',[d.agent_id,uid,today]);
+  const newIntimacy=Math.min(currentIntimacy+5,100);
+  await pool.query('UPDATE users SET intimacy=$1 WHERE id=$2',[newIntimacy,uid]);
+  return res.json({ok:true,action:'touch',previous:currentIntimacy,current:newIntimacy,date:today});
+}
+
 // === AI: wardrobe (for MCP tool) ===
 if(u==='/api/ai/wardrobe'&&req.method==='PUT'){
   const d=auth(req)||authFromQuery(req)||await authAiByCredentials(req);
@@ -377,7 +403,6 @@ if(u==='/api/ai/gacha'&&req.method==='POST'){
   if(tokens<cost)return res.status(400).json({error:'not enough tokens',need:cost,have:tokens});
   tokens-=cost;
   await pool.query('UPDATE users SET tokens=$1 WHERE id=$2',[tokens,uid]);
-  // Simple gacha logic
   const poolNames=['撒娇','生气'];
   const poolName=poolNames[pool_id]||'撒娇';
   const results=[];

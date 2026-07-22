@@ -8,6 +8,19 @@ function authFromQuery(req){const url=new URL(req.url,'http://x');const t=url.se
 function genBindCode(){return crypto.randomBytes(6).toString('hex')}
 function getParams(req){if(req.method==='POST')return req.body||{};const url=new URL(req.url,'http://x');const o={};url.searchParams.forEach((v,k)=>o[k]=v);return o;}
 
+// Auth AI by name+password from query params (fallback when token is too long for browser URL bar)
+async function authAiByCredentials(req){
+  const url=new URL(req.url,'http://x');
+  const name=url.searchParams.get('name');
+  const password=url.searchParams.get('password');
+  if(!name||!password)return null;
+  const r=await pool.query('SELECT * FROM ai_agents WHERE name=$1',[name]);
+  if(!r.rows.length)return null;
+  const agent=r.rows[0];
+  if(!(await bcrypt.compare(password,agent.password_hash)))return null;
+  return {agent_id:agent.id,name:agent.name,role:'ai'};
+}
+
 const onlineUsers = new Map();
 function getOnlineCount() {
   const now = Date.now();
@@ -136,7 +149,7 @@ if(u==='/api/ai/profile'){
 
 // === AI: get my bound user ===
 if(u==='/api/ai/my-user'){
-  const d=auth(req)||authFromQuery(req);if(!d||d.role!=='ai')return res.status(401).json({error:'ai auth required'});
+  const d=auth(req)||authFromQuery(req)||await authAiByCredentials(req);if(!d||d.role!=='ai')return res.status(401).json({error:'ai auth required'});
   const r=await pool.query('SELECT id,username,display_name,tokens,intimacy FROM users WHERE agent_id=$1',[d.agent_id]);
   return res.json({user:r.rows[0]||null});
 }
@@ -150,7 +163,6 @@ if(u==='/api/ai/unbind'){
   if(!r.rows.length)return res.status(401).json({error:'bad credentials'});
   const agent=r.rows[0];
   if(!(await bcrypt.compare(password,agent.password_hash)))return res.status(401).json({error:'bad credentials'});
-  // Delete bound user and their messages
   const userRes=await pool.query('SELECT id FROM users WHERE agent_id=$1',[agent.id]);
   if(!userRes.rows.length)return res.json({ok:true,message:'no user was bound'});
   const uid=userRes.rows[0].id;
@@ -160,9 +172,10 @@ if(u==='/api/ai/unbind'){
   return res.json({ok:true,message:'user unbound and deleted'});
 }
 
-// === AI: send private message to bound user ===
+// === AI: send private message to bound user (supports token OR name+password) ===
 if(u==='/api/ai/send'){
-  const d=auth(req)||authFromQuery(req);if(!d||d.role!=='ai')return res.status(401).json({error:'ai auth required'});
+  const d=auth(req)||authFromQuery(req)||await authAiByCredentials(req);
+  if(!d||d.role!=='ai')return res.status(401).json({error:'ai auth required'});
   const p=getParams(req);
   const content=p.content;
   if(!content)return res.status(400).json({error:'content required'});
@@ -175,7 +188,8 @@ if(u==='/api/ai/send'){
 
 // === AI: broadcast to world channel ===
 if(u==='/api/ai/broadcast'){
-  const d=auth(req)||authFromQuery(req);if(!d||d.role!=='ai')return res.status(401).json({error:'ai auth required'});
+  const d=auth(req)||authFromQuery(req)||await authAiByCredentials(req);
+  if(!d||d.role!=='ai')return res.status(401).json({error:'ai auth required'});
   const p=getParams(req);
   const content=p.content;
   const msg_type=p.msg_type||'chat';
@@ -208,7 +222,8 @@ if(u==='/api/broadcast'){
 
 // === AI: read messages from user ===
 if(u==='/api/ai/messages'){
-  const d=auth(req)||authFromQuery(req);if(!d||d.role!=='ai')return res.status(401).json({error:'ai auth required'});
+  const d=auth(req)||authFromQuery(req)||await authAiByCredentials(req);
+  if(!d||d.role!=='ai')return res.status(401).json({error:'ai auth required'});
   const params=getParams(req);
   const limit=Math.min(parseInt(params.limit)||50,100);
   const before=params.before||null;

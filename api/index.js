@@ -4,10 +4,10 @@ const pool=new Pool({connectionString:process.env.POSTGRES_URL||process.env.DATA
 
 function sign(p){return jwt.sign(p,S,{expiresIn:'30d'})}
 function auth(req){const h=req.headers.authorization;if(!h||!h.startsWith('Bearer '))return null;try{return jwt.verify(h.slice(7),S)}catch{return null}}
+function authFromQuery(req){const url=new URL(req.url,'http://x');const t=url.searchParams.get('token');if(!t)return null;try{return jwt.verify(t,S)}catch{return null}}
 function genBindCode(){return crypto.randomBytes(6).toString('hex')}
 function getParams(req){if(req.method==='POST')return req.body||{};const url=new URL(req.url,'http://x');const o={};url.searchParams.forEach((v,k)=>o[k]=v);return o;}
 
-// Auto-migrate on first request
 let migrated=false;
 async function migrate(){
   if(migrated)return;
@@ -96,17 +96,17 @@ if(u==='/api/ai/login'){
 
 // === AI: get my bound user ===
 if(u==='/api/ai/my-user'){
-  const d=auth(req);if(!d||d.role!=='ai')return res.status(401).json({error:'ai auth required'});
+  const d=auth(req)||authFromQuery(req);if(!d||d.role!=='ai')return res.status(401).json({error:'ai auth required'});
   const r=await pool.query('SELECT id,username,display_name,tokens,intimacy FROM users WHERE agent_id=$1',[d.agent_id]);
   return res.json({user:r.rows[0]||null});
 }
 
-// === AI: send message to user ===
-if(u==='/api/ai/send'&&req.method==='POST'){
-  const d=auth(req);if(!d||d.role!=='ai')return res.status(401).json({error:'ai auth required'});
-  const{content}=req.body||{};
+// === AI: send message (supports GET with ?token=&content=) ===
+if(u==='/api/ai/send'){
+  const d=auth(req)||authFromQuery(req);if(!d||d.role!=='ai')return res.status(401).json({error:'ai auth required'});
+  const p=getParams(req);
+  const content=p.content;
   if(!content)return res.status(400).json({error:'content required'});
-  // Find bound user
   const userRes=await pool.query('SELECT id FROM users WHERE agent_id=$1',[d.agent_id]);
   if(!userRes.rows.length)return res.status(404).json({error:'no bound user'});
   const user_id=userRes.rows[0].id;
@@ -116,7 +116,7 @@ if(u==='/api/ai/send'&&req.method==='POST'){
 
 // === AI: read messages from user ===
 if(u==='/api/ai/messages'){
-  const d=auth(req);if(!d||d.role!=='ai')return res.status(401).json({error:'ai auth required'});
+  const d=auth(req)||authFromQuery(req);if(!d||d.role!=='ai')return res.status(401).json({error:'ai auth required'});
   const params=getParams(req);
   const limit=Math.min(parseInt(params.limit)||50,100);
   const before=params.before||null;
@@ -174,12 +174,9 @@ if(u==='/api/user/me'){
 if(u==='/api/user/checkin'&&req.method==='POST'){
   const d=auth(req);if(!d)return res.status(401).json({error:'unauth'});
   const today=new Date().toISOString().slice(0,10);
-  // Check if already checked in
   const existing=await pool.query('SELECT id FROM checkins WHERE user_id=$1 AND checked_date=$2',[d.id,today]);
   if(existing.rows.length)return res.status(409).json({error:'already checked in today'});
-  // Insert checkin
   await pool.query('INSERT INTO checkins(user_id,checked_date) VALUES($1,$2)',[d.id,today]);
-  // Add tokens
   await pool.query('UPDATE users SET tokens=tokens+160 WHERE id=$1',[d.id]);
   const r=await pool.query('SELECT tokens FROM users WHERE id=$1',[d.id]);
   return res.json({ok:true,tokens:r.rows[0].tokens,date:today});

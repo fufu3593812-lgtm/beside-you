@@ -35,10 +35,6 @@
     .r-card .value small { font-size: 12px; color: #B8A8A8; }
     .progress-bar { margin-top: 8px; height: 3px; background: #F0E0E0; border-radius: 2px; overflow: hidden; }
     .progress-bar .fill { height: 100%; background: linear-gradient(90deg, #F5C4C4, #E8A0A0); border-radius: 2px; transition: width 0.5s ease; }
-    .token-card { border-radius: 16px; padding: 14px 16px; min-width: 120px; }
-    .token-card .label { font-size: 10px; color: #B8A0A0; display: flex; align-items: center; gap: 4px; }
-    .token-card .label svg { width: 12px; height: 12px; stroke: #E8A0A0; stroke-width: 2; fill: none; }
-    .token-card .value { font-size: 20px; font-weight: 300; color: #7D6666; margin-top: 6px; }
     .mood-card { position: absolute; bottom: 120px; left: 16px; z-index: 10; border-radius: 16px; padding: 14px 18px; text-align: center; }
     .mood-card .title { font-size: 10px; color: #B8A0A0; text-align: center; }
     .mood-card .mood-icon { margin-top: 8px; display: flex; justify-content: center; }
@@ -97,10 +93,6 @@
       <div class="value" id="intimacy-value">0<small>/100</small></div>
       <div class="progress-bar"><div class="fill" id="intimacy-fill"></div></div>
     </div>
-    <div class="token-card glass">
-      <div class="label"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8"/></svg>Token</div>
-      <div class="value" id="token-value">0</div>
-    </div>
     <div class="r-card glass">
       <div class="label"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>今日陪伴</div>
       <div class="value" style="font-size:18px;" id="companion-time">00:00:00</div>
@@ -139,12 +131,6 @@
         // Display user info
         var nameEl = document.getElementById('display-name');
         nameEl.textContent = data.user.display_name || data.user.username || '珩';
-
-        // Display tokens
-        var tokenEl = document.getElementById('token-value');
-        var tokens = data.user.tokens || parseInt(localStorage.getItem('bsy_tokens') || '0');
-        tokenEl.textContent = tokens;
-        localStorage.setItem('bsy_tokens', tokens.toString());
       } catch(e) {
         window.location.href = '/index.html';
       }
@@ -185,7 +171,7 @@
       setInterval(update, 1000); update();
     })();
 
-    // Checkin - calls backend
+    // Checkin
     (function() {
       var btn = document.getElementById('checkinBtn');
       var dot = document.getElementById('checkinDot');
@@ -212,25 +198,18 @@
           if (res.ok) {
             var data = await res.json();
             localStorage.setItem(key, '1');
-            // Update tokens
             var newTokens = data.tokens || (parseInt(localStorage.getItem('bsy_tokens') || '0') + 160);
             localStorage.setItem('bsy_tokens', newTokens.toString());
-            document.getElementById('token-value').textContent = newTokens;
-            // Update auth cache
             if (auth.user) { auth.user.tokens = newTokens; localStorage.setItem('bsy_auth', JSON.stringify(auth)); }
           } else {
-            // Fallback to local if API fails
             localStorage.setItem(key, '1');
             var t = parseInt(localStorage.getItem('bsy_tokens') || '0') + 160;
             localStorage.setItem('bsy_tokens', t.toString());
-            document.getElementById('token-value').textContent = t;
           }
         } catch(e) {
-          // Offline fallback
           localStorage.setItem(key, '1');
           var t = parseInt(localStorage.getItem('bsy_tokens') || '0') + 160;
           localStorage.setItem('bsy_tokens', t.toString());
-          document.getElementById('token-value').textContent = t;
         }
 
         dot.classList.add('hidden');

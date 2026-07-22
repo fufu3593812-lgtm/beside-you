@@ -1,1 +1,5 @@
-{"routes":[{"src":"/api/auth/register","dest":"/api/index.js"},{"src":"/api/auth/login","dest":"/api/index.js"},{"src":"/api/user/me","dest":"/api/index.js"},{"src":"/api/user/sync-tokens","dest":"/api/index.js"},{"src":"/api/user/sync-intimacy","dest":"/api/index.js"},{"src":"/api/gacha/pull","dest":"/api/index.js"},{"src":"/api/gacha/buy-outfit","dest":"/api/index.js"},{"src":"/api/health","dest":"/api/index.js"},{"src":"/api/(.*)", "dest":"/api/index.js"}]}
+{
+  "routes": [
+    {"src": "/api/(.*)", "dest": "/api/index.js"}
+  ]
+}

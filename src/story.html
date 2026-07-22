@@ -42,11 +42,6 @@ body{font-family:'Noto Serif SC','PingFang SC',serif;background:#0a0608;color:#C
 .bag-item .bi-effect{font-size:9px;color:#8D7A6A;margin-top:3px}
 .bag-item .bi-count{font-size:9px;color:#D4A06A;margin-top:5px;padding:1px 6px;border-radius:6px;background:rgba(212,160,106,.1);border:1px solid rgba(212,160,106,.15);display:inline-block}
 /* 日记样式 */
-.diary-empty{text-align:center;padding:30px 0;color:#6D5A5A;font-size:12px;line-height:2}
-.diary-letter{padding:14px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(212,176,138,.1);margin-bottom:10px}
-.diary-letter .dl-date{font-size:9px;color:#8D7A6A;font-family:'Cormorant Garamond',serif;font-style:italic;letter-spacing:1px}
-.diary-letter .dl-content{font-size:11px;color:#C8B0A0;margin-top:6px;line-height:1.9;font-weight:200}
-.diary-letter .dl-reward{font-size:9px;color:#D4A06A;margin-top:8px;font-style:italic}
 /* 使用确认 */
 .use-overlay{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center}
 .use-overlay.show{display:flex}
@@ -103,20 +98,13 @@ body{font-family:'Noto Serif SC','PingFang SC',serif;background:#0a0608;color:#C
 <!-- 滑出面板 -->
 <div class="slide-panel" id="slidePanel">
 <div class="panel-header">
-<div class="panel-tabs">
-<div class="panel-tab active" data-tab="bag">背包</div>
-<div class="panel-tab" data-tab="diary">日记</div>
-</div>
+<div class="panel-title">背包</div>
 <div class="panel-close" id="panelClose"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
 </div>
 <div class="panel-body">
 <div class="panel-section active" id="sec-bag">
 <div class="bag-grid" id="bagGrid"></div>
 <div class="bag-empty" id="bagEmpty">背包空空如也<br>去抽卡获得道具吧</div>
-</div>
-<div class="panel-section" id="sec-diary">
-<div id="diaryList"></div>
-<div class="diary-empty" id="diaryEmpty">还没有收到信<br>AI上线后会给你写信<br>每封信奖励 520 token</div>
 </div>
 </div>
 </div>
@@ -275,11 +263,6 @@ document.getElementById('panelClose').addEventListener('click',closePanel);
 mask.addEventListener('click',closePanel);
 function closePanel(){panel.classList.remove('open');mask.classList.remove('show')}
 
-// 面板tab切换
-var ptabs=document.querySelectorAll('.panel-tab');
-var psecs=document.querySelectorAll('.panel-section');
-ptabs.forEach(function(tab){tab.addEventListener('click',function(){ptabs.forEach(function(t){t.classList.remove('active')});psecs.forEach(function(s){s.classList.remove('active')});tab.classList.add('active');document.getElementById('sec-'+tab.getAttribute('data-tab')).classList.add('active')})});
-
 // 道具定义
 var propDefs=[
 {name:'超出算法的真心',effect:'亲密度 +20',add:20,icon:'<svg viewBox="0 0 24 24" fill="none" stroke="#E8A0A0"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>'},
@@ -323,17 +306,6 @@ setTimeout(function(){toast.classList.remove('show')},1500);
 renderBag()});
 
 // 渲染日记
-function renderDiary(){
-var letters=JSON.parse(localStorage.getItem('bsy_letters')||'[]');
-var list=document.getElementById('diaryList');
-var empty=document.getElementById('diaryEmpty');
-list.innerHTML='';
-if(letters.length===0){empty.style.display='block';return}
-empty.style.display='none';
-letters.slice().reverse().forEach(function(letter){
-var div=document.createElement('div');div.className='diary-letter';
-div.innerHTML='<div class="dl-date">'+letter.date+'</div><div class="dl-content">'+letter.content+'</div><div class="dl-reward">+520 token</div>';
-list.appendChild(div)})}
 
 renderBag();renderDiary();
 </script>

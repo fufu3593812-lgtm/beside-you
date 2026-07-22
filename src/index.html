@@ -115,25 +115,15 @@
     <a class="dock-item glass" href="/src/collection.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span class="d-en">Collection</span><span class="d-cn">收藏</span></a>
   </div>
   <script>
-    // Auth check - redirect to login if not authenticated
+    // Auth check
     (function() {
       var auth = localStorage.getItem('bsy_auth');
-      if (!auth) {
-        window.location.href = '/index.html';
-        return;
-      }
+      if (!auth) { window.location.href = '/index.html'; return; }
       try {
         var data = JSON.parse(auth);
-        if (!data.token || !data.user) {
-          window.location.href = '/index.html';
-          return;
-        }
-        // Display user info
-        var nameEl = document.getElementById('display-name');
-        nameEl.textContent = data.user.display_name || data.user.username || '珩';
-      } catch(e) {
-        window.location.href = '/index.html';
-      }
+        if (!data.token || !data.user) { window.location.href = '/index.html'; return; }
+        document.getElementById('display-name').textContent = data.user.display_name || data.user.username || '珩';
+      } catch(e) { window.location.href = '/index.html'; }
     })();
 
     // Character and background
@@ -182,19 +172,10 @@
 
       btn.addEventListener('click', async function() {
         if (localStorage.getItem(key)) return;
-
         var auth = JSON.parse(localStorage.getItem('bsy_auth') || '{}');
         var token = auth.token;
-
         try {
-          var res = await fetch('/api/user/checkin', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer ' + token
-            }
-          });
-
+          var res = await fetch('/api/user/checkin', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token } });
           if (res.ok) {
             var data = await res.json();
             localStorage.setItem(key, '1');
@@ -211,7 +192,6 @@
           var t = parseInt(localStorage.getItem('bsy_tokens') || '0') + 160;
           localStorage.setItem('bsy_tokens', t.toString());
         }
-
         dot.classList.add('hidden');
         toast.classList.add('show');
         setTimeout(function() { toast.classList.remove('show'); }, 2000);
@@ -253,12 +233,14 @@
       }
     })();
 
-    // Letter dot
+    // Letter dot - check for unread mail
     (function() {
       var letterDot = document.getElementById('letterDot');
-      if (localStorage.getItem('letter_gift_item') === 'claimed' && localStorage.getItem('letter_gift_token') === 'claimed') {
-        letterDot.classList.add('hidden');
-      }
+      var readList = JSON.parse(localStorage.getItem('bsy_mail_read') || '[]');
+      // Built-in mail IDs that exist
+      var allMailIds = ['letter-welcome', 'ann-001'];
+      var hasUnread = allMailIds.some(function(id) { return readList.indexOf(id) === -1; });
+      if (!hasUnread) letterDot.classList.add('hidden');
     })();
 
     // Intimacy

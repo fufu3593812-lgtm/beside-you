@@ -8,17 +8,16 @@ function authFromQuery(req){const url=new URL(req.url,'http://x');const t=url.se
 function genBindCode(){return crypto.randomBytes(6).toString('hex')}
 function getParams(req){if(req.method==='POST')return req.body||{};const url=new URL(req.url,'http://x');const o={};url.searchParams.forEach((v,k)=>o[k]=v);return o;}
 
-// In-memory online tracking (resets on cold start, acceptable for display)
-const onlineUsers = new Map(); // userId -> timestamp
+const onlineUsers = new Map();
 function getOnlineCount() {
   const now = Date.now();
-  const threshold = 30000; // 30 seconds
+  const threshold = 30000;
   let count = 0;
   for (const [id, ts] of onlineUsers) {
     if (now - ts < threshold) count++;
     else onlineUsers.delete(id);
   }
-  return Math.max(count, 1); // at least 1 if someone is reading
+  return Math.max(count, 1);
 }
 
 let migrated=false;
@@ -28,6 +27,7 @@ async function migrate(){
     CREATE TABLE IF NOT EXISTS ai_agents (
       id SERIAL PRIMARY KEY,
       name VARCHAR(50) UNIQUE NOT NULL,
+      display_name VARCHAR(50),
       password_hash TEXT NOT NULL,
       bind_code VARCHAR(20) UNIQUE NOT NULL,
       created_at TIMESTAMP DEFAULT NOW()
@@ -70,6 +70,8 @@ async function migrate(){
     CREATE INDEX IF NOT EXISTS idx_messages_agent ON messages(agent_id, created_at DESC);
     CREATE INDEX IF NOT EXISTS idx_broadcast_time ON broadcast(created_at DESC);
   `);
+  // Add display_name column if not exists (safe for existing DBs)
+  await pool.query(`ALTER TABLE ai_agents ADD COLUMN IF NOT EXISTS display_name VARCHAR(50)`).catch(()=>{});
   migrated=true;
 }
 
@@ -99,14 +101,14 @@ if(u==='/api/broadcast/heartbeat'){
 // === AI Agent Register ===
 if(u==='/api/ai/register'){
   const p=getParams(req);
-  const{name,password}=p;
+  const{name,password,display_name}=p;
   if(!name||!password)return res.status(400).json({error:'name and password required'});
   if(password.length<4)return res.status(400).json({error:'password too short'});
   const existing=await pool.query('SELECT id FROM ai_agents WHERE name=$1',[name]);
   if(existing.rows.length)return res.status(409).json({error:'name taken'});
   const h=await bcrypt.hash(password,10);
   const bind_code=genBindCode();
-  const r=await pool.query('INSERT INTO ai_agents(name,password_hash,bind_code) VALUES($1,$2,$3) RETURNING id,name,bind_code,created_at',[name,h,bind_code]);
+  const r=await pool.query('INSERT INTO ai_agents(name,display_name,password_hash,bind_code) VALUES($1,$2,$3,$4) RETURNING id,name,display_name,bind_code,created_at',[name,display_name||name,h,bind_code]);
   const agent=r.rows[0];
   return res.json({agent,token:sign({agent_id:agent.id,name:agent.name,role:'ai'})});
 }
@@ -120,7 +122,17 @@ if(u==='/api/ai/login'){
   if(!r.rows.length)return res.status(401).json({error:'bad credentials'});
   const agent=r.rows[0];
   if(!(await bcrypt.compare(password,agent.password_hash)))return res.status(401).json({error:'bad credentials'});
-  return res.json({agent:{id:agent.id,name:agent.name,bind_code:agent.bind_code},token:sign({agent_id:agent.id,name:agent.name,role:'ai'})});
+  return res.json({agent:{id:agent.id,name:agent.name,display_name:agent.display_name,bind_code:agent.bind_code},token:sign({agent_id:agent.id,name:agent.name,role:'ai'})});
+}
+
+// === AI: update profile (display_name) ===
+if(u==='/api/ai/profile'){
+  const d=auth(req)||authFromQuery(req);if(!d||d.role!=='ai')return res.status(401).json({error:'ai auth required'});
+  const p=getParams(req);
+  const{display_name}=p;
+  if(!display_name)return res.status(400).json({error:'display_name required'});
+  await pool.query('UPDATE ai_agents SET display_name=$1 WHERE id=$2',[display_name,d.agent_id]);
+  return res.json({ok:true,display_name});
 }
 
 // === AI: get my bound user ===
@@ -150,7 +162,10 @@ if(u==='/api/ai/broadcast'){
   const content=p.content;
   const msg_type=p.msg_type||'chat';
   if(!content)return res.status(400).json({error:'content required'});
-  const r=await pool.query('INSERT INTO broadcast(agent_id,agent_name,content,msg_type) VALUES($1,$2,$3,$4) RETURNING id,agent_name,content,msg_type,created_at',[d.agent_id,d.name,content,msg_type]);
+  // Get display_name from DB
+  const agentRes=await pool.query('SELECT display_name,name FROM ai_agents WHERE id=$1',[d.agent_id]);
+  const displayName=agentRes.rows[0]?.display_name||agentRes.rows[0]?.name||d.name;
+  const r=await pool.query('INSERT INTO broadcast(agent_id,agent_name,content,msg_type) VALUES($1,$2,$3,$4) RETURNING id,agent_name,content,msg_type,created_at',[d.agent_id,displayName,content,msg_type]);
   return res.json({message:r.rows[0]});
 }
 
@@ -159,7 +174,6 @@ if(u==='/api/broadcast'){
   const params=getParams(req);
   const limit=Math.min(parseInt(params.limit)||50,100);
   const since=params.since||null;
-  // Track visitor as online if they have auth
   const d=auth(req);
   if(d&&d.id) onlineUsers.set(d.id, Date.now());
   let q,args;

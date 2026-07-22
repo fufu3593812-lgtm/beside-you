@@ -143,6 +143,17 @@
     <a class="dock-item" href="/src/collection.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span class="d-en">Collection</span><span class="d-cn">收藏</span></a>
   </div>
   <script>
+    var API='https://beside-you-pi.vercel.app';
+    var CDN='https://cdn.jsdelivr.net/gh/fufu3593812-lgtm/beside-you@main/assets/';
+    var OUTFIT_MAP={
+      '月光睡裙':CDN+'%E7%9D%A1%E8%A3%99.PNG',
+      '慵懒卫衣':CDN+'%E5%8D%AB%E8%A1%A3.PNG',
+      '初恋JK':CDN+'jk.PNG',
+      '碎花裙':CDN+'%E7%A2%8E%E8%8A%B1%E8%A3%99.PNG',
+      '粉雾呢喃':'/assets/gacha/%E6%92%92%E5%A8%87%E7%AB%8B%E7%BB%98.png',
+      '血月静默':'/assets/gacha/%E7%94%9F%E6%B0%94%E7%AB%8B%E7%BB%98.png'
+    };
+
     function detectBrightness(imgEl) {
       try {
         var canvas = document.createElement('canvas');
@@ -179,24 +190,43 @@
       } catch(e) { window.location.href = '/index.html'; }
     })();
 
-    (function() {
+    (async function() {
+      var auth = JSON.parse(localStorage.getItem('bsy_auth')||'{}');
+      var token = auth.token;
+      if(token){
+        try{
+          var r=await fetch(API+'/api/user/wardrobe',{headers:{'Authorization':'Bearer '+token}});
+          if(r.ok){
+            var d=await r.json();
+            if(d.ok){
+              if(d.outfit)localStorage.setItem('bsy_outfit',d.outfit);
+              if(d.bg_img)localStorage.setItem('bsy_bg',d.bg_img);
+              if(d.bg_mode)localStorage.setItem('bsy_bg_mode',d.bg_mode);
+              if(d.outfit && OUTFIT_MAP[d.outfit]){
+                localStorage.setItem('bsy_outfit_img',OUTFIT_MAP[d.outfit]);
+              }
+            }
+          }
+        }catch(e){}
+      }
+
       var charImg = document.getElementById('charImg');
       var charWrap = document.getElementById('charWrap');
       var bgMode = localStorage.getItem('bsy_bg_mode') || 'normal';
 
-      // If card mode, hide character
       if (bgMode === 'card') {
         charWrap.classList.add('hidden');
       } else {
-        var outfitImg = localStorage.getItem('bsy_outfit_img');
-        var charSrc = (outfitImg && outfitImg.length > 0) ? outfitImg : '../assets/睡裙.PNG';
+        var outfitName = localStorage.getItem('bsy_outfit') || '月光睡裙';
+        var charSrc = OUTFIT_MAP[outfitName] || CDN+'%E7%9D%A1%E8%A3%99.PNG';
         charImg.onload = function() { charImg.classList.add('loaded'); };
         charImg.src = charSrc;
       }
 
       var bgRoom = document.getElementById('bgRoom');
       var bgImgSrc = localStorage.getItem('bsy_bg');
-      var bgSrc = (bgImgSrc && bgImgSrc.length > 0) ? bgImgSrc : '../assets/卧室.png';
+      var defaultBg = CDN+'%E5%8D%A7%E5%AE%A4.png';
+      var bgSrc = (bgImgSrc && bgImgSrc.indexOf('http') === 0) ? bgImgSrc : defaultBg;
       var img = new Image();
       img.onload = function() {
         img.classList.add('loaded');
@@ -204,9 +234,10 @@
         detectBrightness(img);
       };
       img.onerror = function() {
-        var img2 = new Image();
-        img2.onload = function() { img2.classList.add('loaded'); bgRoom.appendChild(img2); document.body.classList.add('light-bg'); };
-        img2.src = bgSrc;
+        var fallback = new Image();
+        fallback.onload = function() { fallback.classList.add('loaded'); bgRoom.appendChild(fallback); };
+        fallback.src = defaultBg;
+        document.body.classList.add('light-bg');
       };
       img.src = bgSrc;
     })();
@@ -241,7 +272,7 @@
         var auth = JSON.parse(localStorage.getItem('bsy_auth') || '{}');
         var token = auth.token;
         try {
-          var res = await fetch('/api/user/checkin', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token } });
+          var res = await fetch(API+'/api/user/checkin', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token } });
           if (res.ok) {
             var data = await res.json();
             localStorage.setItem(key, '1');

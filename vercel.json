@@ -2,6 +2,7 @@
   "routes": [
     {"src": "/api/mcp", "dest": "/api/mcp.js"},
     {"src": "/api/zombie/(.*)", "dest": "/api/zombie.js"},
+    {"src": "/api/fix/(.*)", "dest": "/api/fix.js"},
     {"src": "/api/(.*)", "dest": "/api/index.js"}
   ],
   "headers": [

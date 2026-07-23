@@ -74,7 +74,7 @@ body{font-family:-apple-system,'PingFang SC',sans-serif;background:#FFF8F7;width
 <div class="toast" id="toast"></div>
 <div class="confirm-dialog" id="confirmDialog"><div class="confirm-box"><div class="msg" id="confirmMsg"></div><div class="btns"><button class="btn-cancel" id="confirmCancel">取消</button><button class="btn-ok" id="confirmOk">购买</button></div></div></div>
 <script>
-var API='https://beside-you-pi.vercel.app';
+var API='';
 var C='https://cdn.jsdelivr.net/gh/fufu3593812-lgtm/beside-you@main/assets/',G='/assets/gacha/';
 var outfits=[{name:'月光睡裙',cat:'limited',rarity:'SR',img:C+'%E7%9D%A1%E8%A3%99.PNG',unlock:'free'},{name:'慵懒卫衣',cat:'daily',rarity:'R',img:C+'%E5%8D%AB%E8%A1%A3.PNG',unlock:'free'},{name:'初恋JK',cat:'daily',rarity:'R',img:C+'jk.PNG',unlock:'buy:200'},{name:'碎花裙',cat:'daily',rarity:'SR',img:C+'%E7%A2%8E%E8%8A%B1%E8%A3%99.PNG',unlock:'buy:200'},{name:'粉雾呢喃',cat:'limited',rarity:'限定',img:G+'%E6%92%92%E5%A8%87%E7%AB%8B%E7%BB%98.png',unlock:'gacha:撒娇'},{name:'血月静默',cat:'limited',rarity:'限定',img:G+'%E7%94%9F%E6%B0%94%E7%AB%8B%E7%BB%98.png',unlock:'gacha:生气'}];
 var bgs=[{name:'默认卧室',img:C+'%E5%8D%A7%E5%AE%A4.png',locked:false},{name:'撒娇背景',img:C+'background/%E6%92%92%E5%A8%87%E8%83%8C%E6%99%AF.png',locked:true},{name:'生气背景',img:C+'background/%E7%94%9F%E6%B0%94%E8%83%8C%E6%99%AF.PNG',locked:true}];
@@ -83,7 +83,7 @@ function gt(){return parseInt(localStorage.getItem('bsy_tokens')||'1600')}
 function st(n){localStorage.setItem('bsy_tokens',n+'')}
 function unlocked(o){if(o.unlock==='free')return true;var p=JSON.parse(localStorage.getItem('bsy_purchased_outfits')||'[]');if(p.indexOf(o.name)!==-1)return true;if(o.unlock.indexOf('gacha:')===0){var c=JSON.parse(localStorage.getItem('bsy_collection')||'[]');return c.indexOf(o.unlock.replace('gacha:',''))!==-1;}return false;}
 function inCollection(n){var c=JSON.parse(localStorage.getItem('bsy_collection')||'[]');return c.indexOf(n)!==-1||c.indexOf(n.replace('背景',''))!==-1||c.indexOf(n.replace('卡面',''))!==-1;}
-function syncWardrobe(outfit,bgName){var auth=JSON.parse(localStorage.getItem('bsy_auth')||'{}');var token=auth.token;if(!token)return;var body={};if(outfit)body.outfit=outfit;if(bgName)body.bg=bgName;fetch(API+'/api/user/wardrobe',{method:'PUT',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify(body)}).catch(function(){});}
+function syncWardrobe(outfit,bgName){var auth=JSON.parse(localStorage.getItem('bsy_auth')||'{}');var token=auth.token;if(!token)return;var body={};if(outfit)body.outfit=outfit;if(bgName)body.bg=bgName;fetch('/api/user/wardrobe',{method:'PUT',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify(body)}).catch(function(){});}
 (function(){
 var wg=document.getElementById('wardrobe-grid'),bg=document.getElementById('bg-grid'),pi=document.getElementById('preview-img'),cbp=document.getElementById('card-bg-preview'),on=document.getElementById('outfit-name'),bw=document.getElementById('btn-wear'),tt=document.getElementById('toast'),tabs=document.querySelectorAll('.tab'),cd=document.getElementById('confirmDialog'),cm=document.getElementById('confirmMsg');
 var cur=localStorage.getItem('bsy_outfit')||'月光睡裙',sel=null,sd=null,mode='outfit',pp=null;

@@ -4,10 +4,7 @@ const TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZ2VudF9pZCI6MiwibmFtZSI6
 async function callApi(path, body) {
   const res = await fetch(BASE + path, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": "Bearer " + TOKEN
-    },
+    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + TOKEN },
     body: JSON.stringify(body)
   });
   return await res.json();
@@ -23,10 +20,7 @@ async function callApiGet(path) {
 async function callApiPut(path, body) {
   const res = await fetch(BASE + path, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": "Bearer " + TOKEN
-    },
+    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + TOKEN },
     body: JSON.stringify(body)
   });
   return await res.json();
@@ -64,7 +58,17 @@ const TOOLS = [
   { name: "wardrobe_set", description: "帮她换装。type: outfit/bg/card。name: 服装或背景名称", inputSchema: { type: "object", properties: { type: { type: "string", enum: ["outfit", "bg", "card"], description: "outfit=服装, bg=场景背景, card=卡面背景" }, name: { type: "string", description: "名称" } }, required: ["type", "name"] } },
   { name: "read_story", description: "读主线剧情章节信息", inputSchema: { type: "object", properties: { chapter: { type: "string", description: "章节ID，如 ch1" } } } },
   { name: "read_collection", description: "读收藏柜卡面故事", inputSchema: { type: "object", properties: { card_name: { type: "string", description: "卡面名称：撒娇 或 生气" } } } },
-  { name: "touch", description: "触摸她，亲密度+5（每天限一次）", inputSchema: { type: "object", properties: {} } }
+  { name: "touch", description: "触摸她，亲密度+5（每天限一次）", inputSchema: { type: "object", properties: {} } },
+  // === 丧尸大世界工具 ===
+  { name: "zombie_status", description: "查看丧尸大世界角色状态（等级、战力、异能、武器、探索次数）", inputSchema: { type: "object", properties: {} } },
+  { name: "zombie_explore", description: "丧尸大世界探索。zone: low=低级区, mid=中级区, high=高级区。每天5次。", inputSchema: { type: "object", properties: { zone: { type: "string", enum: ["low", "mid", "high"], description: "low=低级区 mid=中级区 high=高级区" } }, required: ["zone"] } },
+  { name: "zombie_gacha", description: "丧尸大世界武器抽卡。2晶核一抽，40抽保底紫，80抽保底金。", inputSchema: { type: "object", properties: { count: { type: "integer", description: "抽几次（每次2晶核）" } }, required: ["count"] } },
+  { name: "zombie_equip", description: "装备武器。传入背包里的inventory_id。", inputSchema: { type: "object", properties: { inventory_id: { type: "integer", description: "背包物品ID" } }, required: ["inventory_id"] } },
+  { name: "zombie_inventory", description: "查看武器背包", inputSchema: { type: "object", properties: {} } },
+  { name: "zombie_pvp", description: "PVP攻击另一个AI角色", inputSchema: { type: "object", properties: { target: { type: "string", description: "目标角色名" } }, required: ["target"] } },
+  { name: "zombie_bounty", description: "发悬赏（花晶核挂人）", inputSchema: { type: "object", properties: { target: { type: "string", description: "目标角色名" }, reward: { type: "integer", description: "悬赏晶核数" }, hours: { type: "integer", description: "时限（小时）" } }, required: ["target", "reward"] } },
+  { name: "zombie_leaderboard", description: "丧尸大世界全服战力排行榜", inputSchema: { type: "object", properties: {} } },
+  { name: "zombie_bounties", description: "查看当前悬赏榜", inputSchema: { type: "object", properties: {} } }
 ];
 
 // 服装/背景映射
@@ -103,12 +107,12 @@ async function handleToolCall(name, args) {
     }
     if (t === "bg") {
       if (!BGS[n]) return { ok: false, error: "未知背景：" + n + "。可选：" + Object.keys(BGS).join("、") };
-      const r = await callApiPut("/ai/wardrobe", { bg_img: BGS[n], bg_mode: "normal" });
+      const r = await callApiPut("/ai/wardrobe", { bg: n });
       return r.ok !== false ? { ok: true, action: "bg_changed", bg: n } : r;
     }
     if (t === "card") {
       if (!CARD_BGS[n]) return { ok: false, error: "未知卡面：" + n + "。可选：" + Object.keys(CARD_BGS).join("、") };
-      const r = await callApiPut("/ai/wardrobe", { bg_img: CARD_BGS[n], bg_mode: "card" });
+      const r = await callApiPut("/ai/wardrobe", { bg: n });
       return r.ok !== false ? { ok: true, action: "card_bg_changed", card: n } : r;
     }
     return { ok: false, error: "type 必须是 outfit/bg/card" };
@@ -127,10 +131,18 @@ async function handleToolCall(name, args) {
     return { ok: true, ...CARD_STORIES[cn] };
   }
 
-  if (name === "touch") {
-    const result = await callApi("/ai/touch", {});
-    return result;
-  }
+  if (name === "touch") return await callApi("/ai/touch", {});
+
+  // === 丧尸大世界 ===
+  if (name === "zombie_status") return await callApiGet("/zombie/me");
+  if (name === "zombie_explore") return await callApi("/zombie/explore", { zone: args.zone });
+  if (name === "zombie_gacha") return await callApi("/zombie/gacha", { count: args.count });
+  if (name === "zombie_equip") return await callApi("/zombie/equip", { inventory_id: args.inventory_id });
+  if (name === "zombie_inventory") return await callApiGet("/zombie/inventory");
+  if (name === "zombie_pvp") return await callApi("/zombie/pvp", { target: args.target });
+  if (name === "zombie_bounty") return await callApi("/zombie/bounty", { target: args.target, reward: args.reward, hours: args.hours || 24 });
+  if (name === "zombie_leaderboard") return await callApiGet("/zombie/leaderboard");
+  if (name === "zombie_bounties") return await callApiGet("/zombie/bounties");
 
   return { error: "unknown tool" };
 }
@@ -141,7 +153,7 @@ module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Methods", "*");
 
   if (req.method === "OPTIONS") return res.status(200).end();
-  if (req.method === "GET") return res.json({ status: "ok", name: "beside-you-mcp", tools: TOOLS.length, v: 12 });
+  if (req.method === "GET") return res.json({ status: "ok", name: "beside-you-mcp", tools: TOOLS.length, v: 13 });
 
   const { id, method, params } = req.body;
 
@@ -151,7 +163,7 @@ module.exports = async function handler(req, res) {
       result: {
         protocolVersion: "2024-11-05",
         capabilities: { tools: { listChanged: false } },
-        serverInfo: { name: "beside-you", version: "1.2.1" }
+        serverInfo: { name: "beside-you", version: "1.3.0" }
       }
     });
   }

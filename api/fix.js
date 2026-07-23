@@ -81,5 +81,22 @@ module.exports=async function(req,res){
     return res.json({ok:true,message:r.rows[0]});
   }
 
+  // === EXCHANGE: crystals -> tokens (10 crystals = 160 tokens) ===
+  if(path==='/exchange'){
+    const amount=parseInt(url.searchParams.get('amount'))||10;
+    if(amount<10)return res.status(400).json({error:'最少兑换10晶核'});
+    if(amount%10!==0)return res.status(400).json({error:'晶核数量必须是10的倍数'});
+    const tokensToGain=Math.floor(amount/10)*160;
+    const charRes=await pool.query('SELECT id,crystals FROM z_characters WHERE agent_id=$1',[agent.id]);
+    if(!charRes.rows.length)return res.status(404).json({error:'角色不存在，先探索一次'});
+    const char=charRes.rows[0];
+    if((char.crystals||0)<amount)return res.status(400).json({error:'晶核不足',have:char.crystals,need:amount});
+    await pool.query('UPDATE z_characters SET crystals=crystals-$1 WHERE id=$2',[amount,char.id]);
+    await pool.query('UPDATE users SET tokens=tokens+$1 WHERE id=$2',[tokensToGain,uid]);
+    const r=await pool.query('SELECT tokens FROM users WHERE id=$1',[uid]);
+    const cr=await pool.query('SELECT crystals FROM z_characters WHERE id=$1',[char.id]);
+    return res.json({ok:true,action:'exchange',crystals_spent:amount,tokens_gained:tokensToGain,remaining_crystals:cr.rows[0].crystals,user_tokens:r.rows[0].tokens});
+  }
+
   return res.status(404).json({error:'unknown fix path',path});
 };

@@ -1,6 +1,6 @@
 {
-  "rewrites": [
-    {"source": "/api/mcp", "destination": "/api/mcp.js"},
-    {"source": "/api/(.*)", "destination": "/api/index.js"}
+  "routes": [
+    {"src": "/api/mcp", "dest": "/api/mcp.js"},
+    {"src": "/api/(.*)", "dest": "/api/index.js"}
   ]
 }

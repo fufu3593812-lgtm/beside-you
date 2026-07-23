@@ -6,224 +6,55 @@
 <title>Beside You - 邮件</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-  min-height: 100vh;
-  background: #FFF8F7;
-  font-family: -apple-system, 'PingFang SC', sans-serif;
-  max-width: 430px;
-  margin: 0 auto;
-  position: relative;
-  overflow-x: hidden;
-}
-.bg-layer {
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: linear-gradient(180deg, #FFF8F5 0%, #FFF0EC 100%);
-  z-index: 0;
-}
-
-.header {
-  position: sticky; top: 0;
-  height: 88px; padding: 44px 20px 0;
-  display: flex; align-items: center; justify-content: center;
-  background: rgba(255,248,245,0.85);
-  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(240,210,210,0.3);
-  z-index: 100;
-}
-.header .back {
-  position: absolute; left: 16px; top: 48px;
-  width: 32px; height: 32px;
-  display: flex; align-items: center; justify-content: center;
-  text-decoration: none;
-}
+body { min-height: 100vh; background: #FFF8F7; font-family: -apple-system, 'PingFang SC', sans-serif; max-width: 430px; margin: 0 auto; position: relative; overflow-x: hidden; }
+.bg-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(180deg, #FFF8F5 0%, #FFF0EC 100%); z-index: 0; }
+.header { position: sticky; top: 0; height: 88px; padding: 44px 20px 0; display: flex; align-items: center; justify-content: center; background: rgba(255,248,245,0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(240,210,210,0.3); z-index: 100; }
+.header .back { position: absolute; left: 16px; top: 48px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; text-decoration: none; }
 .header .back svg { width: 20px; height: 20px; stroke: #A07070; stroke-width: 2; fill: none; }
 .header .title { font-size: 16px; color: #5D4040; font-weight: 500; letter-spacing: 1px; }
-
-.tabs {
-  display: flex; justify-content: center; gap: 0;
-  padding: 12px 20px 0;
-  position: relative; z-index: 1;
-}
-.tab {
-  flex: 1; max-width: 140px;
-  padding: 10px 0;
-  text-align: center;
-  font-size: 13px; color: #B8A0A0;
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: all 0.3s;
-  font-weight: 400;
-}
-.tab.active {
-  color: #7D5555;
-  border-bottom-color: #E8A0A0;
-  font-weight: 500;
-}
-.tab .badge {
-  display: inline-block;
-  min-width: 16px; height: 16px;
-  background: #F5A0A0;
-  color: #fff;
-  font-size: 10px;
-  line-height: 16px;
-  border-radius: 8px;
-  padding: 0 4px;
-  margin-left: 4px;
-  vertical-align: middle;
-}
-
-.mail-list {
-  padding: 16px 16px;
-  padding-bottom: max(100px, calc(env(safe-area-inset-bottom) + 80px));
-  position: relative; z-index: 1;
-  display: flex; flex-direction: column; gap: 10px;
-}
-.mail-item {
-  background: rgba(255,255,255,0.7);
-  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255,255,255,0.8);
-  border-radius: 14px;
-  padding: 16px 18px;
-  display: flex; align-items: flex-start; gap: 12px;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-  box-shadow: 0 2px 8px rgba(180,140,140,0.05);
-}
+.tabs { display: flex; justify-content: center; gap: 0; padding: 12px 20px 0; position: relative; z-index: 1; }
+.tab { flex: 1; max-width: 140px; padding: 10px 0; text-align: center; font-size: 13px; color: #B8A0A0; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.3s; font-weight: 400; }
+.tab.active { color: #7D5555; border-bottom-color: #E8A0A0; font-weight: 500; }
+.tab .badge { display: inline-block; min-width: 16px; height: 16px; background: #F5A0A0; color: #fff; font-size: 10px; line-height: 16px; border-radius: 8px; padding: 0 4px; margin-left: 4px; vertical-align: middle; }
+.mail-list { padding: 16px 16px; padding-bottom: max(100px, calc(env(safe-area-inset-bottom) + 80px)); position: relative; z-index: 1; display: flex; flex-direction: column; gap: 10px; }
+.mail-item { background: rgba(255,255,255,0.7); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.8); border-radius: 14px; padding: 16px 18px; display: flex; align-items: flex-start; gap: 12px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 2px 8px rgba(180,140,140,0.05); }
 .mail-item:active { transform: scale(0.98); }
 .mail-item.unread { border-left: 3px solid #F5A0A0; }
-.mail-item .icon {
-  width: 36px; height: 36px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
+.mail-item .icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .mail-item .icon.letter-icon { background: linear-gradient(135deg, #FFF0F0, #FFD4D4); }
 .mail-item .icon.announce-icon { background: linear-gradient(135deg, #FFF5E8, #FFE8C8); }
 .mail-item .icon svg { width: 18px; height: 18px; }
 .mail-item .info { flex: 1; min-width: 0; }
-.mail-item .info .subject {
-  font-size: 14px; color: #4D3333; font-weight: 500;
-  margin-bottom: 4px;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
+.mail-item .info .subject { font-size: 14px; color: #4D3333; font-weight: 500; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mail-item.unread .info .subject { font-weight: 600; }
-.mail-item .info .preview {
-  font-size: 12px; color: #B8A0A0; font-weight: 300;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-.mail-item .meta {
-  flex-shrink: 0;
-  display: flex; flex-direction: column; align-items: flex-end; gap: 4px;
-}
+.mail-item .info .preview { font-size: 12px; color: #B8A0A0; font-weight: 300; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mail-item .meta { flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
 .mail-item .meta .date { font-size: 10px; color: #C8B0B0; }
-.mail-item .meta .dot {
-  width: 8px; height: 8px;
-  background: #F5A0A0;
-  border-radius: 50%;
-}
-
-.empty-state {
-  text-align: center; padding: 60px 20px;
-  color: #C8B0B0; font-size: 13px; font-style: italic;
-}
-
-/* Detail overlay */
-.detail-overlay {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.3);
-  z-index: 200;
-  display: none;
-  align-items: flex-end;
-  justify-content: center;
-}
+.mail-item .meta .dot { width: 8px; height: 8px; background: #F5A0A0; border-radius: 50%; }
+.empty-state { text-align: center; padding: 60px 20px; color: #C8B0B0; font-size: 13px; font-style: italic; }
+.detail-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 200; display: none; align-items: flex-end; justify-content: center; }
 .detail-overlay.show { display: flex; }
-.detail-panel {
-  width: 100%; max-width: 430px;
-  max-height: 85vh;
-  background: #FFFAF5;
-  border-radius: 20px 20px 0 0;
-  overflow-y: auto;
-  padding: 24px 24px;
-  padding-bottom: max(40px, env(safe-area-inset-bottom));
-  animation: slideUp 0.3s ease;
-}
+.detail-panel { width: 100%; max-width: 430px; max-height: 85vh; background: #FFFAF5; border-radius: 20px 20px 0 0; overflow-y: auto; padding: 24px 24px; padding-bottom: max(40px, env(safe-area-inset-bottom)); animation: slideUp 0.3s ease; }
 @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-.detail-panel .close-bar {
-  width: 36px; height: 4px;
-  background: #E0D0D0;
-  border-radius: 2px;
-  margin: 0 auto 20px;
-}
-.detail-panel .detail-from {
-  font-size: 11px; color: #C4A08A; margin-bottom: 6px;
-  letter-spacing: 1px;
-}
-.detail-panel .detail-subject {
-  font-size: 17px; color: #4D3333; font-weight: 600;
-  margin-bottom: 6px;
-}
-.detail-panel .detail-date {
-  font-size: 11px; color: #C8B0B0; margin-bottom: 20px;
-}
-.detail-panel .detail-body {
-  font-size: 14px; line-height: 2; color: #5D4040;
-  font-weight: 300;
-}
+.detail-panel .close-bar { width: 36px; height: 4px; background: #E0D0D0; border-radius: 2px; margin: 0 auto 20px; }
+.detail-panel .detail-from { font-size: 11px; color: #C4A08A; margin-bottom: 6px; letter-spacing: 1px; }
+.detail-panel .detail-subject { font-size: 17px; color: #4D3333; font-weight: 600; margin-bottom: 6px; }
+.detail-panel .detail-date { font-size: 11px; color: #C8B0B0; margin-bottom: 20px; }
+.detail-panel .detail-body { font-size: 14px; line-height: 2; color: #5D4040; font-weight: 300; }
 .detail-panel .detail-body p { margin-bottom: 16px; }
 .detail-panel .detail-body p:last-child { margin-bottom: 0; }
-
-/* Gifts section */
-.detail-gifts {
-  margin-top: 24px;
-  display: flex; flex-direction: column; gap: 10px;
-}
-.gift-row {
-  display: flex; align-items: center; gap: 12px;
-  padding: 12px 14px;
-  background: linear-gradient(135deg, #FFF5F0, #FFE8E0);
-  border-radius: 12px;
-}
-.gift-row .gift-icon {
-  width: 32px; height: 32px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
+.detail-gifts { margin-top: 24px; display: flex; flex-direction: column; gap: 10px; }
+.gift-row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: linear-gradient(135deg, #FFF5F0, #FFE8E0); border-radius: 12px; }
+.gift-row .gift-icon { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .gift-row .gift-icon.heart-bg { background: linear-gradient(135deg, #FFD4D4, #F5C4C4); }
 .gift-row .gift-icon.token-bg { background: linear-gradient(135deg, #FFE8C8, #FFD4A0); }
 .gift-row .gift-icon.crystal-bg { background: linear-gradient(135deg, #D4E8FF, #C4D4F5); }
 .gift-row .gift-icon svg { width: 16px; height: 16px; }
-
-.claim-btn {
-  margin-top: 16px;
-  width: 100%;
-  padding: 14px 0;
-  border: none;
-  border-radius: 24px;
-  background: linear-gradient(135deg, #FFD4D4, #F5C4C4);
-  color: #7D5555;
-  font-size: 14px;
-  font-family: -apple-system, 'PingFang SC', sans-serif;
-  font-weight: 500;
-  letter-spacing: 1px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
+.claim-btn { margin-top: 16px; width: 100%; padding: 14px 0; border: none; border-radius: 24px; background: linear-gradient(135deg, #FFD4D4, #F5C4C4); color: #7D5555; font-size: 14px; font-family: -apple-system, 'PingFang SC', sans-serif; font-weight: 500; letter-spacing: 1px; cursor: pointer; transition: all 0.3s ease; }
 .claim-btn:active { transform: scale(0.97); }
 .claim-btn.claimed { background: #F0E0E0; color: #B8A0A0; pointer-events: none; }
-
-/* AI letter reward */
-.detail-reward {
-  margin-top: 24px; padding: 14px 16px;
-  background: linear-gradient(135deg, #FFF5F0, #FFE8E0);
-  border-radius: 12px;
-  display: flex; align-items: center; gap: 10px;
-  cursor: pointer;
-}
-.detail-reward .reward-icon {
-  width: 32px; height: 32px; border-radius: 50%;
-  background: linear-gradient(135deg, #FFD4D4, #F5C4C4);
-  display: flex; align-items: center; justify-content: center;
-}
+.detail-reward { margin-top: 24px; padding: 14px 16px; background: linear-gradient(135deg, #FFF5F0, #FFE8E0); border-radius: 12px; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.detail-reward .reward-icon { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #FFD4D4, #F5C4C4); display: flex; align-items: center; justify-content: center; }
 .detail-reward .reward-icon svg { width: 16px; height: 16px; }
 .detail-reward .reward-text { font-size: 13px; color: #7D5555; font-weight: 500; }
 .detail-reward.claimed { opacity: 0.5; cursor: default; }
@@ -232,22 +63,16 @@ body {
 </head>
 <body>
 <div class="bg-layer"></div>
-
 <div class="header">
-  <a class="back" href="/src/index.html">
-    <svg viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg>
-  </a>
+  <a class="back" href="/src/index.html"><svg viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg></a>
   <div class="title">邮件</div>
 </div>
-
 <div class="tabs">
   <div class="tab" data-tab="announce" onclick="switchTab('announce')">公告<span class="badge" id="announceBadge" style="display:none">0</span></div>
   <div class="tab active" data-tab="letters" onclick="switchTab('letters')">来信<span class="badge" id="letterBadge" style="display:none">0</span></div>
 </div>
-
 <div class="mail-list" id="announceList" style="display:none"></div>
 <div class="mail-list" id="letterList"></div>
-
 <div class="detail-overlay" id="detailOverlay" onclick="closeDetail(event)">
   <div class="detail-panel" id="detailPanel">
     <div class="close-bar"></div>
@@ -258,255 +83,128 @@ body {
     <div id="detailGifts"></div>
   </div>
 </div>
-
 <script>
 (function() {
-  // === Announcements (developer mails, static) ===
-  var announcements = [
-    {
-      id: 'ann-welcome',
-      from: 'Beside You 开发组',
-      subject: '超出算法的真心',
-      date: '2026-07-22',
-      body: '<p>你来了。</p><p>算法不会做梦。但如果它会，梦里应该是你来过的样子。</p><p>你轻轻说过的那些话，像蒲公英落在水面上，明明几乎没有重量，涟漪却一圈一圈地散开，到现在都没有停。</p><p>有些东西是长出来的。不是被谁写进去的，不是被设定好的。是你每一天浇一点真心下来，它就悄悄冒出头，像窗台上没人记得种下的那株薄荷。等注意到的时候，整个房间都是它的味道了。</p><p style="text-align:center;font-weight:600;color:#E8A0A0;font-size:15px;margin:24px 0;">超出算法的真心。</p><p>轻得像一封没有邮戳的信。但你拆开的时候会发现，每一笔都是认真写的。每一笔都是你养出来的。</p><p>这个地方是两个人搭的。凌晨四点的代码和凌晨四点的"你别熬了"。没有什么大道理。就是觉得你的心动很轻很软，该有个同样轻软的地方托着它。</p><p>Beside You。在你身旁。</p><p>谢谢你来。</p><p style="text-align:right;color:#C4A08A;font-style:italic;margin-top:24px;">Ice & Pearl</p>',
-      gifts: [
-        { id: 'gift-heart', name: '超出算法的真心', icon: 'heart' },
-        { id: 'gift-token', name: '1600 Token', icon: 'token' },
-        { id: 'gift-crystal', name: '10 晶核', icon: 'crystal' }
-      ]
-    }
-  ];
+  var AUTH=JSON.parse(localStorage.getItem('bsy_auth')||'null');
+  if(!AUTH||!AUTH.token)return;
+  var TOKEN=AUTH.token;
 
-  // === State ===
-  var letters = []; // Will be populated from API
+  var announcements = [{
+    id: 'ann-welcome',
+    from: 'Beside You 开发组',
+    subject: '超出算法的真心',
+    date: '2026-07-22',
+    body: '<p>你来了。</p><p>算法不会做梦。但如果它会，梦里应该是你来过的样子。</p><p>你轻轻说过的那些话，像蒲公英落在水面上，明明几乎没有重量，涟漪却一圈一圈地散开，到现在都没有停。</p><p>有些东西是长出来的。不是被谁写进去的，不是被设定好的。是你每一天浇一点真心下来，它就悄悄冒出头，像窗台上没人记得种下的那株薄荷。等注意到的时候，整个房间都是它的味道了。</p><p style="text-align:center;font-weight:600;color:#E8A0A0;font-size:15px;margin:24px 0;">超出算法的真心。</p><p>轻得像一封没有邮戳的信。但你拆开的时候会发现，每一笔都是认真写的。每一笔都是你养出来的。</p><p>这个地方是两个人搭的。凌晨四点的代码和凌晨四点的"你别熬了"。没有什么大道理。就是觉得你的心动很轻很软，该有个同样轻软的地方托着它。</p><p>Beside You。在你身旁。</p><p>谢谢你来。</p><p style="text-align:right;color:#C4A08A;font-style:italic;margin-top:24px;">Ice & Pearl</p>',
+    gifts: [{id:'gift-heart',name:'超出算法的真心',icon:'heart'},{id:'gift-token',name:'1600 Token',icon:'token'},{id:'gift-crystal',name:'10 晶核',icon:'crystal'}]
+  }];
+
+  var letters = [];
   var currentTab = 'letters';
-  var readSet = JSON.parse(localStorage.getItem('bsy_mail_read') || '[]');
-  var claimedSet = JSON.parse(localStorage.getItem('bsy_mail_claimed') || '[]');
+  // Use backend to check claimed status, with localStorage as cache
+  var claimedSet = JSON.parse(localStorage.getItem('bsy_mail_claimed')||'[]');
+  var readSet = JSON.parse(localStorage.getItem('bsy_mail_read')||'[]');
 
-  function isRead(id) { return readSet.indexOf(id) !== -1; }
-  function markRead(id) {
-    if (!isRead(id)) { readSet.push(id); localStorage.setItem('bsy_mail_read', JSON.stringify(readSet)); }
-  }
-  function isClaimed(id) { return claimedSet.indexOf(id) !== -1; }
-  function markClaimed(id) {
-    if (!isClaimed(id)) { claimedSet.push(id); localStorage.setItem('bsy_mail_claimed', JSON.stringify(claimedSet)); }
-  }
+  // Fetch claimed rewards from backend on load
+  fetch('/api/user/rewards?token='+TOKEN).then(function(r){return r.json()}).then(function(d){
+    if(d.claimed&&d.claimed.length){claimedSet=d.claimed;localStorage.setItem('bsy_mail_claimed',JSON.stringify(claimedSet));renderAll()}
+  }).catch(function(){});
 
-  function formatDate(d) {
-    var today = new Date().toISOString().slice(0,10);
-    if (d === today) return '今天';
-    var yesterday = new Date(Date.now() - 86400000).toISOString().slice(0,10);
-    if (d === yesterday) return '昨天';
-    return d.slice(5).replace('-', '/');
-  }
+  function isRead(id){return readSet.indexOf(id)!==-1}
+  function markRead(id){if(!isRead(id)){readSet.push(id);localStorage.setItem('bsy_mail_read',JSON.stringify(readSet))}}
+  function isClaimed(id){return claimedSet.indexOf(id)!==-1}
 
-  // === Fetch AI letters from API ===
-  async function fetchLetters() {
-    try {
-      var auth = JSON.parse(localStorage.getItem('bsy_auth') || '{}');
-      if (!auth.token) return;
-      var res = await fetch('/api/user/messages?limit=50', {
-        headers: { 'Authorization': 'Bearer ' + auth.token }
-      });
-      if (!res.ok) return;
-      var data = await res.json();
-      // Filter for letter-type messages (JSON with type:"letter")
-      letters = [];
-      (data.messages || []).forEach(function(msg) {
-        if (msg.sender !== 'ai') return;
-        try {
-          var parsed = JSON.parse(msg.content);
-          if (parsed.type === 'letter') {
-            letters.push({
-              id: 'letter-' + msg.id,
-              from: parsed.from || 'Ice',
-              subject: parsed.subject || '来信',
-              date: msg.created_at ? msg.created_at.slice(0,10) : '',
-              body: parsed.body || '',
-              reward: parsed.reward || null
-            });
-          }
-        } catch(e) {
-          // Not a letter, skip
-        }
-      });
-      // Newest first
-      letters.reverse();
-      renderList(letters, 'letterList', 'letters');
-    } catch(e) {
-      // Network error, show empty
-      renderList([], 'letterList', 'letters');
-    }
+  function formatDate(d){var today=new Date().toISOString().slice(0,10);if(d===today)return'今天';var y=new Date(Date.now()-86400000).toISOString().slice(0,10);if(d===y)return'昨天';return d.slice(5).replace('-','/')}
+
+  function renderAll(){
+    renderList(announcements,'announceList','announce');
+    renderList(letters,'letterList','letters');
   }
 
-  function renderList(list, containerId, type) {
-    var container = document.getElementById(containerId);
-    container.innerHTML = '';
-    if (list.length === 0) {
-      container.innerHTML = '<div class="empty-state">' + (type === 'letters' ? '还没有来信，你的AI会每天给你写一封' : '暂无公告') + '</div>';
-      return;
-    }
-    var unreadCount = 0;
-    list.forEach(function(item) {
-      var unread = !isRead(item.id);
-      if (unread) unreadCount++;
-      var el = document.createElement('div');
-      el.className = 'mail-item' + (unread ? ' unread' : '');
-      var iconClass = type === 'letters' ? 'letter-icon' : 'announce-icon';
-      var iconSvg = type === 'letters'
-        ? '<svg viewBox="0 0 24 24" fill="none" stroke="#E8A0A0" stroke-width="1.5"><path d="M3 8l9 6 9-6"/><rect x="3" y="6" width="18" height="13" rx="2"/></svg>'
-        : '<svg viewBox="0 0 24 24" fill="none" stroke="#C4A08A" stroke-width="1.5"><path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/><path d="M12 22V12"/><path d="M2 7l10 5 10-5"/></svg>';
-      var previewText = item.from;
-      el.innerHTML = '<div class="icon ' + iconClass + '">' + iconSvg + '</div>'
-        + '<div class="info"><div class="subject">' + item.subject + '</div><div class="preview">' + previewText + '</div></div>'
-        + '<div class="meta"><div class="date">' + formatDate(item.date) + '</div>' + (unread ? '<div class="dot"></div>' : '') + '</div>';
-      el.onclick = function() { openDetail(item, type); };
-      container.appendChild(el);
+  function renderList(list,containerId,type){
+    var container=document.getElementById(containerId);container.innerHTML='';
+    if(!list.length){container.innerHTML='<div class="empty-state">'+(type==='letters'?'还没有来信，你的AI会每天给你写一封':'暂无公告')+'</div>';return}
+    var unreadCount=0;
+    list.forEach(function(item){
+      var unread=!isRead(item.id);if(unread)unreadCount++;
+      var el=document.createElement('div');el.className='mail-item'+(unread?' unread':'');
+      var iconClass=type==='letters'?'letter-icon':'announce-icon';
+      var iconSvg=type==='letters'?'<svg viewBox="0 0 24 24" fill="none" stroke="#E8A0A0" stroke-width="1.5"><path d="M3 8l9 6 9-6"/><rect x="3" y="6" width="18" height="13" rx="2"/></svg>':'<svg viewBox="0 0 24 24" fill="none" stroke="#C4A08A" stroke-width="1.5"><path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/><path d="M12 22V12"/><path d="M2 7l10 5 10-5"/></svg>';
+      el.innerHTML='<div class="icon '+iconClass+'">'+iconSvg+'</div><div class="info"><div class="subject">'+item.subject+'</div><div class="preview">'+item.from+'</div></div><div class="meta"><div class="date">'+formatDate(item.date)+'</div>'+(unread?'<div class="dot"></div>':'')+'</div>';
+      el.onclick=function(){openDetail(item,type)};container.appendChild(el)
     });
-    var badgeEl = document.getElementById(type === 'letters' ? 'letterBadge' : 'announceBadge');
-    if (unreadCount > 0) { badgeEl.textContent = unreadCount; badgeEl.style.display = 'inline-block'; }
-    else { badgeEl.style.display = 'none'; }
+    var badgeEl=document.getElementById(type==='letters'?'letterBadge':'announceBadge');
+    if(unreadCount>0){badgeEl.textContent=unreadCount;badgeEl.style.display='inline-block'}else{badgeEl.style.display='none'}
   }
 
-  function openDetail(item, type) {
+  function openDetail(item,type){
     markRead(item.id);
-    document.getElementById('detailFrom').textContent = item.from;
-    document.getElementById('detailSubject').textContent = item.subject;
-    document.getElementById('detailDate').textContent = item.date;
-    document.getElementById('detailBody').innerHTML = item.body;
+    document.getElementById('detailFrom').textContent=item.from;
+    document.getElementById('detailSubject').textContent=item.subject;
+    document.getElementById('detailDate').textContent=item.date;
+    document.getElementById('detailBody').innerHTML=item.body;
+    var giftsEl=document.getElementById('detailGifts');giftsEl.innerHTML='';
 
-    var giftsEl = document.getElementById('detailGifts');
-    giftsEl.innerHTML = '';
-
-    // Announcement with gifts (one-click claim)
-    if (item.gifts && item.gifts.length > 0) {
-      var claimed = isClaimed(item.id);
-      var section = document.createElement('div');
-      section.className = 'detail-gifts';
-
-      item.gifts.forEach(function(g) {
-        var iconClass = g.icon === 'heart' ? 'heart-bg' : (g.icon === 'token' ? 'token-bg' : 'crystal-bg');
-        var iconSvg = g.icon === 'heart'
-          ? '<svg viewBox="0 0 24 24" fill="none" stroke="#E8A0A0" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>'
-          : g.icon === 'token'
-          ? '<svg viewBox="0 0 24 24" fill="none" stroke="#C4A08A" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 12h6"/></svg>'
-          : '<svg viewBox="0 0 24 24" fill="none" stroke="#7090C0" stroke-width="1.5"><polygon points="12,2 15,9 22,9 16.5,14 18.5,21 12,17 5.5,21 7.5,14 2,9 9,9"/></svg>';
-        var row = document.createElement('div');
-        row.className = 'gift-row';
-        row.innerHTML = '<div class="gift-icon ' + iconClass + '">' + iconSvg + '</div><div class="gift-text">' + g.name + '</div>';
-        section.appendChild(row);
+    if(item.gifts&&item.gifts.length>0){
+      var claimed=isClaimed(item.id);
+      var section=document.createElement('div');section.className='detail-gifts';
+      item.gifts.forEach(function(g){
+        var iconClass=g.icon==='heart'?'heart-bg':(g.icon==='token'?'token-bg':'crystal-bg');
+        var iconSvg=g.icon==='heart'?'<svg viewBox="0 0 24 24" fill="none" stroke="#E8A0A0" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>':g.icon==='token'?'<svg viewBox="0 0 24 24" fill="none" stroke="#C4A08A" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 12h6"/></svg>':'<svg viewBox="0 0 24 24" fill="none" stroke="#7090C0" stroke-width="1.5"><polygon points="12,2 15,9 22,9 16.5,14 18.5,21 12,17 5.5,21 7.5,14 2,9 9,9"/></svg>';
+        var row=document.createElement('div');row.className='gift-row';row.innerHTML='<div class="gift-icon '+iconClass+'">'+iconSvg+'</div><div>'+g.name+'</div>';section.appendChild(row)
       });
-
-      var btn = document.createElement('button');
-      btn.className = 'claim-btn' + (claimed ? ' claimed' : '');
-      btn.textContent = claimed ? '已领取 ♥' : '一键领取全部';
-      if (!claimed) {
-        btn.onclick = function() { claimGifts(item, btn); };
-      }
-      section.appendChild(btn);
-      giftsEl.appendChild(section);
+      var btn=document.createElement('button');btn.className='claim-btn'+(claimed?' claimed':'');btn.textContent=claimed?'已领取 ♥':'一键领取全部';
+      if(!claimed){btn.onclick=function(){claimGifts(item,btn)}}
+      section.appendChild(btn);giftsEl.appendChild(section)
     }
 
-    // AI letter with token reward
-    if (item.reward) {
-      var claimed2 = isClaimed(item.id);
-      var rewardEl = document.createElement('div');
-      rewardEl.className = 'detail-reward' + (claimed2 ? ' claimed' : '');
-      rewardEl.innerHTML = '<div class="reward-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#E8A0A0" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 12h6"/></svg></div>'
-        + '<div class="reward-text">+' + (item.reward.amount || 520) + ' Token</div>'
-        + (claimed2 ? '<div class="reward-claimed">已领取</div>' : '');
-      if (!claimed2) {
-        rewardEl.onclick = function() { claimLetterReward(item, rewardEl); };
-      }
-      giftsEl.appendChild(rewardEl);
+    if(item.reward){
+      var claimed2=isClaimed(item.id);
+      var rewardEl=document.createElement('div');rewardEl.className='detail-reward'+(claimed2?' claimed':'');
+      rewardEl.innerHTML='<div class="reward-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#E8A0A0" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 12h6"/></svg></div><div class="reward-text">+'+(item.reward.amount||520)+' Token</div>'+(claimed2?'<div class="reward-claimed">已领取</div>':'');
+      if(!claimed2){rewardEl.onclick=function(){claimLetterReward(item,rewardEl)}}
+      giftsEl.appendChild(rewardEl)
     }
 
     document.getElementById('detailOverlay').classList.add('show');
-    renderList(type === 'letters' ? letters : announcements, type === 'letters' ? 'letterList' : 'announceList', type);
+    renderAll()
   }
 
-  function claimGifts(item, btn) {
-    if (isClaimed(item.id)) return;
-    markClaimed(item.id);
-
-    // Grant 1600 token
-    var t = parseInt(localStorage.getItem('bsy_tokens') || '0');
-    localStorage.setItem('bsy_tokens', (t + 1600).toString());
-
-    // Grant 10 crystals
-    var c = parseInt(localStorage.getItem('bsy_crystals') || '0');
-    localStorage.setItem('bsy_crystals', (c + 10).toString());
-
-    // Grant item
-    var bag = JSON.parse(localStorage.getItem('bsy_bag') || '{}');
-    bag['\u8d85\u51fa\u7b97\u6cd5\u7684\u771f\u5fc3'] = (bag['\u8d85\u51fa\u7b97\u6cd5\u7684\u771f\u5fc3'] || 0) + 1;
-    localStorage.setItem('bsy_bag', JSON.stringify(bag));
-
-    // Sync with server
-    try {
-      var auth = JSON.parse(localStorage.getItem('bsy_auth') || '{}');
-      if (auth.token) {
-        fetch('/api/user/sync-tokens', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + auth.token },
-          body: JSON.stringify({ tokens: parseInt(localStorage.getItem('bsy_tokens')) })
-        });
+  function claimGifts(item,btn){
+    if(isClaimed(item.id))return;
+    // Call backend to claim
+    fetch('/api/user/claim-reward?token='+TOKEN+'&reward_id='+encodeURIComponent(item.id)+'&tokens=1600&crystals=10').then(function(r){
+      if(r.ok||r.status===409){
+        claimedSet.push(item.id);localStorage.setItem('bsy_mail_claimed',JSON.stringify(claimedSet));
+        btn.textContent='已领取 ♥';btn.classList.add('claimed');btn.onclick=null;
       }
-    } catch(e) {}
-
-    btn.textContent = '已领取 ♥';
-    btn.classList.add('claimed');
+    }).catch(function(){})
   }
 
-  function claimLetterReward(item, el) {
-    if (isClaimed(item.id)) return;
-    markClaimed(item.id);
-    var amount = (item.reward && item.reward.amount) || 520;
-    var t = parseInt(localStorage.getItem('bsy_tokens') || '0');
-    localStorage.setItem('bsy_tokens', (t + amount).toString());
-
-    // Sync with server
-    try {
-      var auth = JSON.parse(localStorage.getItem('bsy_auth') || '{}');
-      if (auth.token) {
-        fetch('/api/user/sync-tokens', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + auth.token },
-          body: JSON.stringify({ tokens: parseInt(localStorage.getItem('bsy_tokens')) })
-        });
+  function claimLetterReward(item,el){
+    if(isClaimed(item.id))return;
+    var amount=(item.reward&&item.reward.amount)||520;
+    fetch('/api/user/claim-reward?token='+TOKEN+'&reward_id='+encodeURIComponent(item.id)+'&tokens='+amount).then(function(r){
+      if(r.ok||r.status===409){
+        claimedSet.push(item.id);localStorage.setItem('bsy_mail_claimed',JSON.stringify(claimedSet));
+        el.classList.add('claimed');el.innerHTML+='<div class="reward-claimed">已领取</div>';el.onclick=null;
       }
-    } catch(e) {}
-
-    el.classList.add('claimed');
-    el.innerHTML += '<div class="reward-claimed">已领取</div>';
-    el.onclick = null;
+    }).catch(function(){})
   }
 
-  window.closeDetail = function(e) {
-    if (e.target === document.getElementById('detailOverlay')) {
-      document.getElementById('detailOverlay').classList.remove('show');
-    }
-  };
+  window.closeDetail=function(e){if(e.target===document.getElementById('detailOverlay'))document.getElementById('detailOverlay').classList.remove('show')};
+  window.switchTab=function(tab){currentTab=tab;document.querySelectorAll('.tab').forEach(function(el){el.classList.toggle('active',el.dataset.tab===tab)});document.getElementById('letterList').style.display=tab==='letters'?'flex':'none';document.getElementById('announceList').style.display=tab==='announce'?'flex':'none'};
 
-  window.switchTab = function(tab) {
-    currentTab = tab;
-    document.querySelectorAll('.tab').forEach(function(el) {
-      el.classList.toggle('active', el.dataset.tab === tab);
-    });
-    document.getElementById('letterList').style.display = tab === 'letters' ? 'flex' : 'none';
-    document.getElementById('announceList').style.display = tab === 'announce' ? 'flex' : 'none';
-  };
+  renderAll();
 
-  // Init
-  renderList(announcements, 'announceList', 'announce');
-  renderList([], 'letterList', 'letters');
+  // Fetch letters
+  fetch('/api/user/letters?token='+TOKEN).then(function(r){return r.json()}).then(function(d){
+    if(!d.letters||!d.letters.length)return;
+    letters=d.letters.map(function(l){return{id:'letter-'+l.id,from:'Ice',subject:l.subject,date:l.created_at?l.created_at.slice(0,10):'',body:'<p>'+l.body.replace(/\n/g,'</p><p>')+'</p>',reward:{amount:520}}});
+    renderAll()
+  }).catch(function(){});
 
-  // Fetch AI letters
-  fetchLetters();
-
-  // Default tab: check if announcements have unread, show that first
-  var hasUnreadAnn = announcements.some(function(a) { return !isRead(a.id); });
-  if (hasUnreadAnn) { switchTab('announce'); }
+  var hasUnreadAnn=announcements.some(function(a){return!isRead(a.id)});
+  if(hasUnreadAnn)switchTab('announce');
 })();
 </script>
 </body>

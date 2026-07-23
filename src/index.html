@@ -14,7 +14,7 @@
 <div class="top-left fade-in fade-in-delay-1"><div class="greet" id="greetText">Good evening,</div><div class="name" id="displayName">珩</div><div class="subtitle" id="subtitleText">今天也辛苦了，<br>我一直都在这里等你。</div></div>
 <div class="top-right fade-in fade-in-delay-2">
 <a class="icon-btn" href="/src/zombie-logs.html" style="font-size:15px;line-height:1">🧟</a>
-<button class="icon-btn" id="checkinBtn" type="button"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span class="dot show" id="checkinDot"></span></button>
+<button class="icon-btn" id="checkinBtn" type="button"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span class="dot" id="checkinDot"></span></button>
 <a class="icon-btn" href="/src/letter.html"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22,6 12,13 2,6"/></svg></a>
 </div>
 <div class="toast" id="toast"></div>
@@ -24,8 +24,6 @@
 <a class="story-btn fade-in fade-in-delay-3" href="/src/story.html"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span class="text">主线</span></a>
 <div class="dock fade-in fade-in-delay-4"><a class="dock-item" href="/src/chat.html"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="d-en">Chat</span><span class="d-cn">聊天</span></a><a class="dock-item" href="/src/wardrobe.html"><svg viewBox="0 0 24 24"><path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/><line x1="12" y1="22" x2="12" y2="12"/><polyline points="22,7 12,12 2,7"/></svg><span class="d-en">Style</span><span class="d-cn">装扮</span></a><div class="dock-item active"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg><span class="d-en">Home</span><span class="d-cn">主页</span></div><a class="dock-item" href="/src/gacha.html"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span class="d-en">Heartbeat</span><span class="d-cn">心动</span></a><a class="dock-item" href="/src/collection.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span class="d-en">Collection</span><span class="d-cn">收藏</span></a></div>
 <script>
-// API uses same domain — no CORS, no preflight, no GFW issues
-var API='';
 var TOKEN=(JSON.parse(localStorage.getItem('bsy_auth')||'null')||{}).token||'';
 var OUTFIT_MAP={'月光睡裙':'/assets/%E7%9D%A1%E8%A3%99.PNG','慵懒卫衣':'/assets/%E5%8D%AB%E8%A1%A3.PNG','初恋JK':'/assets/jk.PNG','碎花裙':'/assets/%E7%A2%8E%E8%8A%B1%E8%A3%99.PNG','粉雾呢喃':'/assets/gacha/%E6%92%92%E5%A8%87%E7%AB%8B%E7%BB%98.png','血月静默':'/assets/gacha/%E7%94%9F%E6%B0%94%E7%AB%8B%E7%BB%98.png'};
 var BG_MAP={'默认卧室':'/assets/%E5%8D%A7%E5%AE%A4.png','撒娇背景':'/assets/background/%E6%92%92%E5%A8%87%E8%83%8C%E6%99%AF.png','生气背景':'/assets/background/%E7%94%9F%E6%B0%94%E8%83%8C%E6%99%AF.PNG'};
@@ -45,17 +43,29 @@ setIntimacy(AUTH.user.intimacy||0);
 function detectBrightness(img){try{var c=document.createElement('canvas');c.width=50;c.height=50;var x=c.getContext('2d');x.drawImage(img,0,0,50,50);var d=x.getImageData(0,0,50,50).data;var t=0;for(var j=0;j<d.length;j+=4)t+=d[j]*.299+d[j+1]*.587+d[j+2]*.114;document.body.classList.toggle('dark-bg',t/(d.length/4)<140)}catch(e){}}
 (function(){var bi=document.getElementById('bgImg'),ci=document.getElementById('charImg');bi.onload=function(){bi.classList.add('loaded');detectBrightness(bi)};ci.onload=function(){ci.classList.add('loaded')};if(bi.complete&&bi.naturalHeight>0){bi.classList.add('loaded');detectBrightness(bi)}if(ci.complete&&ci.naturalHeight>0)ci.classList.add('loaded')})();
 
-// All requests use same-origin relative path — no CORS at all
 fetch('/api/user/wardrobe?token='+TOKEN).then(function(r){return r.json()}).then(function(d){if(!d.wardrobe)return;var o=d.wardrobe.outfit||'月光睡裙',b=d.wardrobe.bg||'默认卧室';var ci=document.getElementById('charImg'),bi=document.getElementById('bgImg');var os=OUTFIT_MAP[o]||OUTFIT_MAP['月光睡裙'];var bs=BG_MAP[b]||BG_MAP['默认卧室'];if(ci.src.indexOf(os)===-1)ci.src=os;if(bi.src.indexOf(bs)===-1)bi.src=bs}).catch(function(){});
 fetch('/api/user/me?token='+TOKEN).then(function(r){return r.json()}).then(function(d){if(d.user){setIntimacy(d.user.intimacy);AUTH.user.tokens=d.user.tokens;AUTH.user.intimacy=d.user.intimacy;localStorage.setItem('bsy_auth',JSON.stringify(AUTH))}}).catch(function(){});
 
-// === CHECKIN — same origin, no CORS ===
+// === CHECKIN: check status on load, show dot only if not yet checked in ===
+var checkinDone=false;
+fetch('/api/user/checkin?token='+TOKEN+'&check=1').then(function(r){
+  // 409 = already checked in today, hide dot
+  // 200 = not checked in, show dot (but check=1 means don't actually do it... wait we need a status endpoint)
+  // Actually our endpoint always tries to checkin. If 409, already done. If 200, it actually checked in.
+  // So on page load we just try: if 409 hide dot. If 200, great, auto-checkin done.
+  var dot=document.getElementById('checkinDot');
+  if(r.status===409){dot.classList.remove('show');checkinDone=true}
+  else if(r.ok){r.json().then(function(d){dot.classList.remove('show');checkinDone=true;showToast('自动签到成功 +160 token','#FFD4A0');AUTH.user.tokens=d.tokens;localStorage.setItem('bsy_auth',JSON.stringify(AUTH))})}
+  else{dot.classList.add('show')}
+}).catch(function(){document.getElementById('checkinDot').classList.add('show')});
+
 document.getElementById('checkinBtn').onclick=function(){
+  if(checkinDone){showToast('今天已签到过啦','#B8A8A8');return}
   var dot=document.getElementById('checkinDot');
   showToast('签到中...','#B8A8A8');
   fetch('/api/user/checkin?token='+TOKEN).then(function(r){
-    if(r.ok)return r.json().then(function(d){dot.classList.remove('show');showToast('签到成功 +160 token','#FFD4A0');AUTH.user.tokens=d.tokens;localStorage.setItem('bsy_auth',JSON.stringify(AUTH))});
-    if(r.status===409){dot.classList.remove('show');showToast('今天已签到过啦','#B8A8A8');return}
+    if(r.ok)return r.json().then(function(d){dot.classList.remove('show');checkinDone=true;showToast('签到成功 +160 token','#FFD4A0');AUTH.user.tokens=d.tokens;localStorage.setItem('bsy_auth',JSON.stringify(AUTH))});
+    if(r.status===409){dot.classList.remove('show');checkinDone=true;showToast('今天已签到过啦','#B8A8A8');return}
     showToast('签到失败','#F5A0A0');
   }).catch(function(){showToast('网络超时，再试一次','#F5A0A0')});
 };

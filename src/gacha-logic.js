@@ -1,4 +1,4 @@
-// 抽卡核心逻辑 - 双池独立保底
+// 抽卡核心逻辑 - 双池独立保底 + 数据库持久化
 var owned = JSON.parse(localStorage.getItem('bsy_collection') || '[]');
 
 var pitySajiaoBg = parseInt(localStorage.getItem('bsy_pity_sajiao_bg') || '0');
@@ -8,36 +8,68 @@ var pityShengqiEmotion = parseInt(localStorage.getItem('bsy_pity_shengqi_emotion
 
 var currentPool = 0;
 
+function getAuthToken() {
+  try { var a = JSON.parse(localStorage.getItem('bsy_auth') || '{}'); return a.token || null; } catch(e) { return null; }
+}
+
 // === Token sync with database ===
 function syncTokensToDB(tokens) {
-  try {
-    var auth = JSON.parse(localStorage.getItem('bsy_auth') || '{}');
-    if (!auth.token) return;
-    fetch('/api/user/sync-tokens', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + auth.token },
-      body: JSON.stringify({ tokens: tokens })
-    }).catch(function(){});
-  } catch(e) {}
+  var t = getAuthToken(); if (!t) return;
+  fetch('/api/user/sync-tokens', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + t },
+    body: JSON.stringify({ tokens: tokens })
+  }).catch(function(){});
 }
 
 function loadTokensFromDB() {
-  try {
-    var auth = JSON.parse(localStorage.getItem('bsy_auth') || '{}');
-    if (!auth.token) return;
-    fetch('/api/user/me', {
-      headers: { 'Authorization': 'Bearer ' + auth.token }
-    }).then(function(r){ return r.json(); }).then(function(data) {
+  var t = getAuthToken(); if (!t) return;
+  fetch('/api/user/me', { headers: { 'Authorization': 'Bearer ' + t } })
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
       if (data.user && typeof data.user.tokens === 'number') {
         var local = getTokens();
         var db = data.user.tokens;
-        // Use the higher value (in case local earned tokens not yet synced)
         var final = Math.max(local, db);
         setTokens(final);
         if (final !== db) syncTokensToDB(final);
       }
     }).catch(function(){});
-  } catch(e) {}
+}
+
+// === Collection sync with database ===
+function syncCollectionToDB() {
+  var t = getAuthToken(); if (!t) return;
+  fetch('/api/user/collection', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + t },
+    body: JSON.stringify({ collection: owned, pity: { sajiao_bg: pitySajiaoBg, sajiao_emotion: pitySajiaoEmotion, shengqi_bg: pityShengqiBg, shengqi_emotion: pityShengqiEmotion } })
+  }).catch(function(){});
+}
+
+function loadCollectionFromDB() {
+  var t = getAuthToken(); if (!t) return;
+  fetch('/api/user/collection', { headers: { 'Authorization': 'Bearer ' + t } })
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      if (data.ok) {
+        // Merge: union of local + DB
+        var dbCol = data.collection || [];
+        for (var i = 0; i < dbCol.length; i++) {
+          if (owned.indexOf(dbCol[i]) === -1) owned.push(dbCol[i]);
+        }
+        localStorage.setItem('bsy_collection', JSON.stringify(owned));
+        // Restore pity from DB if local is 0 (fresh login)
+        if (data.pity) {
+          if (!pitySajiaoBg && data.pity.sajiao_bg) { pitySajiaoBg = data.pity.sajiao_bg; localStorage.setItem('bsy_pity_sajiao_bg', pitySajiaoBg.toString()); }
+          if (!pitySajiaoEmotion && data.pity.sajiao_emotion) { pitySajiaoEmotion = data.pity.sajiao_emotion; localStorage.setItem('bsy_pity_sajiao_emotion', pitySajiaoEmotion.toString()); }
+          if (!pityShengqiBg && data.pity.shengqi_bg) { pityShengqiBg = data.pity.shengqi_bg; localStorage.setItem('bsy_pity_shengqi_bg', pityShengqiBg.toString()); }
+          if (!pityShengqiEmotion && data.pity.shengqi_emotion) { pityShengqiEmotion = data.pity.shengqi_emotion; localStorage.setItem('bsy_pity_shengqi_emotion', pityShengqiEmotion.toString()); }
+        }
+        // Sync merged result back if different
+        if (owned.length > dbCol.length) syncCollectionToDB();
+      }
+    }).catch(function(){});
 }
 
 function getTokens() {
@@ -157,6 +189,8 @@ function onPull(card) {
   if (card.unique && owned.indexOf(card.name) === -1) {
     owned.push(card.name);
     localStorage.setItem('bsy_collection', JSON.stringify(owned));
+    // Sync to DB immediately
+    syncCollectionToDB();
   }
   if (card.type === 'prop') {
     var bag = JSON.parse(localStorage.getItem('bsy_bag') || '{}');
@@ -170,6 +204,9 @@ function onPull(card) {
   localStorage.setItem('bsy_pity_sajiao_emotion', pitySajiaoEmotion.toString());
   localStorage.setItem('bsy_pity_shengqi_bg', pityShengqiBg.toString());
   localStorage.setItem('bsy_pity_shengqi_emotion', pityShengqiEmotion.toString());
+
+  // Sync pity to DB too
+  syncCollectionToDB();
 
   // System broadcast when pulling limited (SSR emotion)
   if (card.type === 'emotion' && card.rarity === 'SSR') {
@@ -187,9 +224,10 @@ function broadcastLimited(cardName) {
   } catch(e) {}
 }
 
-// Init: display tokens and sync from DB
+// Init: display tokens, sync from DB, load collection from DB
 (function() {
   var el = document.getElementById('tokenDisplay');
   if (el) el.textContent = getTokens();
   loadTokensFromDB();
+  loadCollectionFromDB();
 })();

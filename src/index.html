@@ -33,6 +33,9 @@ function detectBrightness(i){try{var c=document.createElement('canvas');c.width=
 // Auth check
 (function(){var a=localStorage.getItem('bsy_auth');if(!a){window.location.href='/index.html';return}try{var d=JSON.parse(a);if(!d.token||!d.user){window.location.href='/index.html';return}document.getElementById('display-name').textContent=d.user.display_name||d.user.username||'珩'}catch(e){window.location.href='/index.html'}})();
 
+// Global state
+var checkinDone=false;
+
 // Sync user data from backend on page load
 (async function syncFromBackend(){
   var a=JSON.parse(localStorage.getItem('bsy_auth')||'{}');
@@ -42,10 +45,8 @@ function detectBrightness(i){try{var c=document.createElement('canvas');c.width=
     if(r.ok){
       var d=await r.json();
       if(d.user){
-        // Update local storage with real backend data
         localStorage.setItem('bsy_intimacy',String(d.user.intimacy||0));
         localStorage.setItem('bsy_tokens',String(d.user.tokens||0));
-        // Update auth object too
         a.user.tokens=d.user.tokens;
         a.user.intimacy=d.user.intimacy;
         localStorage.setItem('bsy_auth',JSON.stringify(a));
@@ -53,14 +54,13 @@ function detectBrightness(i){try{var c=document.createElement('canvas');c.width=
       }
     }
   }catch(e){}
-  // Sync mood from backend
   try{
     var mr=await fetch(API+'/api/user/mood',{headers:{'Authorization':'Bearer '+a.token}});
     if(mr.ok){
       var md=await mr.json();
       if(md.mood){
         localStorage.setItem('bsy_mood',md.mood);
-        renderMoodGlobal(md.mood);
+        if(typeof renderMoodGlobal==='function')renderMoodGlobal(md.mood);
       }
     }
   }catch(e){}
@@ -93,58 +93,74 @@ function detectBrightness(i){try{var c=document.createElement('canvas');c.width=
 // Companion timer
 (function(){var e=document.getElementById('companion-time'),s=Date.now();function p(n){return n<10?'0'+n:n}function u(){var d=Math.floor((Date.now()-s)/1000);e.textContent=p(Math.floor(d/3600))+':'+p(Math.floor((d%3600)/60))+':'+p(d%60)}setInterval(u,1000);u()})();
 
-// Checkin - uses backend as source of truth
+// Checkin - always ask backend, no local-only blocking
 (function(){
-  var b=document.getElementById('checkinBtn'),d=document.getElementById('checkinDot'),t=document.getElementById('checkinToast');
-  var td=new Date().toISOString().slice(0,10),k='bsy_checkin_'+td;
-  if(localStorage.getItem(k))d.classList.add('hidden');
+  var b=document.getElementById('checkinBtn'),dot=document.getElementById('checkinDot'),t=document.getElementById('checkinToast');
+  var clicking=false;
   b.addEventListener('click',async function(){
-    if(localStorage.getItem(k))return;
+    if(checkinDone||clicking)return;
+    clicking=true;
     var a=JSON.parse(localStorage.getItem('bsy_auth')||'{}');
+    if(!a.token){clicking=false;return;}
     try{
       var r=await fetch(API+'/api/user/checkin',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+a.token}});
       if(r.ok){
         var data=await r.json();
-        localStorage.setItem(k,'1');
-        // Use backend-returned tokens as truth
+        checkinDone=true;
+        dot.classList.add('hidden');
         var nt=data.tokens;
         localStorage.setItem('bsy_tokens',String(nt));
         if(a.user){a.user.tokens=nt;localStorage.setItem('bsy_auth',JSON.stringify(a))}
-        d.classList.add('hidden');
+        t.textContent='签到成功 +160 token';
+        t.classList.add('show');
+        setTimeout(function(){t.classList.remove('show')},2000);
+      }else if(r.status===409){
+        // Already checked in today
+        checkinDone=true;
+        dot.classList.add('hidden');
+        t.textContent='今天已签到过啦';
         t.classList.add('show');
         setTimeout(function(){t.classList.remove('show')},2000);
       }else{
-        // 409 = already checked in
-        var err=await r.json().catch(function(){return{}});
-        if(r.status===409){localStorage.setItem(k,'1');d.classList.add('hidden')}
+        // Other error (auth fail etc) - show toast
+        t.textContent='签到失败，请重新登录';
+        t.classList.add('show');
+        setTimeout(function(){t.classList.remove('show')},2000);
       }
-    }catch(e){}
+    }catch(e){
+      t.textContent='网络错误';
+      t.classList.add('show');
+      setTimeout(function(){t.classList.remove('show')},2000);
+    }
+    clicking=false;
   });
 })();
 
-// Touch character - uses backend as source of truth
+// Touch character
 (function(){
   var cw=document.getElementById('charWrap'),tt=document.getElementById('tapToast');
-  var td=new Date().toISOString().slice(0,10),tk='bsy_tap_'+td;
+  var touchDone=false,touching=false;
   cw.addEventListener('click',async function(e){
     sh(e);
-    if(localStorage.getItem(tk))return;
-    // Call backend first
+    if(touchDone||touching)return;
+    touching=true;
     var a=JSON.parse(localStorage.getItem('bsy_auth')||'{}');
-    if(!a.token)return;
+    if(!a.token){touching=false;return;}
     try{
       var r=await fetch(API+'/api/user/sync-intimacy',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+a.token},body:JSON.stringify({intimacy:Math.min((parseInt(localStorage.getItem('bsy_intimacy')||'0'))+5,100)})});
       if(r.ok){
-        localStorage.setItem(tk,'1');
+        touchDone=true;
         var i=Math.min(parseInt(localStorage.getItem('bsy_intimacy')||'0')+5,100);
         localStorage.setItem('bsy_intimacy',String(i));
         updateIntimacy();
+        tt.textContent='♥ 亲密度 +5';
         tt.classList.add('show');
         setTimeout(function(){tt.classList.remove('show')},2000);
       }else if(r.status===409){
-        localStorage.setItem(tk,'1');
+        touchDone=true;
       }
     }catch(e){}
+    touching=false;
   });
   function sh(e){var r=cw.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;for(var i=0;i<5;i++){var h=document.createElement('div');h.className='heart-float';h.style.left=(x+(Math.random()-.5)*40)+'px';h.style.top=(y+(Math.random()-.5)*20)+'px';h.innerHTML='<svg viewBox="0 0 24 24" fill="#FFB6C1" stroke="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';h.style.animationDelay=(i*.1)+'s';cw.appendChild(h);(function(el){setTimeout(function(){el.remove()},1400)})(h)}}
 })();

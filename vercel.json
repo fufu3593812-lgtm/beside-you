@@ -1,1 +1,19 @@
-{routes: [{src: /api/mcp, dest: /api/mcp.js}, {src: /api/user/sync-intimacy, dest: /api/user/sync-intimacy.js}, {src: /api/user/touch, dest: /api/user/sync-intimacy.js}, {src: /api/zombie/(.*), dest: /api/zombie.js}, {src: /api/fix/(.*), dest: /api/fix.js}, {src: /api/(.*), dest: /api/index.js}], headers: [{source: /src/(.*).html, headers: [{key: Cache-Control, value: no-cache, no-store, must-revalidate}]}, {source: /index.html, headers: [{key: Cache-Control, value: no-cache, no-store, must-revalidate}]}]}
+{
+  "rewrites": [
+    {"source": "/api/mcp", "destination": "/api/mcp.js"},
+    {"source": "/api/user/sync-intimacy", "destination": "/api/user/sync-intimacy.js"},
+    {"source": "/api/user/touch", "destination": "/api/user/sync-intimacy.js"},
+    {"source": "/api/zombie/:path*", "destination": "/api/zombie.js"},
+    {"source": "/api/fix/:path*", "destination": "/api/fix.js"},
+    {"source": "/api/:path*", "destination": "/api/index.js"}
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {"key": "Cache-Control", "value": "no-cache, no-store, must-revalidate"},
+        {"key": "Pragma", "value": "no-cache"}
+      ]
+    }
+  ]
+}

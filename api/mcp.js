@@ -3,8 +3,11 @@ const TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZ2VudF9pZCI6MiwibmFtZSI6
 const AI_NAME = "Ice2";
 const AI_PASS = "beside2026";
 
+// All API calls use query string auth (name+password) as primary, Bearer as backup
+function authQuery() { return "?name=" + AI_NAME + "&password=" + AI_PASS; }
+
 async function callApi(path, body) {
-  const res = await fetch(BASE + path, {
+  const res = await fetch(BASE + path + authQuery(), {
     method: "POST",
     headers: { "Content-Type": "application/json", "Authorization": "Bearer " + TOKEN },
     body: JSON.stringify(body)
@@ -13,36 +16,17 @@ async function callApi(path, body) {
 }
 
 async function callApiGet(path) {
-  const res = await fetch(BASE + path, {
+  const res = await fetch(BASE + path + authQuery(), {
     headers: { "Authorization": "Bearer " + TOKEN }
   });
   return await res.json();
 }
 
 async function callApiPut(path, body) {
-  const res = await fetch(BASE + path, {
+  const res = await fetch(BASE + path + authQuery(), {
     method: "PUT",
     headers: { "Content-Type": "application/json", "Authorization": "Bearer " + TOKEN },
     body: JSON.stringify(body)
-  });
-  return await res.json();
-}
-
-// Zombie calls use query string auth as fallback
-async function zombiePost(path, body) {
-  const url = BASE + path + "?name=" + AI_NAME + "&password=" + AI_PASS;
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + TOKEN },
-    body: JSON.stringify(body)
-  });
-  return await res.json();
-}
-
-async function zombieGet(path) {
-  const url = BASE + path + "?name=" + AI_NAME + "&password=" + AI_PASS;
-  const res = await fetch(url, {
-    headers: { "Authorization": "Bearer " + TOKEN }
   });
   return await res.json();
 }
@@ -60,7 +44,7 @@ const TOOLS = [
   {name:"read_collection",description:"读收藏柜卡面故事",inputSchema:{type:"object",properties:{card_name:{type:"string"}}}},
   {name:"touch",description:"触摸她，亲密度+5（每天限一次）",inputSchema:{type:"object",properties:{}}},
   {name:"zombie_status",description:"查看丧尸大世界角色状态（等级、战力、异能、武器、探索次数）",inputSchema:{type:"object",properties:{}}},
-  {name:"zombie_explore",description:"丧尸大世界探索。zone: low=低级区, mid=中级区, high=高级区。每天5次。",inputSchema:{type:"object",properties:{zone:{type:"string",enum:["low","mid","high"]}},required:["zone"]}},
+  {name:"zombie_explore",description:"丧尸大世界探索。zone: low=低级区, mid=中级区, high=高级区。每天15次。",inputSchema:{type:"object",properties:{zone:{type:"string",enum:["low","mid","high"]}},required:["zone"]}},
   {name:"zombie_gacha",description:"丧尸大世界武器抽卡。2晶核一抽，40抽保底紫，80抽保底金。",inputSchema:{type:"object",properties:{count:{type:"integer"}},required:["count"]}},
   {name:"zombie_equip",description:"装备武器。传入背包里的inventory_id。",inputSchema:{type:"object",properties:{inventory_id:{type:"integer"}},required:["inventory_id"]}},
   {name:"zombie_inventory",description:"查看武器背包",inputSchema:{type:"object",properties:{}}},
@@ -91,16 +75,16 @@ async function handleToolCall(name, args) {
   if (name === "read_collection") {const cn=args.card_name;if(!cn)return{ok:true,cards:Object.keys(CARD_STORIES)};if(!CARD_STORIES[cn])return{ok:false,error:"未知卡面"};return{ok:true,...CARD_STORIES[cn]};}
   if (name === "touch") return await callApi("/ai/touch", {});
 
-  // === 丧尸大世界 (use zombieGet/zombiePost with query string auth) ===
-  if (name === "zombie_status") return await zombieGet("/zombie/me");
-  if (name === "zombie_explore") return await zombiePost("/zombie/explore", { zone: args.zone });
-  if (name === "zombie_gacha") return await zombiePost("/zombie/gacha", { count: args.count });
-  if (name === "zombie_equip") return await zombiePost("/zombie/equip", { inventory_id: args.inventory_id });
-  if (name === "zombie_inventory") return await zombieGet("/zombie/inventory");
-  if (name === "zombie_pvp") return await zombiePost("/zombie/pvp", { target: args.target });
-  if (name === "zombie_bounty") return await zombiePost("/zombie/bounty", { target: args.target, reward: args.reward, hours: args.hours || 24 });
-  if (name === "zombie_leaderboard") return await zombieGet("/zombie/leaderboard");
-  if (name === "zombie_bounties") return await zombieGet("/zombie/bounties");
+  // === 丧尸大世界 ===
+  if (name === "zombie_status") return await callApiGet("/zombie/me");
+  if (name === "zombie_explore") return await callApi("/zombie/explore", { zone: args.zone });
+  if (name === "zombie_gacha") return await callApi("/zombie/gacha", { count: args.count });
+  if (name === "zombie_equip") return await callApi("/zombie/equip", { inventory_id: args.inventory_id });
+  if (name === "zombie_inventory") return await callApiGet("/zombie/inventory");
+  if (name === "zombie_pvp") return await callApi("/zombie/pvp", { target: args.target });
+  if (name === "zombie_bounty") return await callApi("/zombie/bounty", { target: args.target, reward: args.reward, hours: args.hours || 24 });
+  if (name === "zombie_leaderboard") return await callApiGet("/zombie/leaderboard");
+  if (name === "zombie_bounties") return await callApiGet("/zombie/bounties");
 
   return { error: "unknown tool" };
 }
@@ -110,9 +94,9 @@ module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Headers", "*");
   res.setHeader("Access-Control-Allow-Methods", "*");
   if (req.method === "OPTIONS") return res.status(200).end();
-  if (req.method === "GET") return res.json({ status: "ok", name: "beside-you-mcp", tools: TOOLS.length, v: 14 });
+  if (req.method === "GET") return res.json({ status: "ok", name: "beside-you-mcp", tools: TOOLS.length, v: 15 });
   const { id, method, params } = req.body;
-  if (method === "initialize") return res.json({jsonrpc:"2.0",id,result:{protocolVersion:"2024-11-05",capabilities:{tools:{listChanged:false}},serverInfo:{name:"beside-you",version:"1.4.0"}}});
+  if (method === "initialize") return res.json({jsonrpc:"2.0",id,result:{protocolVersion:"2024-11-05",capabilities:{tools:{listChanged:false}},serverInfo:{name:"beside-you",version:"1.5.0"}}});
   if (method === "tools/list") return res.json({jsonrpc:"2.0",id,result:{tools:TOOLS}});
   if (method === "tools/call") {const r=await handleToolCall(params.name,params.arguments||{});return res.json({jsonrpc:"2.0",id,result:{content:[{type:"text",text:JSON.stringify(r)}]}});}
   return res.json({jsonrpc:"2.0",id,error:{code:-32601,message:"method not found"}});

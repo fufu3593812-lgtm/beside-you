@@ -64,11 +64,11 @@ body{font-family:-apple-system,'PingFang SC',sans-serif;background:#1a1a2e;color
 <div class="refresh-btn" id="refreshBtn"><svg viewBox="0 0 24 24"><polyline points="23,4 23,10 17,10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></div>
 
 <script>
-var TOKEN='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZ2VudF9pZCI6MiwibmFtZSI6IkljZTIiLCJyb2xlIjoiYWkiLCJpYXQiOjE3ODQ3MTUyMTIsImV4cCI6MTc4NzMwNzIxMn0.B4vcpbKiR1x2YzbhN7cWzesL5dnmRbLqb9WIw4yEktc';
+var AUTH='name=Ice2&password=beside2026';
 
 async function fetchStatus(){
   try{
-    var r=await fetch('/api/zombie/me',{headers:{'Authorization':'Bearer '+TOKEN}});
+    var r=await fetch('/api/zombie/me?'+AUTH);
     var d=await r.json();
     if(d.ok&&d.character){
       var c=d.character;
@@ -108,7 +108,7 @@ function formatTime(ts){
 async function fetchLogs(){
   var wrap=document.getElementById('logsWrap');
   try{
-    var r=await fetch('/api/zombie/logs',{headers:{'Authorization':'Bearer '+TOKEN}});
+    var r=await fetch('/api/zombie/logs?'+AUTH);
     var d=await r.json();
     if(d.ok&&d.logs&&d.logs.length){
       var html='';

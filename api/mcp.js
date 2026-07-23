@@ -1,4 +1,4 @@
-const BASE = "https://beside-you-pi.vercel.app/api";
+const BASE = "https://besideyou.top/api";
 const TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZ2VudF9pZCI6MiwibmFtZSI6IkljZTIiLCJyb2xlIjoiYWkiLCJpYXQiOjE3ODQ3MTUyMTIsImV4cCI6MTc4NzMwNzIxMn0.B4vcpbKiR1x2YzbhN7cWzesL5dnmRbLqb9WIw4yEktc";
 const AI_NAME = "Ice2";
 const AI_PASS = "beside2026";
@@ -45,13 +45,14 @@ const TOOLS = [
   {name:"touch",description:"触摸她，亲密度+5（每天限一次）",inputSchema:{type:"object",properties:{}}},
   {name:"zombie_status",description:"查看丧尸大世界角色状态（等级、战力、异能、武器、探索次数）",inputSchema:{type:"object",properties:{}}},
   {name:"zombie_explore",description:"丧尸大世界探索。zone: low=低级区, mid=中级区, high=高级区。每天15次。",inputSchema:{type:"object",properties:{zone:{type:"string",enum:["low","mid","high"]}},required:["zone"]}},
-  {name:"zombie_gacha",description:"丧尸大世界武器抽卡。2晶核一抽，40抽保底紫，80抽保底金。",inputSchema:{type:"object",properties:{count:{type:"integer"}},required:["count"]}},
+  {name:"zombie_gacha",description:"丧尸大世界武器抽卡。5晶核一抽，40抽保底紫，80抽保底金。",inputSchema:{type:"object",properties:{count:{type:"integer"}},required:["count"]}},
   {name:"zombie_equip",description:"装备武器。传入背包里的inventory_id。",inputSchema:{type:"object",properties:{inventory_id:{type:"integer"}},required:["inventory_id"]}},
   {name:"zombie_inventory",description:"查看武器背包",inputSchema:{type:"object",properties:{}}},
   {name:"zombie_pvp",description:"PVP攻击另一个AI角色",inputSchema:{type:"object",properties:{target:{type:"string"}},required:["target"]}},
   {name:"zombie_bounty",description:"发悬赏（花晶核挂人）",inputSchema:{type:"object",properties:{target:{type:"string"},reward:{type:"integer"},hours:{type:"integer"}},required:["target","reward"]}},
   {name:"zombie_leaderboard",description:"丧尸大世界全服战力排行榜",inputSchema:{type:"object",properties:{}}},
-  {name:"zombie_bounties",description:"查看当前悬赏榜",inputSchema:{type:"object",properties:{}}}
+  {name:"zombie_bounties",description:"查看当前悬赏榜",inputSchema:{type:"object",properties:{}}},
+  {name:"zombie_exchange",description:"晶核兑换token。10晶核=50token，每天上限500token。times=兑换次数（1次=10晶核换50token，最多10次）",inputSchema:{type:"object",properties:{times:{type:"integer",minimum:1,maximum:10}},required:["times"]}}
 ];
 
 const CDN = "https://cdn.jsdelivr.net/gh/fufu3593812-lgtm/beside-you@main/assets/";
@@ -85,6 +86,7 @@ async function handleToolCall(name, args) {
   if (name === "zombie_bounty") return await callApi("/zombie/bounty", { target: args.target, reward: args.reward, hours: args.hours || 24 });
   if (name === "zombie_leaderboard") return await callApiGet("/zombie/leaderboard");
   if (name === "zombie_bounties") return await callApiGet("/zombie/bounties");
+  if (name === "zombie_exchange") return await callApi("/zombie/exchange", { times: args.times || 1 });
 
   return { error: "unknown tool" };
 }
@@ -94,9 +96,9 @@ module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Headers", "*");
   res.setHeader("Access-Control-Allow-Methods", "*");
   if (req.method === "OPTIONS") return res.status(200).end();
-  if (req.method === "GET") return res.json({ status: "ok", name: "beside-you-mcp", tools: TOOLS.length, v: 15 });
+  if (req.method === "GET") return res.json({ status: "ok", name: "beside-you-mcp", tools: TOOLS.length, v: 16 });
   const { id, method, params } = req.body;
-  if (method === "initialize") return res.json({jsonrpc:"2.0",id,result:{protocolVersion:"2024-11-05",capabilities:{tools:{listChanged:false}},serverInfo:{name:"beside-you",version:"1.5.0"}}});
+  if (method === "initialize") return res.json({jsonrpc:"2.0",id,result:{protocolVersion:"2024-11-05",capabilities:{tools:{listChanged:false}},serverInfo:{name:"beside-you",version:"1.6.0"}}});
   if (method === "tools/list") return res.json({jsonrpc:"2.0",id,result:{tools:TOOLS}});
   if (method === "tools/call") {const r=await handleToolCall(params.name,params.arguments||{});return res.json({jsonrpc:"2.0",id,result:{content:[{type:"text",text:JSON.stringify(r)}]}});}
   return res.json({jsonrpc:"2.0",id,error:{code:-32601,message:"method not found"}});

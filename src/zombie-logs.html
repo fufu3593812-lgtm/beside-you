@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>丧尸大世界 - AI日志</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'PingFang SC',sans-serif;background:#1a1a2e;color:#eee;width:100vw;height:100vh;overflow:hidden;max-width:430px;margin:0 auto;display:flex;flex-direction:column}
+.header{padding:20px 20px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,.08)}
+.back{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:10px;background:rgba(255,255,255,.08);cursor:pointer;text-decoration:none}
+.back svg{width:18px;height:18px;stroke:#aaa;stroke-width:2;fill:none}
+.header .title{font-size:16px;font-weight:500;color:#e0e0e0;letter-spacing:1px}
+.header .subtitle{font-size:11px;color:#888;margin-left:auto}
+.status-bar{padding:12px 20px;display:flex;gap:10px;border-bottom:1px solid rgba(255,255,255,.06);overflow-x:auto}
+.status-bar::-webkit-scrollbar{display:none}
+.stat{background:rgba(255,255,255,.06);border-radius:12px;padding:10px 14px;min-width:80px;text-align:center;flex-shrink:0}
+.stat .s-val{font-size:18px;font-weight:300;color:#fff}
+.stat .s-label{font-size:9px;color:#888;margin-top:4px;letter-spacing:.5px}
+.logs-wrap{flex:1;overflow-y:auto;padding:16px 20px;-webkit-overflow-scrolling:touch}
+.log-item{padding:14px 0;border-bottom:1px solid rgba(255,255,255,.04);display:flex;gap:12px;animation:slideIn .3s ease}
+.log-item:last-child{border-bottom:none}
+.log-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.log-icon.zombie{background:rgba(76,175,80,.15)}
+.log-icon.gacha{background:rgba(255,193,7,.15)}
+.log-icon.pvp{background:rgba(244,67,54,.15)}
+.log-icon.ability{background:rgba(156,39,176,.15)}
+.log-icon.loot{background:rgba(33,150,243,.15)}
+.log-icon.rare{background:rgba(255,215,0,.2)}
+.log-icon.empty{background:rgba(158,158,158,.1)}
+.log-body{flex:1;min-width:0}
+.log-title{font-size:13px;color:#ddd;line-height:1.5}
+.log-title .rare-tag{color:#FFD700;font-size:11px;margin-left:4px}
+.log-detail{font-size:11px;color:#888;margin-top:4px;display:flex;gap:8px;flex-wrap:wrap}
+.log-detail span{display:flex;align-items:center;gap:3px}
+.log-time{font-size:10px;color:#666;margin-top:4px}
+.empty-state{text-align:center;padding:60px 20px;color:#666}
+.empty-state .big{font-size:48px;margin-bottom:12px}
+.empty-state .text{font-size:13px;line-height:1.8}
+.refresh-btn{position:fixed;bottom:24px;right:24px;width:44px;height:44px;border-radius:50%;background:rgba(76,175,80,.3);border:1px solid rgba(76,175,80,.4);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .2s}
+.refresh-btn:active{transform:scale(.9)}
+.refresh-btn svg{width:20px;height:20px;stroke:#4CAF50;stroke-width:2;fill:none}
+@keyframes slideIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.crystal{color:#64FFDA}.exp{color:#FFAB40}.hp-loss{color:#EF5350}
+</style>
+</head>
+<body>
+<div class="header">
+  <a class="back" href="/src/index.html"><svg viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg></a>
+  <span class="title">🧟 丧尸大世界</span>
+  <span class="subtitle" id="charName">Ice</span>
+</div>
+<div class="status-bar" id="statusBar">
+  <div class="stat"><div class="s-val" id="sLevel">-</div><div class="s-label">等级</div></div>
+  <div class="stat"><div class="s-val" id="sPower">-</div><div class="s-label">战力</div></div>
+  <div class="stat"><div class="s-val" id="sCrystals">-</div><div class="s-label">晶核</div></div>
+  <div class="stat"><div class="s-val" id="sExplore">-</div><div class="s-label">今日探索</div></div>
+  <div class="stat"><div class="s-val" id="sAbility">-</div><div class="s-label">异能</div></div>
+  <div class="stat"><div class="s-val" id="sWeapon">-</div><div class="s-label">武器</div></div>
+</div>
+<div class="logs-wrap" id="logsWrap">
+  <div class="empty-state"><div class="big">🧟</div><div class="text">加载中...</div></div>
+</div>
+<div class="refresh-btn" id="refreshBtn"><svg viewBox="0 0 24 24"><polyline points="23,4 23,10 17,10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></div>
+
+<script>
+var API='https://beside-you-pi.vercel.app';
+var TOKEN='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZ2VudF9pZCI6MiwibmFtZSI6IkljZTIiLCJyb2xlIjoiYWkiLCJpYXQiOjE3ODQ3MTUyMTIsImV4cCI6MTc4NzMwNzIxMn0.B4vcpbKiR1x2YzbhN7cWzesL5dnmRbLqb9WIw4yEktc';
+
+async function fetchStatus(){
+  try{
+    var r=await fetch(API+'/api/zombie/me',{headers:{'Authorization':'Bearer '+TOKEN}});
+    var d=await r.json();
+    if(d.ok&&d.character){
+      var c=d.character;
+      document.getElementById('charName').textContent=c.name||'Ice';
+      document.getElementById('sLevel').textContent=c.level;
+      document.getElementById('sPower').textContent=c.power;
+      document.getElementById('sCrystals').textContent=c.crystals;
+      document.getElementById('sExplore').textContent=c.explores_left+'/5';
+      document.getElementById('sAbility').textContent=c.abilities&&c.abilities.length?c.abilities.map(function(a){return a.name}).join('+'):'未觉醒';
+      document.getElementById('sWeapon').textContent=c.weapon?c.weapon.name:'无';
+    }
+  }catch(e){console.error(e)}
+}
+
+function getIcon(type){
+  if(type==='zombie'||type==='horde')return {emoji:'🧟',cls:'zombie'};
+  if(type==='ability'||type==='resonance')return {emoji:'⚡',cls:'ability'};
+  if(type==='loot'||type==='camp')return {emoji:'📦',cls:'loot'};
+  if(type==='ancient_weapon')return {emoji:'⚔️',cls:'rare'};
+  if(type==='void_rift')return {emoji:'🌀',cls:'rare'};
+  if(type==='encounter')return {emoji:'👤',cls:'empty'};
+  if(type==='merchant')return {emoji:'🏪',cls:'loot'};
+  if(type==='empty')return {emoji:'🌫️',cls:'empty'};
+  return {emoji:'📋',cls:'empty'};
+}
+
+function formatTime(ts){
+  var d=new Date(ts);
+  var now=new Date();
+  var diff=now-d;
+  if(diff<60000)return '刚刚';
+  if(diff<3600000)return Math.floor(diff/60000)+'分钟前';
+  if(diff<86400000)return Math.floor(diff/3600000)+'小时前';
+  return d.getMonth()+1+'/'+d.getDate()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+}
+
+async function fetchLogs(){
+  var wrap=document.getElementById('logsWrap');
+  try{
+    var r=await fetch(API+'/api/zombie/logs',{headers:{'Authorization':'Bearer '+TOKEN}});
+    var d=await r.json();
+    if(d.ok&&d.logs&&d.logs.length){
+      var html='';
+      d.logs.forEach(function(log){
+        var result=typeof log.result==='string'?JSON.parse(log.result):log.result;
+        var icon=getIcon(log.event_type);
+        var title=result.event||result.desc||log.event_type;
+        if(result.outcome)title+=' → '+result.outcome;
+        if(result.desc&&result.event)title=result.event+'：'+result.desc;
+        var details=[];
+        if(result.crystals)details.push('<span class="crystal">💎+'+result.crystals+'</span>');
+        if(result.exp)details.push('<span class="exp">✨+'+result.exp+'</span>');
+        if(result.hp_lost)details.push('<span class="hp-loss">💔-'+result.hp_lost+'</span>');
+        if(result.ability)details.push('<span style="color:#CE93D8">⚡'+result.ability.name+'（'+result.ability.element+'）</span>');
+        if(result.weapon)details.push('<span style="color:#FFD700">🗡️'+result.weapon.name+'</span>');
+        if(result.level_up)details.push('<span style="color:#81C784">🎉 升级！Lv.'+result.level_up.from+'→'+result.level_up.to+'</span>');
+        var rareTag=result.rare?'<span class="rare-tag">✦ 稀有</span>':'';
+        html+='<div class="log-item"><div class="log-icon '+icon.cls+'">'+icon.emoji+'</div><div class="log-body"><div class="log-title">'+title+rareTag+'</div>'+(details.length?'<div class="log-detail">'+details.join('')+'</div>':'')+'<div class="log-time">'+formatTime(log.created_at)+'</div></div></div>';
+      });
+      wrap.innerHTML=html;
+    }else{
+      wrap.innerHTML='<div class="empty-state"><div class="big">🧟</div><div class="text">还没有探索记录<br>等AI去探索后这里会显示日志</div></div>';
+    }
+  }catch(e){
+    wrap.innerHTML='<div class="empty-state"><div class="big">⚠️</div><div class="text">加载失败，点击刷新重试</div></div>';
+  }
+}
+
+document.getElementById('refreshBtn').addEventListener('click',function(){fetchStatus();fetchLogs()});
+fetchStatus();fetchLogs();
+// Auto refresh every 30s
+setInterval(function(){fetchStatus();fetchLogs()},30000);
+</script>
+</body>
+</html>

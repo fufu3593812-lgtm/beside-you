@@ -11,8 +11,8 @@
 </style>
 </head>
 <body>
-<div class="bg-room" id="bgRoom"></div><div class="overlay-top"></div><div class="overlay-bottom"></div>
-<div class="char-wrap" id="charWrap"><img class="character" id="charImg" alt="角色"></div>
+<div class="bg-room" id="bgRoom"><img src="/assets/%E5%8D%A7%E5%AE%A4.png" id="bgImg" alt="背景"></div><div class="overlay-top"></div><div class="overlay-bottom"></div>
+<div class="char-wrap" id="charWrap"><img class="character" id="charImg" src="/assets/%E7%9D%A1%E8%A3%99.PNG" alt="角色"></div>
 <div class="top-left fade-in fade-in-delay-1"><div class="greet" id="greet-text">Good evening,</div><div class="name" id="display-name">珩</div><div class="subtitle" id="subtitle-text">今天也辛苦了，<br>我一直都在这里等你。</div></div>
 <div class="top-right fade-in fade-in-delay-2"><a class="icon-btn" href="/src/zombie-logs.html" style="font-size:15px;line-height:1">🧟</a><div class="icon-btn" id="checkinBtn"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span class="dot" id="checkinDot"></span></div><a class="icon-btn" href="/src/letter.html"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22,6 12,13 2,6"/></svg><span class="dot" id="letterDot"></span></a></div>
 <div class="checkin-toast" id="checkinToast">签到成功 +160 token</div><div class="tap-toast" id="tapToast">♥ 亲密度 +5</div>
@@ -24,13 +24,37 @@
 <script>
 var API='https://beside-you-pi.vercel.app';
 var OUTFIT_MAP={'月光睡裙':'/assets/%E7%9D%A1%E8%A3%99.PNG','慵懒卫衣':'/assets/%E5%8D%AB%E8%A1%A3.PNG','初恋JK':'/assets/jk.PNG','碎花裙':'/assets/%E7%A2%8E%E8%8A%B1%E8%A3%99.PNG','粉雾呢喃':'/assets/gacha/%E6%92%92%E5%A8%87%E7%AB%8B%E7%BB%98.png','血月静默':'/assets/gacha/%E7%94%9F%E6%B0%94%E7%AB%8B%E7%BB%98.png'};
-var BG_MAP={'默认卧室':'/assets/%E5%8D%A7%E5%AE%A4.png','撒娇背景':'/assets/background/%E6%92%92%E5%A8%87%E8%83%8C%E6%99%AF.png','生气背景':'/assets/background/%E7%94%9F%E6%B0%94%E8%83%8C%E6%99%AF.PNG'};
 var DEFAULT_BG='/assets/%E5%8D%A7%E5%AE%A4.png';
 var DEFAULT_OUTFIT='/assets/%E7%9D%A1%E8%A3%99.PNG';
 var MOODS=[{id:'happy',label:'开心',icon:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>'},{id:'calm',label:'平静',icon:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="8" y1="14" x2="16" y2="14"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>'},{id:'tired',label:'疲惫',icon:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 15s1.5-1 4-1 4 1 4 1"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>'},{id:'miss',label:'想你',icon:'<svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>'},{id:'sad',label:'难过',icon:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>'},{id:'anxious',label:'焦虑',icon:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 15h8"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/><path d="M8 8l2-1"/><path d="M14 8l2-1"/></svg>'},{id:'excited',label:'兴奋',icon:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5 3 4 3 4-3 4-3"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>'},{id:'sleepy',label:'困困',icon:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 1 4 1 4-1 4-1"/><path d="M9 9.5c0 .5-.5 1-1 1s-1-.5-1-1"/><path d="M17 9.5c0 .5-.5 1-1 1s-1-.5-1-1"/></svg>'}];
 function detectBrightness(i){try{var c=document.createElement('canvas');c.width=50;c.height=50;var x=c.getContext('2d');x.drawImage(i,0,0,50,50);var d=x.getImageData(0,0,50,50).data;var t=0;for(var j=0;j<d.length;j+=4)t+=d[j]*.299+d[j+1]*.587+d[j+2]*.114;if(t/(d.length/4)<140){document.body.classList.add('dark-bg');document.body.classList.remove('light-bg')}else{document.body.classList.remove('dark-bg');document.body.classList.add('light-bg')}}catch(e){document.body.classList.add('light-bg')}}
 (function(){var a=localStorage.getItem('bsy_auth');if(!a){window.location.href='/index.html';return}try{var d=JSON.parse(a);if(!d.token||!d.user){window.location.href='/index.html';return}document.getElementById('display-name').textContent=d.user.display_name||d.user.username||'珩'}catch(e){window.location.href='/index.html'}})();
-(async function(){var a=JSON.parse(localStorage.getItem('bsy_auth')||'{}');if(a.token){try{var r=await fetch(API+'/api/user/wardrobe',{headers:{'Authorization':'Bearer '+a.token}});if(r.ok){var d=await r.json();if(d.wardrobe){if(d.wardrobe.outfit)localStorage.setItem('bsy_outfit',d.wardrobe.outfit);if(d.wardrobe.bg)localStorage.setItem('bsy_bg_name',d.wardrobe.bg)}}}catch(e){}}var ci=document.getElementById('charImg'),cw=document.getElementById('charWrap');var outfitName=localStorage.getItem('bsy_outfit')||'月光睡裙';var outfitSrc=OUTFIT_MAP[outfitName]||DEFAULT_OUTFIT;ci.onload=function(){ci.classList.add('loaded')};ci.src=outfitSrc;var br=document.getElementById('bgRoom');var bgName=localStorage.getItem('bsy_bg_name')||'默认卧室';var bgSrc=BG_MAP[bgName]||DEFAULT_BG;var img=new Image();img.onload=function(){img.classList.add('loaded');br.appendChild(img);detectBrightness(img)};img.onerror=function(){var f=new Image();f.onload=function(){f.classList.add('loaded');br.appendChild(f)};f.src=DEFAULT_BG;document.body.classList.add('light-bg')};img.src=bgSrc})();
+(async function(){
+  var ci=document.getElementById('charImg');
+  var bi=document.getElementById('bgImg');
+  // Default images are already in HTML src, so they start loading immediately
+  // Just add loaded class when done
+  bi.onload=function(){bi.classList.add('loaded');detectBrightness(bi)};
+  ci.onload=function(){ci.classList.add('loaded')};
+  // If images are already cached, trigger onload
+  if(bi.complete&&bi.naturalHeight>0){bi.classList.add('loaded');detectBrightness(bi)}
+  if(ci.complete&&ci.naturalHeight>0){ci.classList.add('loaded')}
+  // Fetch wardrobe from API and update if different from default
+  var a=JSON.parse(localStorage.getItem('bsy_auth')||'{}');
+  if(a.token){try{
+    var r=await fetch(API+'/api/user/wardrobe',{headers:{'Authorization':'Bearer '+a.token}});
+    if(r.ok){var d=await r.json();if(d.wardrobe){
+      var outfit=d.wardrobe.outfit||'月光睡裙';
+      localStorage.setItem('bsy_outfit',outfit);
+      if(outfit!=='月光睡裙'&&OUTFIT_MAP[outfit]){ci.src=OUTFIT_MAP[outfit]}
+      // bg_img could be a name or a URL from old code
+      var bg=d.wardrobe.bg_img;
+      if(bg&&bg!=='/assets/%E5%8D%A7%E5%AE%A4.png'&&bg!==DEFAULT_BG){
+        bi.src=bg.indexOf('/')===0||bg.indexOf('http')===0?bg:DEFAULT_BG;
+      }
+    }}
+  }catch(e){}}
+})();
 (function(){var h=new Date().getHours(),g=document.getElementById('greet-text'),s=document.getElementById('subtitle-text');if(h>=5&&h<12){g.textContent='Good morning,';s.innerHTML='新的一天开始了，<br>要好好吃早饭哦。'}else if(h>=12&&h<18){g.textContent='Good afternoon,';s.innerHTML='下午了，<br>记得喝杯水休息一下。'}else if(h>=18&&h<22){g.textContent='Good evening,';s.innerHTML='今天也辛苦了，<br>我一直都在这里等你。'}else{g.textContent='Late night,';s.innerHTML='夜深了，<br>该休息了，我陪着你。'}})();
 (function(){var e=document.getElementById('companion-time'),s=Date.now();function p(n){return n<10?'0'+n:n}function u(){var d=Math.floor((Date.now()-s)/1000);e.textContent=p(Math.floor(d/3600))+':'+p(Math.floor((d%3600)/60))+':'+p(d%60)}setInterval(u,1000);u()})();
 (function(){var b=document.getElementById('checkinBtn'),d=document.getElementById('checkinDot'),t=document.getElementById('checkinToast'),td=new Date().toISOString().slice(0,10),k='bsy_checkin_'+td;if(localStorage.getItem(k))d.classList.add('hidden');b.addEventListener('click',async function(){if(localStorage.getItem(k))return;var a=JSON.parse(localStorage.getItem('bsy_auth')||'{}');try{var r=await fetch(API+'/api/user/checkin',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+a.token}});if(r.ok){var data=await r.json();localStorage.setItem(k,'1');var nt=data.tokens||(parseInt(localStorage.getItem('bsy_tokens')||'0')+160);localStorage.setItem('bsy_tokens',nt.toString());if(a.user){a.user.tokens=nt;localStorage.setItem('bsy_auth',JSON.stringify(a))}}else{localStorage.setItem(k,'1')}}catch(e){localStorage.setItem(k,'1')}d.classList.add('hidden');t.classList.add('show');setTimeout(function(){t.classList.remove('show')},2000);updateIntimacy()})})();

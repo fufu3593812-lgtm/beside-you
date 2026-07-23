@@ -1,5 +1,5 @@
 const{Pool}=require('pg');const jwt=require('jsonwebtoken');const bcrypt=require('bcryptjs');const crypto=require('crypto');
-const S=process.env.JWT_SECRET||'beside-you-secret-2026';
+const S=process.env.JWT_SECRET||'beside-you-pearl-2026';
 const pool=new Pool({connectionString:process.env.POSTGRES_URL||process.env.DATABASE_URL,ssl:{rejectUnauthorized:false},max:3,connectionTimeoutMillis:10000,idleTimeoutMillis:30000});
 
 function sign(p){return jwt.sign(p,S,{expiresIn:'30d'})}

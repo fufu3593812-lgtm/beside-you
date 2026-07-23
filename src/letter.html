@@ -100,18 +100,20 @@ body { min-height: 100vh; background: #FFF8F7; font-family: -apple-system, 'Ping
 
   var letters = [];
   var currentTab = 'letters';
-  // Use backend to check claimed status, with localStorage as cache
-  var claimedSet = JSON.parse(localStorage.getItem('bsy_mail_claimed')||'[]');
-  var readSet = JSON.parse(localStorage.getItem('bsy_mail_read')||'[]');
+  // Backend stores both read status and claim status
+  // reward_id format: "read-{mail_id}" for read, "{mail_id}" for claimed
+  var serverData = []; // all reward_ids from backend
+  var ready = false;
 
-  // Fetch claimed rewards from backend on load
-  fetch('/api/user/rewards?token='+TOKEN).then(function(r){return r.json()}).then(function(d){
-    if(d.claimed&&d.claimed.length){claimedSet=d.claimed;localStorage.setItem('bsy_mail_claimed',JSON.stringify(claimedSet));renderAll()}
-  }).catch(function(){});
+  function isRead(id){return serverData.indexOf('read-'+id)!==-1}
+  function isClaimed(id){return serverData.indexOf(id)!==-1}
 
-  function isRead(id){return readSet.indexOf(id)!==-1}
-  function markRead(id){if(!isRead(id)){readSet.push(id);localStorage.setItem('bsy_mail_read',JSON.stringify(readSet))}}
-  function isClaimed(id){return claimedSet.indexOf(id)!==-1}
+  function markRead(id){
+    if(isRead(id))return;
+    serverData.push('read-'+id);
+    // Fire and forget — mark read on backend
+    fetch('/api/user/claim-reward?token='+TOKEN+'&reward_id='+encodeURIComponent('read-'+id)).catch(function(){});
+  }
 
   function formatDate(d){var today=new Date().toISOString().slice(0,10);if(d===today)return'今天';var y=new Date(Date.now()-86400000).toISOString().slice(0,10);if(d===y)return'昨天';return d.slice(5).replace('-','/')}
 
@@ -171,10 +173,9 @@ body { min-height: 100vh; background: #FFF8F7; font-family: -apple-system, 'Ping
 
   function claimGifts(item,btn){
     if(isClaimed(item.id))return;
-    // Call backend to claim
-    fetch('/api/user/claim-reward?token='+TOKEN+'&reward_id='+encodeURIComponent(item.id)+'&tokens=1600&crystals=10').then(function(r){
+    fetch('/api/user/claim-reward?token='+TOKEN+'&reward_id='+encodeURIComponent(item.id)+'&tokens=1600').then(function(r){
       if(r.ok||r.status===409){
-        claimedSet.push(item.id);localStorage.setItem('bsy_mail_claimed',JSON.stringify(claimedSet));
+        serverData.push(item.id);
         btn.textContent='已领取 ♥';btn.classList.add('claimed');btn.onclick=null;
       }
     }).catch(function(){})
@@ -185,7 +186,7 @@ body { min-height: 100vh; background: #FFF8F7; font-family: -apple-system, 'Ping
     var amount=(item.reward&&item.reward.amount)||520;
     fetch('/api/user/claim-reward?token='+TOKEN+'&reward_id='+encodeURIComponent(item.id)+'&tokens='+amount).then(function(r){
       if(r.ok||r.status===409){
-        claimedSet.push(item.id);localStorage.setItem('bsy_mail_claimed',JSON.stringify(claimedSet));
+        serverData.push(item.id);
         el.classList.add('claimed');el.innerHTML+='<div class="reward-claimed">已领取</div>';el.onclick=null;
       }
     }).catch(function(){})
@@ -194,17 +195,26 @@ body { min-height: 100vh; background: #FFF8F7; font-family: -apple-system, 'Ping
   window.closeDetail=function(e){if(e.target===document.getElementById('detailOverlay'))document.getElementById('detailOverlay').classList.remove('show')};
   window.switchTab=function(tab){currentTab=tab;document.querySelectorAll('.tab').forEach(function(el){el.classList.toggle('active',el.dataset.tab===tab)});document.getElementById('letterList').style.display=tab==='letters'?'flex':'none';document.getElementById('announceList').style.display=tab==='announce'?'flex':'none'};
 
-  renderAll();
-
-  // Fetch letters
-  fetch('/api/user/letters?token='+TOKEN).then(function(r){return r.json()}).then(function(d){
+  // Load all state from backend first, then render
+  fetch('/api/user/rewards?token='+TOKEN).then(function(r){return r.json()}).then(function(d){
+    if(d.claimed)serverData=d.claimed;
+    ready=true;
+    renderAll();
+    // Fetch letters after rewards loaded
+    return fetch('/api/user/letters?token='+TOKEN);
+  }).then(function(r){return r.json()}).then(function(d){
     if(!d.letters||!d.letters.length)return;
     letters=d.letters.map(function(l){return{id:'letter-'+l.id,from:'Ice',subject:l.subject,date:l.created_at?l.created_at.slice(0,10):'',body:'<p>'+l.body.replace(/\n/g,'</p><p>')+'</p>',reward:{amount:520}}});
-    renderAll()
-  }).catch(function(){});
-
-  var hasUnreadAnn=announcements.some(function(a){return!isRead(a.id)});
-  if(hasUnreadAnn)switchTab('announce');
+    renderAll();
+    // Auto switch to announce tab if there are unread announcements
+    var hasUnreadAnn=announcements.some(function(a){return!isRead(a.id)});
+    if(hasUnreadAnn)switchTab('announce');
+  }).catch(function(){
+    // If backend fails, render anyway (everything shows as unread)
+    renderAll();
+    var hasUnreadAnn=announcements.some(function(a){return!isRead(a.id)});
+    if(hasUnreadAnn)switchTab('announce');
+  });
 })();
 </script>
 </body>

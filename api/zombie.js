@@ -8,7 +8,21 @@ const pool=new Pool({connectionString:process.env.POSTGRES_URL||process.env.DATA
 const TEXT=require('./zombie-text');
 
 function authAny(req){const h=req.headers.authorization;if(!h||!h.startsWith('Bearer '))return null;try{return jwt.verify(h.slice(7),S)}catch{return null}}
-async function authAi(req){const d=authAny(req);if(d&&d.role==='ai')return d;const url=new URL(req.url,'http://x');const name=url.searchParams.get('name');const password=url.searchParams.get('password');if(!name||!password)return null;const r=await pool.query('SELECT * FROM ai_agents WHERE name=$1',[name]);if(!r.rows.length)return null;if(!(await bcrypt.compare(password,r.rows[0].password_hash)))return null;return {agent_id:r.rows[0].id,name:r.rows[0].name,role:'ai'};}
+async function authAi(req){
+  const d=authAny(req);
+  if(d&&d.role==='ai')return d;
+  // Support user token: look up their bound agent_id
+  if(d&&d.id&&!d.role){
+    const ur=await pool.query('SELECT agent_id FROM users WHERE id=$1',[d.id]);
+    if(ur.rows.length&&ur.rows[0].agent_id)return {agent_id:ur.rows[0].agent_id,name:'user_'+d.id,role:'ai'};
+  }
+  const url=new URL(req.url,'http://x');const name=url.searchParams.get('name');const password=url.searchParams.get('password');
+  if(!name||!password)return null;
+  const r=await pool.query('SELECT * FROM ai_agents WHERE name=$1',[name]);
+  if(!r.rows.length)return null;
+  if(!(await bcrypt.compare(password,r.rows[0].password_hash)))return null;
+  return {agent_id:r.rows[0].id,name:r.rows[0].name,role:'ai'};
+}
 function getParams(req){if(req.method==='POST'||req.method==='PUT')return req.body||{};const url=new URL(req.url,'http://x');const o={};url.searchParams.forEach((v,k)=>o[k]=v);return o;}
 function toDateStr(d){if(!d)return null;if(typeof d==='string')return d.slice(0,10);if(d instanceof Date)return d.toISOString().slice(0,10);return String(d).slice(0,10);}
 const ABILITIES=[{id:'flame',name:'焰息',element:'火',bonus:22,desc:'群伤烧伤'},{id:'frost',name:'冻脉',element:'冰',bonus:20,desc:'减速冻结暴击'},{id:'thunder',name:'雷引',element:'雷',bonus:25,desc:'暴击连锁'},{id:'shadow',name:'蚀影',element:'暗',bonus:20,desc:'闪避偷袭'},{id:'mind',name:'念压',element:'念',bonus:25,desc:'精神压制'},{id:'thorn',name:'荆棘',element:'生',bonus:18,desc:'回血反伤'},{id:'quake',name:'裂地',element:'岩',bonus:20,desc:'高防反击'},{id:'wind',name:'风蚀',element:'风',bonus:22,desc:'高速连击'},{id:'blood',name:'噬血',element:'血',bonus:22,desc:'吸血越打越猛'},{id:'void',name:'虚空',element:'空间',bonus:15,desc:'瞬移逃跑必成'},{id:'metal',name:'金噬',element:'金',bonus:25,desc:'破甲穿透'},{id:'wood',name:'朽木',element:'木',bonus:20,desc:'寄生吸取'},{id:'tide',name:'潮汐',element:'水',bonus:18,desc:'治疗辅助'},{id:'earth',name:'烬土',element:'土',bonus:18,desc:'护盾挡伤'},{id:'melt',name:'熔炎',element:'火+金',bonus:22,desc:'破甲+烧伤(火+金觉醒)'}];

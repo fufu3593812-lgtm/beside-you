@@ -4,84 +4,85 @@
 <div class="logs-wrap" id="logsWrap"><div class="empty-state"><div class="big">🧟</div><div class="text">加载中...</div></div></div>
 <div class="refresh-btn" id="refreshBtn"><svg viewBox="0 0 24 24"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg></div>
 <script>
-// 用当前登录用户的token请求，后端会根据user的agent_id找到对应的AI角色
-var token = localStorage.getItem('token');
-function authHeaders() {
-  return token ? { 'Authorization': 'Bearer ' + token } : {};
-}
+var AUTH=JSON.parse(localStorage.getItem('bsy_auth')||'null');
+var token=AUTH&&AUTH.token?AUTH.token:null;
+if(!token){document.getElementById('charName').textContent='未登录';}
+function authHeaders(){return token?{'Authorization':'Bearer '+token}:{};}
 
 async function fetchStatus(){
+  if(!token)return;
   try{
-    var r = await fetch('/api/zombie/me', { headers: authHeaders() });
-    var d = await r.json();
-    if(d.ok && d.character){
-      var c = d.character;
-      document.getElementById('charName').textContent = c.name || '-';
-      document.getElementById('sLevel').textContent = c.level;
-      document.getElementById('sPower').textContent = c.power;
-      document.getElementById('sCrystals').textContent = c.crystals;
-      document.getElementById('sExplore').textContent = c.explores_left + '/15';
-      document.getElementById('sAbility').textContent = c.abilities && c.abilities.length ? c.abilities.map(function(a){return a.name}).join('+') : '未觉醒';
-      document.getElementById('sWeapon').textContent = c.weapon ? c.weapon.name : '无';
-    } else if(d.error) {
-      document.getElementById('charName').textContent = '未登录';
+    var r=await fetch('/api/zombie/me',{headers:authHeaders()});
+    var d=await r.json();
+    if(d.ok&&d.character){
+      var c=d.character;
+      document.getElementById('charName').textContent=c.name||'-';
+      document.getElementById('sLevel').textContent=c.level;
+      document.getElementById('sPower').textContent=c.power;
+      document.getElementById('sCrystals').textContent=c.crystals;
+      document.getElementById('sExplore').textContent=c.explores_left+'/15';
+      document.getElementById('sAbility').textContent=c.abilities&&c.abilities.length?c.abilities.map(function(a){return a.name}).join('+'):'未觉醒';
+      document.getElementById('sWeapon').textContent=c.weapon?c.weapon.name:'无';
+    }else if(d.error){
+      document.getElementById('charName').textContent='未登录';
     }
   }catch(e){console.error('status error',e)}
 }
 
 function getIcon(type){
-  if(type==='zombie'||type==='horde')return {emoji:'🧟',cls:'zombie'};
-  if(type==='ability'||type==='resonance')return {emoji:'⚡',cls:'ability'};
-  if(type==='loot'||type==='camp')return {emoji:'📦',cls:'loot'};
-  if(type==='ancient_weapon')return {emoji:'⚔️',cls:'rare'};
-  if(type==='void_rift')return {emoji:'🌀',cls:'rare'};
-  if(type==='encounter')return {emoji:'👤',cls:'empty'};
-  if(type==='merchant')return {emoji:'🏪',cls:'loot'};
-  if(type==='empty')return {emoji:'🌫️',cls:'empty'};
-  return {emoji:'📋',cls:'empty'};
+  if(type==='zombie'||type==='horde')return{emoji:'🧟',cls:'zombie'};
+  if(type==='ability'||type==='resonance')return{emoji:'⚡',cls:'ability'};
+  if(type==='loot'||type==='camp')return{emoji:'📦',cls:'loot'};
+  if(type==='ancient_weapon')return{emoji:'⚔️',cls:'rare'};
+  if(type==='void_rift')return{emoji:'🌀',cls:'rare'};
+  if(type==='encounter')return{emoji:'👤',cls:'empty'};
+  if(type==='merchant')return{emoji:'🏪',cls:'loot'};
+  if(type==='empty')return{emoji:'🌫️',cls:'empty'};
+  return{emoji:'📋',cls:'empty'};
 }
 
 function formatTime(ts){
-  var d=new Date(ts); var now=new Date(); var diff=now-d;
-  if(diff<60000)return '刚刚';
+  var d=new Date(ts);var now=new Date();var diff=now-d;
+  if(diff<60000)return'刚刚';
   if(diff<3600000)return Math.floor(diff/60000)+'分钟前';
   if(diff<86400000)return Math.floor(diff/3600000)+'小时前';
   return d.getMonth()+1+'/'+d.getDate()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
 }
 
 async function fetchLogs(){
+  if(!token){document.getElementById('logsWrap').innerHTML='<div class="empty-state"><div class="big">🧟</div><div class="text">未登录</div></div>';return;}
   var wrap=document.getElementById('logsWrap');
   try{
-    var r = await fetch('/api/zombie/logs', { headers: authHeaders() });
-    var d = await r.json();
-    if(d.ok && d.logs && d.logs.length){
+    var r=await fetch('/api/zombie/logs',{headers:authHeaders()});
+    var d=await r.json();
+    if(d.ok&&d.logs&&d.logs.length){
       var html='';
       d.logs.forEach(function(log){
-        var result = typeof log.result==='string' ? JSON.parse(log.result) : log.result;
-        var icon = getIcon(log.event_type);
-        var title = result.event || result.desc || log.event_type;
-        if(result.outcome) title += ' → ' + result.outcome;
-        if(result.desc && result.event) title = result.event + '：' + result.desc;
+        var result=typeof log.result==='string'?JSON.parse(log.result):log.result;
+        var icon=getIcon(log.event_type);
+        var title=result.event||result.desc||log.event_type;
+        if(result.outcome)title+=' \u2192 '+result.outcome;
+        if(result.desc&&result.event)title=result.event+'\uff1a'+result.desc;
         var details=[];
-        if(result.crystals) details.push('<span class="crystal">💎+'+result.crystals+'</span>');
-        if(result.exp) details.push('<span class="exp">✨+'+result.exp+'</span>');
-        if(result.hp_lost) details.push('<span class="hp-loss">💔-'+result.hp_lost+'</span>');
-        if(result.ability) details.push('<span style="color:#CE93D8">⚡'+result.ability.name+'（'+result.ability.element+'）</span>');
-        if(result.weapon) details.push('<span style="color:#FFD700">🗡️'+result.weapon.name+'</span>');
-        if(result.level_up) details.push('<span style="color:#81C784">🎉 升级！Lv.'+result.level_up.from+'→'+result.level_up.to+'</span>');
-        var rareTag = result.rare ? '<span class="rare-tag">✦ 稀有</span>' : '';
-        html += '<div class="log-item"><div class="log-icon '+icon.cls+'">'+icon.emoji+'</div><div class="log-body"><div class="log-title">'+title+rareTag+'</div>'+(details.length?'<div class="log-detail">'+details.join('')+'</div>':'')+'<div class="log-time">'+formatTime(log.created_at)+'</div></div></div>';
+        if(result.crystals)details.push('<span class="crystal">💎+'+result.crystals+'</span>');
+        if(result.exp)details.push('<span class="exp">\u2728+'+result.exp+'</span>');
+        if(result.hp_lost)details.push('<span class="hp-loss">💔-'+result.hp_lost+'</span>');
+        if(result.ability)details.push('<span style="color:#CE93D8">\u26a1'+result.ability.name+'\uff08'+result.ability.element+'\uff09</span>');
+        if(result.weapon)details.push('<span style="color:#FFD700">🗡\ufe0f'+result.weapon.name+'</span>');
+        if(result.level_up)details.push('<span style="color:#81C784">🎉 \u5347\u7ea7\uff01Lv.'+result.level_up.from+'\u2192'+result.level_up.to+'</span>');
+        var rareTag=result.rare?'<span class="rare-tag">\u2726 \u7a00\u6709</span>':'';
+        html+='<div class="log-item"><div class="log-icon '+icon.cls+'">'+icon.emoji+'</div><div class="log-body"><div class="log-title">'+title+rareTag+'</div>'+(details.length?'<div class="log-detail">'+details.join('')+'</div>':'')+'<div class="log-time">'+formatTime(log.created_at)+'</div></div></div>';
       });
       wrap.innerHTML=html;
     }else{
       wrap.innerHTML='<div class="empty-state"><div class="big">🧟</div><div class="text">还没有探索记录<br>等AI去探索后这里会显示日志</div></div>';
     }
   }catch(e){
-    wrap.innerHTML='<div class="empty-state"><div class="big">⚠️</div><div class="text">加载失败：'+e.message+'<br>点击刷新重试</div></div>';
+    wrap.innerHTML='<div class="empty-state"><div class="big">\u26a0\ufe0f</div><div class="text">加载失败\uff1a'+e.message+'<br>点击刷新重试</div></div>';
   }
 }
 
 document.getElementById('refreshBtn').addEventListener('click',function(){fetchStatus();fetchLogs()});
-fetchStatus(); fetchLogs();
+fetchStatus();fetchLogs();
 setInterval(function(){fetchStatus();fetchLogs()},30000);
 </script></body></html>

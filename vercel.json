@@ -1,9 +1,8 @@
 {
-  "rewrites": [
-    {"source": "/api/mcp", "destination": "/api/mcp.js"},
-    {"source": "/api/zombie/:path*", "destination": "/api/zombie.js"},
-    {"source": "/api/letter-test", "destination": "/api/letter-test.js"},
-    {"source": "/api/:path*", "destination": "/api/index.js"}
+  "routes": [
+    {"src": "/api/mcp", "dest": "/api/mcp.js"},
+    {"src": "/api/zombie/(.*)", "dest": "/api/zombie.js"},
+    {"src": "/api/(.*)", "dest": "/api/index.js"}
   ],
   "headers": [
     {

@@ -3,5 +3,19 @@
     {"src": "/api/mcp", "dest": "/api/mcp.js"},
     {"src": "/api/zombie/(.*)", "dest": "/api/zombie.js"},
     {"src": "/api/(.*)", "dest": "/api/index.js"}
+  ],
+  "headers": [
+    {
+      "source": "/src/(.*).html",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/index.html",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+      ]
+    }
   ]
 }

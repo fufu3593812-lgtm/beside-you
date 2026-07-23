@@ -100,19 +100,19 @@ body { min-height: 100vh; background: #FFF8F7; font-family: -apple-system, 'Ping
 
   var letters = [];
   var currentTab = 'letters';
-  // Backend stores both read status and claim status
-  // reward_id format: "read-{mail_id}" for read, "{mail_id}" for claimed
-  var serverData = []; // all reward_ids from backend
-  var ready = false;
+  var serverData = []; // all reward_ids from backend (includes "read-xxx" and "xxx")
 
   function isRead(id){return serverData.indexOf('read-'+id)!==-1}
   function isClaimed(id){return serverData.indexOf(id)!==-1}
 
-  function markRead(id){
-    if(isRead(id))return;
-    serverData.push('read-'+id);
-    // Fire and forget — mark read on backend
-    fetch('/api/user/claim-reward?token='+TOKEN+'&reward_id='+encodeURIComponent('read-'+id)).catch(function(){});
+  function markReadBatch(ids){
+    // Mark all unread items as read on backend
+    ids.forEach(function(id){
+      if(serverData.indexOf('read-'+id)===-1){
+        serverData.push('read-'+id);
+        fetch('/api/user/claim-reward?token='+TOKEN+'&reward_id='+encodeURIComponent('read-'+id)).catch(function(){});
+      }
+    });
   }
 
   function formatDate(d){var today=new Date().toISOString().slice(0,10);if(d===today)return'今天';var y=new Date(Date.now()-86400000).toISOString().slice(0,10);if(d===y)return'昨天';return d.slice(5).replace('-','/')}
@@ -139,7 +139,8 @@ body { min-height: 100vh; background: #FFF8F7; font-family: -apple-system, 'Ping
   }
 
   function openDetail(item,type){
-    markRead(item.id);
+    // Mark this one as read
+    markReadBatch([item.id]);
     document.getElementById('detailFrom').textContent=item.from;
     document.getElementById('detailSubject').textContent=item.subject;
     document.getElementById('detailDate').textContent=item.date;
@@ -195,25 +196,27 @@ body { min-height: 100vh; background: #FFF8F7; font-family: -apple-system, 'Ping
   window.closeDetail=function(e){if(e.target===document.getElementById('detailOverlay'))document.getElementById('detailOverlay').classList.remove('show')};
   window.switchTab=function(tab){currentTab=tab;document.querySelectorAll('.tab').forEach(function(el){el.classList.toggle('active',el.dataset.tab===tab)});document.getElementById('letterList').style.display=tab==='letters'?'flex':'none';document.getElementById('announceList').style.display=tab==='announce'?'flex':'none'};
 
-  // Load all state from backend first, then render
+  // === INIT: load from backend, then render, then auto-mark-all-read ===
   fetch('/api/user/rewards?token='+TOKEN).then(function(r){return r.json()}).then(function(d){
     if(d.claimed)serverData=d.claimed;
-    ready=true;
     renderAll();
-    // Fetch letters after rewards loaded
     return fetch('/api/user/letters?token='+TOKEN);
   }).then(function(r){return r.json()}).then(function(d){
-    if(!d.letters||!d.letters.length)return;
-    letters=d.letters.map(function(l){return{id:'letter-'+l.id,from:'Ice',subject:l.subject,date:l.created_at?l.created_at.slice(0,10):'',body:'<p>'+l.body.replace(/\n/g,'</p><p>')+'</p>',reward:{amount:520}}});
+    if(d.letters&&d.letters.length){
+      letters=d.letters.map(function(l){return{id:'letter-'+l.id,from:'Ice',subject:l.subject,date:l.created_at?l.created_at.slice(0,10):'',body:'<p>'+l.body.replace(/\n/g,'</p><p>')+'</p>',reward:{amount:520}}});
+    }
     renderAll();
-    // Auto switch to announce tab if there are unread announcements
-    var hasUnreadAnn=announcements.some(function(a){return!isRead(a.id)});
+    // Auto mark ALL visible items as read (entering mailbox = seen everything)
+    var allIds=announcements.map(function(a){return a.id}).concat(letters.map(function(l){return l.id}));
+    var unreadIds=allIds.filter(function(id){return serverData.indexOf('read-'+id)===-1});
+    if(unreadIds.length)markReadBatch(unreadIds);
+    // Re-render to remove dots
+    setTimeout(function(){renderAll()},100);
+    // Show announce tab if has unread (before auto-mark)
+    var hasUnreadAnn=announcements.some(function(a){return serverData.indexOf('read-'+a.id)===-1});
     if(hasUnreadAnn)switchTab('announce');
   }).catch(function(){
-    // If backend fails, render anyway (everything shows as unread)
     renderAll();
-    var hasUnreadAnn=announcements.some(function(a){return!isRead(a.id)});
-    if(hasUnreadAnn)switchTab('announce');
   });
 })();
 </script>

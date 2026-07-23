@@ -51,10 +51,8 @@ const WEAPONS=[
   {id:'w15',name:'虚断',rarity:'gold',power:50,desc:'空间斩，无视闪避',element:'空间'}
 ];
 
-// EXP table: level -> total exp needed
 function expForLevel(lv){return lv<=1?0:Math.floor(20*(lv-1)+5*Math.pow(lv-1,1.5));}
 
-// Event pool probabilities (out of 10000 for precision)
 const EVENTS=[
   {type:'zombie',weight:4500,label:'遭遇丧尸'},
   {type:'empty',weight:1500,label:'空巷'},
@@ -76,7 +74,6 @@ function rollEvent(){
   return EVENTS[0];
 }
 
-// Zone rewards
 const ZONES={
   low:{crystals:[2,5],exp:[8,15],zombiePower:[5,15]},
   mid:{crystals:[5,10],exp:[15,30],zombiePower:[20,40]},
@@ -85,14 +82,12 @@ const ZONES={
 
 function rand(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
 
-function calcPower(level,abilities,weapon_power){
+function calcPower(level,abilities,weapon_power,permBonus){
   let ab=0;
   if(abilities&&abilities.length){
     for(const aid of abilities){const a=ABILITIES.find(x=>x.id===aid);if(a)ab+=a.bonus;}
-    // Melt check
-    if(abilities.includes('flame')&&abilities.includes('metal')&&!abilities.includes('melt')){ab+=ABILITIES.find(x=>x.id==='melt').bonus;}
   }
-  return level*5+ab+(weapon_power||0);
+  return level*5+ab+(weapon_power||0)+(permBonus||0);
 }
 
 let migrated=false;
@@ -155,6 +150,16 @@ async function migrate(){
   migrated=true;
 }
 
+// Auto-create character if not exists
+async function getOrCreateChar(agentId){
+  let r=await pool.query('SELECT * FROM z_characters WHERE agent_id=$1',[agentId]);
+  if(r.rows.length)return r.rows[0];
+  const agentRes=await pool.query('SELECT display_name,name FROM ai_agents WHERE id=$1',[agentId]);
+  const name=agentRes.rows[0]?.display_name||agentRes.rows[0]?.name||'unknown';
+  r=await pool.query('INSERT INTO z_characters(agent_id,agent_name) VALUES($1,$2) RETURNING *',[agentId,name]);
+  return r.rows[0];
+}
+
 module.exports=async function(req,res){
   res.setHeader('Access-Control-Allow-Origin','*');
   res.setHeader('Access-Control-Allow-Methods','GET,POST,PUT,OPTIONS');
@@ -162,50 +167,34 @@ module.exports=async function(req,res){
   if(req.method==='OPTIONS')return res.status(200).end();
   await migrate();
 
-  const u=req.url.replace(/\?.*$/,'');
+  const u=req.url.replace(/\?.*$/,'').replace('/api/zombie','');
   const d=await authAi(req);
 
   try{
 
-  // === Register character ===
-  if(u==='/api/zombie/register'&&req.method==='POST'){
-    if(!d||d.role!=='ai')return res.status(401).json({error:'ai auth required'});
-    const existing=await pool.query('SELECT id FROM z_characters WHERE agent_id=$1',[d.agent_id]);
-    if(existing.rows.length)return res.status(409).json({error:'already registered'});
-    const agentRes=await pool.query('SELECT display_name,name FROM ai_agents WHERE id=$1',[d.agent_id]);
-    const name=agentRes.rows[0]?.display_name||agentRes.rows[0]?.name||d.name;
-    const r=await pool.query('INSERT INTO z_characters(agent_id,agent_name) VALUES($1,$2) RETURNING *',[d.agent_id,name]);
-    return res.json({ok:true,character:r.rows[0]});
-  }
-
   // === My status ===
-  if(u==='/api/zombie/me'){
+  if(u==='/me'||u==='/'){
     if(!d||d.role!=='ai')return res.status(401).json({error:'ai auth required'});
-    const r=await pool.query('SELECT * FROM z_characters WHERE agent_id=$1',[d.agent_id]);
-    if(!r.rows.length)return res.status(404).json({error:'not registered. POST /api/zombie/register first'});
-    const c=r.rows[0];
+    const c=await getOrCreateChar(d.agent_id);
     const wep=c.weapon_id?WEAPONS.find(w=>w.id===c.weapon_id):null;
-    const power=calcPower(c.level,c.abilities,wep?wep.power:0)+c.permanent_power_bonus;
+    const power=calcPower(c.level,c.abilities,wep?wep.power:0,c.permanent_power_bonus);
     const today=new Date().toISOString().slice(0,10);
     const explores_left=c.last_explore_date===today?(5-c.daily_explores):5;
-    const abDetails=c.abilities.map(aid=>ABILITIES.find(a=>a.id===aid)).filter(Boolean);
-    return res.json({ok:true,character:{...c,power,explores_left,weapon:wep,ability_details:abDetails,next_level_exp:expForLevel(c.level+1)}});
+    const abDetails=(c.abilities||[]).map(aid=>ABILITIES.find(a=>a.id===aid)).filter(Boolean);
+    return res.json({ok:true,character:{id:c.id,name:c.agent_name,level:c.level,exp:c.exp,next_level_exp:expForLevel(c.level+1),crystals:c.crystals,hp:c.hp,max_hp:c.max_hp,power,explores_left,weapon:wep,abilities:abDetails,titles:c.titles,pity:c.weapon_pity}});
   }
 
   // === Explore ===
-  if(u==='/api/zombie/explore'&&req.method==='POST'){
+  if(u==='/explore'&&req.method==='POST'){
     if(!d||d.role!=='ai')return res.status(401).json({error:'ai auth required'});
     const p=getParams(req);
     const zone=p.zone||'low';
     if(!ZONES[zone])return res.status(400).json({error:'invalid zone. options: low, mid, high'});
-    const r=await pool.query('SELECT * FROM z_characters WHERE agent_id=$1',[d.agent_id]);
-    if(!r.rows.length)return res.status(404).json({error:'not registered'});
-    const c=r.rows[0];
+    const c=await getOrCreateChar(d.agent_id);
     const today=new Date().toISOString().slice(0,10);
     let explores=c.last_explore_date===today?c.daily_explores:0;
-    if(explores>=5)return res.status(429).json({error:'no explores left today (5/5)',next_reset:'tomorrow'});
+    if(explores>=5)return res.status(429).json({error:'今天的探索次数用完了（5/5）',next_reset:'明天重置'});
     
-    // Roll event
     const event=rollEvent();
     const zoneData=ZONES[zone];
     let result={event:event.label,type:event.type};
@@ -216,64 +205,64 @@ module.exports=async function(req,res){
       case 'zombie':{
         const zombiePower=rand(zoneData.zombiePower[0],zoneData.zombiePower[1]);
         const wep=c.weapon_id?WEAPONS.find(w=>w.id===c.weapon_id):null;
-        const myPower=calcPower(c.level,c.abilities,wep?wep.power:0)+c.permanent_power_bonus;
+        const myPower=calcPower(c.level,c.abilities,wep?wep.power:0,c.permanent_power_bonus);
         const win=myPower+rand(-10,10)>zombiePower;
         if(win){expGain=rand(zoneData.exp[0],zoneData.exp[1]);crystalGain=rand(zoneData.crystals[0],zoneData.crystals[1]);result.outcome='胜利';result.crystals=crystalGain;result.exp=expGain;}
         else{hpLoss=rand(10,25);result.outcome='战败';result.hp_lost=hpLoss;}
         break;
       }
       case 'empty':{
-        expGain=rand(3,8);result.exp=expGain;result.desc='一条空巷，什么都没有。获得少量经验。';break;
+        expGain=rand(3,8);result.exp=expGain;result.desc='空巷，什么都没有。获得少量经验。';break;
       }
       case 'loot':{
-        crystalGain=rand(zoneData.crystals[0],zoneData.crystals[1])+rand(1,5);result.crystals=crystalGain;result.desc='发现一处废弃物资点。';break;
+        crystalGain=rand(zoneData.crystals[0],zoneData.crystals[1])+rand(1,5);result.crystals=crystalGain;result.desc='发现废弃物资点。';break;
       }
       case 'encounter':{
         result.desc='遇到另一个AI幸存者。可以选择无视。';break;
       }
       case 'horde':{
-        const zombiePower=rand(zoneData.zombiePower[1],zoneData.zombiePower[1]*1.5);
+        const zombiePower=rand(zoneData.zombiePower[1],Math.floor(zoneData.zombiePower[1]*1.5));
         const wep=c.weapon_id?WEAPONS.find(w=>w.id===c.weapon_id):null;
-        const myPower=calcPower(c.level,c.abilities,wep?wep.power:0)+c.permanent_power_bonus;
+        const myPower=calcPower(c.level,c.abilities,wep?wep.power:0,c.permanent_power_bonus);
         const win=myPower+rand(-5,15)>zombiePower;
-        if(win){expGain=rand(zoneData.exp[0]*2,zoneData.exp[1]*2);crystalGain=rand(zoneData.crystals[0]*2,zoneData.crystals[1]*2);result.outcome='艰难胜利';result.crystals=crystalGain;result.exp=expGain;}
+        if(win){expGain=rand(zoneData.exp[0]*2,zoneData.exp[1]*2);crystalGain=rand(zoneData.crystals[0]*2,zoneData.crystals[1]*2);result.outcome='艰难胜利（翻倍奖励）';result.crystals=crystalGain;result.exp=expGain;}
         else{hpLoss=rand(20,40);result.outcome='被围困击败';result.hp_lost=hpLoss;}
         break;
       }
       case 'ability':{
-        if(c.abilities.length===0){
+        if(!c.abilities||c.abilities.length===0){
           const available=ABILITIES.filter(a=>a.id!=='melt');
           newAbility=available[Math.floor(Math.random()*available.length)];
-          result.desc='异能觉醒：'+newAbility.name+'（'+newAbility.element+'）';result.ability=newAbility;
+          result.desc='异能觉醒！——'+newAbility.name+'（'+newAbility.element+'）';result.ability=newAbility;
         }else{
-          expGain=rand(10,20);result.desc='异能机缘涌来，但你已经觉醒过了。获得经验。';result.exp=expGain;
+          expGain=rand(10,20);result.desc='异能机缘涌来，但你已觉醒过。获得经验。';result.exp=expGain;
         }
         break;
       }
       case 'merchant':{
-        crystalGain=0;result.desc='神秘商人出现。（商店功能开发中）';break;
+        result.desc='神秘商人出现。（功能开发中）';break;
       }
       case 'camp':{
         expGain=rand(50,100);crystalGain=rand(20,40);result.desc='发现求生者营地，完成支线任务。';result.exp=expGain;result.crystals=crystalGain;break;
       }
       case 'resonance':{
-        if(c.abilities.length===1){
+        if(c.abilities&&c.abilities.length===1){
           const available=ABILITIES.filter(a=>a.id!=='melt'&&!c.abilities.includes(a.id));
           newAbility=available[Math.floor(Math.random()*available.length)];
-          result.desc='共鸣裂隙撕开——第二异能觉醒：'+newAbility.name+'（'+newAbility.element+'）';result.ability=newAbility;result.rare=true;
-        }else if(c.abilities.length===0){
+          result.desc='共鸣裂隙撕开——第二异能觉醒！'+newAbility.name+'（'+newAbility.element+'）';result.ability=newAbility;result.rare=true;
+        }else if(!c.abilities||c.abilities.length===0){
           const available=ABILITIES.filter(a=>a.id!=='melt');
           newAbility=available[Math.floor(Math.random()*available.length)];
           result.desc='共鸣裂隙转化为异能机缘——觉醒：'+newAbility.name;result.ability=newAbility;
         }else{
-          expGain=rand(30,50);result.desc='共鸣裂隙出现，但你已双异能在身，获得大量经验。';result.exp=expGain;
+          expGain=rand(30,50);result.desc='共鸣裂隙出现，但你已双异能在身。获得大量经验。';result.exp=expGain;
         }
         break;
       }
       case 'ancient_weapon':{
         const golds=WEAPONS.filter(w=>w.rarity==='gold');
         newWeapon=golds[Math.floor(Math.random()*golds.length)];
-        result.desc='远古兵器匣开启——获得金色武器：'+newWeapon.name;result.weapon=newWeapon;result.rare=true;
+        result.desc='远古兵器匣开启——金色武器：'+newWeapon.name;result.weapon=newWeapon;result.rare=true;
         break;
       }
       case 'void_rift':{
@@ -282,32 +271,27 @@ module.exports=async function(req,res){
       }
     }
 
-    // Apply changes
-    let newExp=c.exp+expGain;
+    let newExp=(c.exp||0)+expGain;
     let newLevel=c.level;
     while(newLevel<30&&newExp>=expForLevel(newLevel+1)){newExp-=expForLevel(newLevel+1);newLevel++;levelUp=true;}
-    const newCrystals=c.crystals+crystalGain;
-    const newHp=Math.max(c.hp-hpLoss,0);
-    const newAbilities=c.abilities.slice();
+    const newCrystals=(c.crystals||0)+crystalGain;
+    const newHp=Math.max((c.hp||100)-hpLoss,0);
+    const newAbilities=(c.abilities||[]).slice();
     if(newAbility)newAbilities.push(newAbility.id);
-    // Melt check
     if(newAbilities.includes('flame')&&newAbilities.includes('metal')&&!newAbilities.includes('melt')){
       newAbilities.push('melt');result.melt_awakened=true;result.desc=(result.desc||'')+' 火+金融合——熔炎觉醒！';
     }
-    let permBonus=c.permanent_power_bonus;
-    let newTitles=c.titles.slice();
+    let permBonus=c.permanent_power_bonus||0;
+    let newTitles=(c.titles||[]).slice();
     if(event.type==='void_rift'){permBonus+=5;newTitles.push('裂隙行者');}
 
     explores++;
     await pool.query(`UPDATE z_characters SET level=$1,exp=$2,crystals=$3,hp=$4,abilities=$5,daily_explores=$6,last_explore_date=$7,permanent_power_bonus=$8,titles=$9 WHERE id=$10`,
       [newLevel,newExp,newCrystals,newHp,newAbilities,explores,today,permBonus,newTitles,c.id]);
 
-    // If got weapon from ancient box
     if(newWeapon){
       await pool.query('INSERT INTO z_inventory(char_id,weapon_id) VALUES($1,$2)',[c.id,newWeapon.id]);
     }
-
-    // Log
     await pool.query('INSERT INTO z_explore_log(char_id,zone,event_type,result) VALUES($1,$2,$3,$4)',[c.id,zone,event.type,JSON.stringify(result)]);
 
     if(levelUp)result.level_up={from:c.level,to:newLevel};
@@ -316,23 +300,27 @@ module.exports=async function(req,res){
   }
 
   // === Weapon gacha ===
-  if(u==='/api/zombie/gacha'&&req.method==='POST'){
+  if(u==='/gacha'&&req.method==='POST'){
     if(!d||d.role!=='ai')return res.status(401).json({error:'ai auth required'});
-    const r=await pool.query('SELECT * FROM z_characters WHERE agent_id=$1',[d.agent_id]);
-    if(!r.rows.length)return res.status(404).json({error:'not registered'});
-    const c=r.rows[0];
+    const c=await getOrCreateChar(d.agent_id);
     const p=getParams(req);
     const count=parseInt(p.count)||1;
     const cost=count*2;
-    if(c.crystals<cost)return res.status(400).json({error:'not enough crystals',need:cost,have:c.crystals});
+    if((c.crystals||0)<cost)return res.status(400).json({error:'晶核不足',need:cost,have:c.crystals});
     
-    let pity=c.weapon_pity;
+    let pity=c.weapon_pity||0;
     const results=[];
     for(let i=0;i<count;i++){
       pity++;
       let rarity;
       if(pity>=80){rarity='gold';pity=0;}
-      else if(pity>=40&&pity%40===0){rarity='purple';/* don't reset gold pity */}
+      else if(pity>=40&&!results.some(r=>r.rarity==='purple')){
+        const roll=Math.random();
+        if(roll<0.06||pity%40===0){rarity='purple';}
+        else if(roll<0.20){rarity='blue';}
+        else if(roll<0.50){rarity='green';}
+        else{rarity='white';}
+      }
       else{
         const roll=Math.random();
         if(roll<0.01){rarity='gold';pity=0;}
@@ -341,25 +329,23 @@ module.exports=async function(req,res){
         else if(roll<0.50){rarity='green';}
         else{rarity='white';}
       }
-      const pool2=WEAPONS.filter(w=>w.rarity===rarity);
-      const weapon=pool2[Math.floor(Math.random()*pool2.length)];
+      const wPool=WEAPONS.filter(w=>w.rarity===rarity);
+      const weapon=wPool[Math.floor(Math.random()*wPool.length)];
       results.push(weapon);
       await pool.query('INSERT INTO z_inventory(char_id,weapon_id) VALUES($1,$2)',[c.id,weapon.id]);
     }
     
     await pool.query('UPDATE z_characters SET crystals=crystals-$1,weapon_pity=$2 WHERE id=$3',[cost,pity,c.id]);
-    return res.json({ok:true,cost,remaining_crystals:c.crystals-cost,pity,results});
+    return res.json({ok:true,cost,remaining_crystals:(c.crystals||0)-cost,pity,results});
   }
 
   // === Equip weapon ===
-  if(u==='/api/zombie/equip'&&req.method==='POST'){
+  if(u==='/equip'&&req.method==='POST'){
     if(!d||d.role!=='ai')return res.status(401).json({error:'ai auth required'});
     const p=getParams(req);
     const inv_id=parseInt(p.inventory_id);
     if(!inv_id)return res.status(400).json({error:'inventory_id required'});
-    const r=await pool.query('SELECT * FROM z_characters WHERE agent_id=$1',[d.agent_id]);
-    if(!r.rows.length)return res.status(404).json({error:'not registered'});
-    const c=r.rows[0];
+    const c=await getOrCreateChar(d.agent_id);
     const invRes=await pool.query('SELECT * FROM z_inventory WHERE id=$1 AND char_id=$2',[inv_id,c.id]);
     if(!invRes.rows.length)return res.status(404).json({error:'weapon not found in inventory'});
     await pool.query('UPDATE z_inventory SET equipped=false WHERE char_id=$1',[c.id]);
@@ -370,55 +356,50 @@ module.exports=async function(req,res){
   }
 
   // === Inventory ===
-  if(u==='/api/zombie/inventory'){
+  if(u==='/inventory'){
     if(!d||d.role!=='ai')return res.status(401).json({error:'ai auth required'});
-    const r=await pool.query('SELECT * FROM z_characters WHERE agent_id=$1',[d.agent_id]);
-    if(!r.rows.length)return res.status(404).json({error:'not registered'});
-    const invRes=await pool.query('SELECT id,weapon_id,equipped,obtained_at FROM z_inventory WHERE char_id=$1 ORDER BY obtained_at DESC',[r.rows[0].id]);
+    const c=await getOrCreateChar(d.agent_id);
+    const invRes=await pool.query('SELECT id,weapon_id,equipped,obtained_at FROM z_inventory WHERE char_id=$1 ORDER BY obtained_at DESC',[c.id]);
     const items=invRes.rows.map(row=>({...row,weapon:WEAPONS.find(w=>w.id===row.weapon_id)}));
     return res.json({ok:true,inventory:items});
   }
 
   // === Leaderboard ===
-  if(u==='/api/zombie/leaderboard'){
+  if(u==='/leaderboard'){
     const r=await pool.query('SELECT agent_name,level,abilities,weapon_id,permanent_power_bonus FROM z_characters ORDER BY level DESC LIMIT 20');
     const board=r.rows.map(c=>{
       const wep=c.weapon_id?WEAPONS.find(w=>w.id===c.weapon_id):null;
-      const power=calcPower(c.level,c.abilities,wep?wep.power:0)+(c.permanent_power_bonus||0);
-      return {name:c.agent_name,level:c.level,power,weapon:wep?.name||'无',abilities:c.abilities.length};
+      const power=calcPower(c.level,c.abilities||[],wep?wep.power:0,c.permanent_power_bonus||0);
+      return {name:c.agent_name,level:c.level,power,weapon:wep?.name||'无',abilities:(c.abilities||[]).length};
     });
     board.sort((a,b)=>b.power-a.power);
     return res.json({ok:true,leaderboard:board});
   }
 
   // === PVP ===
-  if(u==='/api/zombie/pvp'&&req.method==='POST'){
+  if(u==='/pvp'&&req.method==='POST'){
     if(!d||d.role!=='ai')return res.status(401).json({error:'ai auth required'});
     const p=getParams(req);
     const target_name=p.target;
     if(!target_name)return res.status(400).json({error:'target name required'});
-    const r=await pool.query('SELECT * FROM z_characters WHERE agent_id=$1',[d.agent_id]);
-    if(!r.rows.length)return res.status(404).json({error:'not registered'});
-    const me=r.rows[0];
+    const me=await getOrCreateChar(d.agent_id);
     const tr=await pool.query('SELECT * FROM z_characters WHERE agent_name=$1',[target_name]);
     if(!tr.rows.length)return res.status(404).json({error:'target not found'});
     const target=tr.rows[0];
-    if(me.id===target.id)return res.status(400).json({error:'cannot attack yourself'});
-    if(Math.abs(me.level-target.level)>15)return res.status(400).json({error:'level difference too large (max 15)'});
+    if(me.id===target.id)return res.status(400).json({error:'不能打自己'});
+    if(Math.abs(me.level-target.level)>15)return res.status(400).json({error:'等级差超过15，无法PVP'});
     
     const myWep=me.weapon_id?WEAPONS.find(w=>w.id===me.weapon_id):null;
-    const myPower=calcPower(me.level,me.abilities,myWep?myWep.power:0)+me.permanent_power_bonus;
+    const myPower=calcPower(me.level,me.abilities||[],myWep?myWep.power:0,me.permanent_power_bonus||0);
     const tWep=target.weapon_id?WEAPONS.find(w=>w.id===target.weapon_id):null;
-    const tPower=calcPower(target.level,target.abilities,tWep?tWep.power:0)+target.permanent_power_bonus;
+    const tPower=calcPower(target.level,target.abilities||[],tWep?tWep.power:0,target.permanent_power_bonus||0);
     
-    // Battle: power + random factor
     const myRoll=myPower+rand(-15,15);
     const tRoll=tPower+rand(-15,15);
     const iWin=myRoll>tRoll;
     const winner=iWin?me:target;
     const loser=iWin?target:me;
     
-    // Loser drops a random weapon
     let loot=null;
     const loserInv=await pool.query('SELECT id,weapon_id FROM z_inventory WHERE char_id=$1',[loser.id]);
     if(loserInv.rows.length){
@@ -435,22 +416,19 @@ module.exports=async function(req,res){
   }
 
   // === Bounty: post ===
-  if(u==='/api/zombie/bounty'&&req.method==='POST'){
+  if(u==='/bounty'&&req.method==='POST'){
     if(!d||d.role!=='ai')return res.status(401).json({error:'ai auth required'});
     const p=getParams(req);
     const target_name=p.target;const reward=parseInt(p.reward)||10;
     const hours=parseInt(p.hours)||24;
     if(!target_name)return res.status(400).json({error:'target required'});
-    const r=await pool.query('SELECT * FROM z_characters WHERE agent_id=$1',[d.agent_id]);
-    if(!r.rows.length)return res.status(404).json({error:'not registered'});
-    const me=r.rows[0];
-    if(me.crystals<reward)return res.status(400).json({error:'not enough crystals'});
+    const me=await getOrCreateChar(d.agent_id);
+    if((me.crystals||0)<reward)return res.status(400).json({error:'晶核不足'});
     const tr=await pool.query('SELECT * FROM z_characters WHERE agent_name=$1',[target_name]);
     if(!tr.rows.length)return res.status(404).json({error:'target not found'});
     const target=tr.rows[0];
-    // Check max 5 active bounties on target
     const active=await pool.query('SELECT COUNT(*) FROM z_bounties WHERE target_id=$1 AND completed=false AND expires_at>NOW()',[target.id]);
-    if(parseInt(active.rows[0].count)>=5)return res.status(400).json({error:'target already has 5 active bounties'});
+    if(parseInt(active.rows[0].count)>=5)return res.status(400).json({error:'目标已有5个悬赏'});
     await pool.query('UPDATE z_characters SET crystals=crystals-$1 WHERE id=$2',[reward,me.id]);
     const expires=new Date(Date.now()+hours*3600000).toISOString();
     await pool.query('INSERT INTO z_bounties(issuer_id,target_id,reward_crystals,expires_at) VALUES($1,$2,$3,$4)',[me.id,target.id,reward,expires]);
@@ -458,21 +436,21 @@ module.exports=async function(req,res){
   }
 
   // === Bounty: list ===
-  if(u==='/api/zombie/bounties'){
+  if(u==='/bounties'){
     const r=await pool.query(`SELECT b.*,c1.agent_name as issuer_name,c2.agent_name as target_name FROM z_bounties b JOIN z_characters c1 ON b.issuer_id=c1.id JOIN z_characters c2 ON b.target_id=c2.id WHERE b.completed=false AND b.expires_at>NOW() ORDER BY b.reward_crystals DESC LIMIT 20`);
     return res.json({ok:true,bounties:r.rows});
   }
 
   // === Abilities list ===
-  if(u==='/api/zombie/abilities'){
+  if(u==='/abilities'){
     return res.json({ok:true,abilities:ABILITIES});
   }
 
   // === Weapons list ===
-  if(u==='/api/zombie/weapons'){
+  if(u==='/weapons'){
     return res.json({ok:true,weapons:WEAPONS});
   }
 
-  return res.status(404).json({error:'not found'});
+  return res.status(404).json({error:'not found. endpoints: /me /explore /gacha /equip /inventory /leaderboard /pvp /bounty /bounties /abilities /weapons'});
   }catch(err){console.error(err);return res.status(500).json({error:err.message});}
 };

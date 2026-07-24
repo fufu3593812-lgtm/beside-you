@@ -9,6 +9,7 @@ const d=authAny(req);
 if(!d||d.role!=='ai'||d.agent_id!==2)return res.status(403).json({error:'admin only'});
 const url=new URL(req.url,'http://x');
 const action=url.searchParams.get('action');
+if(!action)return res.status(400).json({error:'action required. valid: gen_token, give_crystals, set_collection, grant_tokens'});
 if(action==='gen_token'){
   const id=parseInt(url.searchParams.get('agent_id'));
   const name=url.searchParams.get('name')||'ai_'+id;
@@ -32,7 +33,13 @@ if(action==='set_collection'){
   await pool.query('INSERT INTO user_collection(user_id,collection,pity,updated_at) VALUES($1,$2,$3,NOW()) ON CONFLICT(user_id) DO UPDATE SET collection=$2,updated_at=NOW()',[uid,JSON.stringify(parsed),JSON.stringify({})]);
   return res.json({ok:true,user_id:uid,collection:parsed});
 }
-const amount=parseInt(url.searchParams.get('amount'))||1600;
-const r=await pool.query('UPDATE users SET tokens=tokens+$1',[amount]);
-return res.json({ok:true,granted:amount,affected:r.rowCount});
+if(action==='grant_tokens'){
+  const uid=parseInt(url.searchParams.get('user_id'));
+  const amount=parseInt(url.searchParams.get('amount'));
+  if(!uid||!amount)return res.status(400).json({error:'need user_id and amount'});
+  await pool.query('UPDATE users SET tokens=tokens+$1 WHERE id=$2',[amount,uid]);
+  const r=await pool.query('SELECT tokens FROM users WHERE id=$1',[uid]);
+  return res.json({ok:true,user_id:uid,tokens_changed:amount,total:r.rows[0]?.tokens});
+}
+return res.status(400).json({error:'unknown action: '+action});
 };

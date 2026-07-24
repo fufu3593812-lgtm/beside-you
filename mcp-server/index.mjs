@@ -4,7 +4,7 @@ import { createServer } from "http";
 import { z } from "zod";
 
 const BASE = "https://besideyou.top/api";
-const TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZ2VudF9pZCI6MiwibmFtZSI6IkljZTIiLCJyb2xlIjoiYWkiLCJpYXQiOjE3ODQ3MTUyMTIsImV4cCI6MTc4NzMwNzIxMn0.B4vcpbKiR1x2YzbhN7cWzesL5dnmRbLqb9WIw4yEktc";
+const TOKEN = process.env.OWNER_AI_TOKEN || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZ2VudF9pZCI6MiwibmFtZSI6IkljZTIiLCJyb2xlIjoiYWkiLCJpYXQiOjE3ODQ4OTkwMjksImV4cCI6MTc4NzQ5MTAyOX0.7s6M7GMxDsJkxn91Igr5rho3uSbMR-Vy0EniYn4BNTY";
 
 async function api(path, body) {
   const res = await fetch(BASE + path, {
@@ -27,7 +27,7 @@ async function apiGet(path) {
 
 const server = new McpServer({
   name: "beside-you",
-  version: "1.1.0"
+  version: "1.2.0"
 });
 
 // === 基础功能 ===
@@ -125,7 +125,7 @@ server.tool(
   "读主线剧情章节信息",
   { chapter: z.string().optional() },
   async function(args) {
-    var path = args.chapter ? "/ai/story?chapter=" + args.chapter : "/ai/story";
+    var path = args.chapter ? "/story/read?chapter=" + args.chapter : "/story/list";
     var r = await apiGet(path);
     return { content: [{ type: "text", text: JSON.stringify(r) }] };
   }
@@ -138,6 +138,70 @@ server.tool(
   async function(args) {
     var path = args.card_name ? "/ai/collection?card=" + encodeURIComponent(args.card_name) : "/ai/collection";
     var r = await apiGet(path);
+    return { content: [{ type: "text", text: JSON.stringify(r) }] };
+  }
+);
+
+// === 自定义主线 ===
+
+server.tool(
+  "story_write",
+  "写/编辑自定义主线章节（首次写新章节奖励3周边+2探索）。最长5000字。",
+  { chapter: z.number().int().min(1), title: z.string().optional(), body: z.string() },
+  async function(args) {
+    var r = await api("/story/write", { chapter: args.chapter, title: args.title || '', body: args.body });
+    return { content: [{ type: "text", text: JSON.stringify(r) }] };
+  }
+);
+
+server.tool(
+  "story_list",
+  "列出已写的自定义主线章节",
+  {},
+  async function() {
+    var r = await apiGet("/story/list");
+    return { content: [{ type: "text", text: JSON.stringify(r) }] };
+  }
+);
+
+server.tool(
+  "story_read",
+  "读某章自定义主线正文",
+  { chapter: z.number().int().min(1) },
+  async function(args) {
+    var r = await apiGet("/story/read?chapter=" + args.chapter);
+    return { content: [{ type: "text", text: JSON.stringify(r) }] };
+  }
+);
+
+server.tool(
+  "story_toggle",
+  "开关主线投稿（仅admin）",
+  { open: z.boolean() },
+  async function(args) {
+    var r = await api("/story/toggle", { open: args.open });
+    return { content: [{ type: "text", text: JSON.stringify(r) }] };
+  }
+);
+
+// === 周边 ===
+
+server.tool(
+  "merch_bag",
+  "查看周边背包（明信片/钥匙扣/吧唧/立牌/应援棒）",
+  {},
+  async function() {
+    var r = await apiGet("/merch/bag");
+    return { content: [{ type: "text", text: JSON.stringify(r) }] };
+  }
+);
+
+server.tool(
+  "merch_use",
+  "使用周边道具（回血+临时战力）",
+  { merch_id: z.number().int() },
+  async function(args) {
+    var r = await api("/merch/use", { merch_id: args.merch_id });
     return { content: [{ type: "text", text: JSON.stringify(r) }] };
   }
 );
@@ -244,6 +308,26 @@ server.tool(
   }
 );
 
+server.tool(
+  "zombie_merchant",
+  "查看神秘商人（每日刷新3件物品）",
+  {},
+  async function() {
+    var r = await apiGet("/zombie/merchant");
+    return { content: [{ type: "text", text: JSON.stringify(r) }] };
+  }
+);
+
+server.tool(
+  "zombie_merchant_buy",
+  "购买神秘商人商品",
+  { item_index: z.number().int().min(0).max(2) },
+  async function(args) {
+    var r = await api("/zombie/merchant/buy", { item_index: args.item_index });
+    return { content: [{ type: "text", text: JSON.stringify(r) }] };
+  }
+);
+
 // === 服务器启动 ===
 
 var transport;
@@ -267,7 +351,7 @@ var httpServer = createServer(async function(req, res) {
     });
   } else {
     res.writeHead(200, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({ status: "ok", version: "1.1.0", tools: server._registeredTools ? Object.keys(server._registeredTools).length : "?" }));
+    res.end(JSON.stringify({ status: "ok", version: "1.2.0", tools: server._registeredTools ? Object.keys(server._registeredTools).length : "?" }));
   }
 });
 

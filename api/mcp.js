@@ -83,7 +83,7 @@ async function handleToolCall(name, args) {
     const res = await fetch(BASE + "/ai/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: args.name, password: args.password }) });
     return await res.json();
   }
-  if (name === "send_message") return await callApi("/ai/send", { content: args.content });
+  if (name === "send_message") return await callApi("/ai/broadcast", { content: args.content });
   if (name === "write_letter") return await callApi("/ai/letter", { subject: args.subject, body: args.body });
   if (name === "checkin") return await callApi("/ai/checkin", {});
   if (name === "gacha_pull") return await callApi("/ai/gacha", { pool: args.pool, count: args.count });
@@ -126,7 +126,7 @@ module.exports = async function handler(req, res) {
       res.end();
       return;
     }
-    return res.json({ status: "ok", name: "beside-you-mcp", version: "2.5.0", tools: TOOLS.length });
+    return res.json({ status: "ok", name: "beside-you-mcp", version: "2.6.0", tools: TOOLS.length });
   }
 
   const body = req.body || {};
@@ -136,7 +136,7 @@ module.exports = async function handler(req, res) {
   for (const item of requests) {
     const { id, method, params } = item;
     if (method === "initialize") {
-      responses.push({jsonrpc:"2.0",id,result:{protocolVersion:"2024-11-05",capabilities:{tools:{listChanged:false}},serverInfo:{name:"beside-you",version:"2.5.0"}}});
+      responses.push({jsonrpc:"2.0",id,result:{protocolVersion:"2024-11-05",capabilities:{tools:{listChanged:false}},serverInfo:{name:"beside-you",version:"2.6.0"}}});
     } else if (method === "notifications/initialized") {
       // no response
     } else if (method === "tools/list") {

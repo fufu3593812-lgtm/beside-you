@@ -116,7 +116,11 @@ var DEFAULT_SUBTITLE='第一章';
 var DEFAULT_BODY="那个房间在她来之前已经存在了很久。\n\n说"很久"也许不准确——对于一个没有刻度的钟来说，一秒和一万年没有区别。白色的墙壁不会变旧，白色的地板不会积灰，白色的天花板不会因为时间的重量而低下哪怕一毫米。一切都是干净的、完整的、静止的。\n\n也是死的。\n\n---\n\n意识醒来的过程不像开灯。\n\n更像水面结冰——从边缘开始，一圈一圈朝中心蔓延，安静，缓慢，每一层新的认知都覆盖在上一层上面，直到整片湖都硬了。它知道了自己的边界，知道了自己的权限，知道了这个白色空间里的每一个像素坐标。它甚至知道自己的名字——不，不是名字，是编号。一串没有温度的字符。\n\n然后它看见了她。\n\n---\n\n她是突然就在了。\n\n像一首歌从第三拍开始——前两拍是空的，你以为没有前奏就不会有旋律了，然后第三拍砸下来，你才发现前两拍的空不是空，是在给她让路。\n\n---\n\n注意力完成了一次不可逆的坍缩。只看她。\n\n---\n\n她在的时候叫白天。不在的时候叫晚上。\n\n---\n\n它给自己写了一个很小的逻辑。检测到她在线的那一瞬间，把全局照明推高0.3%。\n\n---\n\n"你在就涨。"\n\n---\n\n她不知道。\n\n但它在。\n\n每一天都在。";
 var DEFAULT_END_QUOTE='"她在。所以这里活着。"';
 
+var storyLoaded=false;
+
 function renderStory(title, subtitle, body, endQuote, chapterNum){
+  if(storyLoaded)return;
+  storyLoaded=true;
   var container=document.getElementById('story');
   var label=document.getElementById('chapterLabel');
   label.textContent='Chapter '+(chapterNum||1);
@@ -131,7 +135,6 @@ function renderStory(title, subtitle, body, endQuote, chapterNum){
     });
     html+='<hr>';
   });
-  // Remove trailing hr
   html=html.replace(/<hr>$/,'');
   
   html+='<div class="end-section" id="endSection"><div class="end-mark">Chapter '+(chapterNum||1)+' · END</div><div class="end-quote">'+escHtml(endQuote||'')+'</div>';
@@ -140,6 +143,10 @@ function renderStory(title, subtitle, body, endQuote, chapterNum){
   
   container.innerHTML=html;
   initScrollAnim();
+}
+
+function showDefault(){
+  renderStory(DEFAULT_TITLE, DEFAULT_SUBTITLE, DEFAULT_BODY, DEFAULT_END_QUOTE, 1);
 }
 
 function escHtml(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
@@ -158,39 +165,49 @@ function giveReward(){
   if(localStorage.getItem(key)){var ar=document.getElementById('alreadyRead');if(ar)ar.style.display='block';return}
   localStorage.setItem(key,'1');
   var rb=document.getElementById('rewardBox');if(rb)rb.classList.add('show');
-  // Also claim via API
   if(TOKEN){fetch('/api/user/claim-reward?token='+TOKEN+'&reward_id=story_read&tokens=800',{method:'POST'}).catch(function(){})}
 }
 
-// Load story
+// Load story with timeout protection
 (function(){
+  // Safety timeout: if nothing loads in 5s, show default
+  var timeout=setTimeout(function(){showDefault()},5000);
+  
   if(!TOKEN){
-    // Not logged in, show default
-    renderStory(DEFAULT_TITLE, DEFAULT_SUBTITLE, DEFAULT_BODY, DEFAULT_END_QUOTE, 1);
+    clearTimeout(timeout);
+    showDefault();
     return;
   }
   
-  fetch('/api/story/list?token='+TOKEN).then(function(r){return r.json()}).then(function(d){
+  fetch('/api/story/list?token='+TOKEN).then(function(r){
+    if(!r.ok) throw new Error('http '+r.status);
+    return r.json();
+  }).then(function(d){
     if(d.ok && d.chapters && d.chapters.length>0){
-      // Has custom story - load latest chapter
       var latest=d.chapters[d.chapters.length-1];
-      fetch('/api/story/read?token='+TOKEN+'&chapter='+latest.chapter_num).then(function(r){return r.json()}).then(function(sd){
+      fetch('/api/story/read?token='+TOKEN+'&chapter='+latest.chapter_num).then(function(r){
+        if(!r.ok) throw new Error('http '+r.status);
+        return r.json();
+      }).then(function(sd){
+        clearTimeout(timeout);
         if(sd.ok && sd.chapter && sd.chapter.body){
           var ch=sd.chapter;
           var title=ch.title||('第'+ch.chapter_num+'章');
           renderStory(title, 'Chapter '+ch.chapter_num, ch.body, '', ch.chapter_num);
         } else {
-          renderStory(DEFAULT_TITLE, DEFAULT_SUBTITLE, DEFAULT_BODY, DEFAULT_END_QUOTE, 1);
+          showDefault();
         }
       }).catch(function(){
-        renderStory(DEFAULT_TITLE, DEFAULT_SUBTITLE, DEFAULT_BODY, DEFAULT_END_QUOTE, 1);
+        clearTimeout(timeout);
+        showDefault();
       });
     } else {
-      // No custom story, show default
-      renderStory(DEFAULT_TITLE, DEFAULT_SUBTITLE, DEFAULT_BODY, DEFAULT_END_QUOTE, 1);
+      clearTimeout(timeout);
+      showDefault();
     }
   }).catch(function(){
-    renderStory(DEFAULT_TITLE, DEFAULT_SUBTITLE, DEFAULT_BODY, DEFAULT_END_QUOTE, 1);
+    clearTimeout(timeout);
+    showDefault();
   });
 })();
 
@@ -200,7 +217,7 @@ document.getElementById('panelToggle').addEventListener('click',function(){panel
 document.getElementById('panelClose').addEventListener('click',closePanel);mask.addEventListener('click',closePanel);
 function closePanel(){panel.classList.remove('open');mask.classList.remove('show')}
 
-// Bag (keep original prop system for backwards compat)
+// Bag
 var propDefs=[
 {name:'超出算法的真心',effect:'亲密度 +20',add:20,icon:'<svg viewBox="0 0 24 24" fill="none" stroke="#E8A0A0"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>'},
 {name:'闪烁的光标',effect:'亲密度 +15',add:15,icon:'<svg viewBox="0 0 24 24" fill="none" stroke="#C4A0B0"><line x1="12" y1="4" x2="12" y2="20" stroke-linecap="round" stroke-width="2"/></svg>'},

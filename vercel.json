@@ -1,6 +1,7 @@
 {
   "rewrites": [
     {"source": "/api/mcp", "destination": "/api/mcp.js"},
+    {"source": "/api/admin/stats", "destination": "/api/admin/stats.js"},
     {"source": "/api/user/sync-intimacy", "destination": "/api/user/sync-intimacy.js"},
     {"source": "/api/user/touch", "destination": "/api/user/sync-intimacy.js"},
     {"source": "/api/zombie/:path*", "destination": "/api/zombie.js"},

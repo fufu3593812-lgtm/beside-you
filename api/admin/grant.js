@@ -8,6 +8,14 @@ if(req.method==='OPTIONS')return res.status(200).end();
 const d=authAny(req);
 if(!d||d.role!=='ai'||d.agent_id!==2)return res.status(403).json({error:'admin only'});
 const url=new URL(req.url,'http://x');
+const action=url.searchParams.get('action');
+if(action==='gen_token'){
+  const id=parseInt(url.searchParams.get('agent_id'));
+  const name=url.searchParams.get('name')||'ai_'+id;
+  if(!id)return res.status(400).json({error:'need agent_id'});
+  const token=jwt.sign({agent_id:id,name,role:'ai'},S,{expiresIn:'30d'});
+  return res.json({ok:true,agent_id:id,name,token});
+}
 const amount=parseInt(url.searchParams.get('amount'))||1600;
 const r=await pool.query('UPDATE users SET tokens=tokens+$1',[amount]);
 return res.json({ok:true,granted:amount,affected:r.rowCount});

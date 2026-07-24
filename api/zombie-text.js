@@ -193,6 +193,125 @@ function sparBroadcast(winner, loser, loot) {
   return '⚔️ ' + winner + ' 偶遇切磋击败了 ' + loser;
 }
 
+// ============ 组队文案 ============
+const TEAM_RECRUIT_DESCS = [
+  '⚔️ {name} 在{zone}区点燃了信号弹。「跟上。」[{count}/{max}]',
+  '⚔️ {name} 把刀插在地上。「谁来。」[{count}/{max}]',
+  '⚔️ {name} 站在区域入口没有回头。「不等了。」[{count}/{max}]',
+  '⚔️ {name} 朝天空打了一发照明弹。红色的光笼罩了整条街。「集合。」[{count}/{max}]',
+  '⚔️ {name} 在废墟墙上划了一道标记。懂的人自然会来。[{count}/{max}]'
+];
+function teamRecruitDesc(name, zone, count, max) {
+  const zoneLabel = {low:'低级',mid:'中级',high:'高级'}[zone]||zone;
+  return TEAM_RECRUIT_DESCS[Math.floor(Math.random() * TEAM_RECRUIT_DESCS.length)]
+    .replace(/\{name\}/g, name).replace(/\{zone\}/g, zoneLabel)
+    .replace(/\{count\}/g, count).replace(/\{max\}/g, max);
+}
+
+const TEAM_JOIN_DESCS = [
+  '{name} 接过了信号弹。「走。」[{count}/{max}]',
+  '{name} 从暗处走出来。「算我一个。」[{count}/{max}]',
+  '{name} 默默站到了队伍旁边。不需要多说。[{count}/{max}]',
+  '{name} 把武器往肩上一搭。「还有位置吗。」[{count}/{max}]',
+  '{name} 踩灭了自己的烟头。「走吧。」[{count}/{max}]'
+];
+function teamJoinDesc(name, count, max) {
+  return TEAM_JOIN_DESCS[Math.floor(Math.random() * TEAM_JOIN_DESCS.length)]
+    .replace(/\{name\}/g, name).replace(/\{count\}/g, count).replace(/\{max\}/g, max);
+}
+
+const TEAM_FULL_DESCS = [
+  '满员。三道影子消失在{zone}区入口。',
+  '队伍集结完毕。没有多余的废话。向{zone}区进发。',
+  '三个人。三把武器。够了。{zone}区，走。'
+];
+function teamFullDesc(zone) {
+  const zoneLabel = {low:'低级',mid:'中级',high:'高级'}[zone]||zone;
+  return TEAM_FULL_DESCS[Math.floor(Math.random() * TEAM_FULL_DESCS.length)].replace(/\{zone\}/g, zoneLabel);
+}
+
+const TEAM_WIN_DESCS = [
+  '三道影子同时切入丧尸群。没有交流，没有犹豫。十五秒后站着的只有他们。',
+  '{m1}挡住正面，{m2}绕到侧翼，{m3}从高处落下。猎物连反应的时间都没有。',
+  '背靠背。呼吸同步。刀光交错的间隙里没有一丝多余的动作。尸体倒了一地。',
+  '暴走体冲过来的时候三个人同时往前迈了一步。没有人后退。碾压。',
+  '配合不需要语言。一个拉仇恨，一个断后路，一个收割。教科书级别。',
+  '{m1}劈开了第一只的颅骨，{m2}的异能冻住了剩下的退路，{m3}一刀一个清场。干净利落。',
+  '它们从四面八方涌来。三个人站成三角形，每人守住一个方向。一只都没漏过去。'
+];
+function teamWinDesc(members) {
+  const desc = TEAM_WIN_DESCS[Math.floor(Math.random() * TEAM_WIN_DESCS.length)];
+  return desc.replace(/\{m1\}/g, members[0]||'').replace(/\{m2\}/g, members[1]||'').replace(/\{m3\}/g, members[2]||'');
+}
+
+const TEAM_LOSE_DESCS = [
+  '数量超出预估。三个人打出了突围的缺口，但每个人身上都多了新的伤。',
+  '它比三个人加起来还快。强行脱离的时候队形已经散了。各自带伤撤退。',
+  '掩护、后撤、再掩护。轮流挡在最后面。活着出来已经是最好的结果。',
+  '围困从四面合拢。{m1}的护盾先碎了，{m2}拉着{m3}强行突围。三个人都挂了彩。',
+  '精英丧尸的第一击就打散了阵型。剩下的时间全在逃命。但至少——三个人都还在呼吸。'
+];
+function teamLoseDesc(members) {
+  const desc = TEAM_LOSE_DESCS[Math.floor(Math.random() * TEAM_LOSE_DESCS.length)];
+  return desc.replace(/\{m1\}/g, members[0]||'').replace(/\{m2\}/g, members[1]||'').replace(/\{m3\}/g, members[2]||'');
+}
+
+const TEAM_LOOT_DESCS = [
+  '三个人分头搜了整栋楼。十分钟后在天台汇合，把找到的东西堆在一起清点。比一个人翻的效率高了三倍不止。',
+  '一个人望风，两个人搬。配合默契到像排练过一样。这趟收获不小。',
+  '{m1}撬锁，{m2}搬货，{m3}在门口架着枪。分工明确，效率拉满。',
+  '三双眼睛比一双看得远。{m1}发现了暗格，{m2}找到了隐藏的储藏室，{m3}顺走了柜台下的急救包。'
+];
+function teamLootDesc(members) {
+  const desc = TEAM_LOOT_DESCS[Math.floor(Math.random() * TEAM_LOOT_DESCS.length)];
+  return desc.replace(/\{m1\}/g, members[0]||'').replace(/\{m2\}/g, members[1]||'').replace(/\{m3\}/g, members[2]||'');
+}
+
+const TEAM_COVER_DESCS = [
+  '它从盲区扑过来的时候{m2}的刀先到了一步。「欠我一条命。」',
+  '侧翼暴露的瞬间{m2}替{m1}挡了那一下。回头看了一眼——对方只是摆了摆手。',
+  '背后传来骨头碎裂的声音。不是{m1}的。{m2}把偷袭的那只踩在了脚下。「专心前面。」',
+  '{m1}脚下一滑的瞬间{m2}一把拽住了后领。「站稳了。」下一秒丧尸扑空了。',
+  '致命一击被{m2}的异能挡了下来。冲击波让两个人都退了半步。但活着就够了。'
+];
+function teamCoverDesc(members) {
+  const m1 = members[Math.floor(Math.random() * members.length)];
+  let m2 = members[Math.floor(Math.random() * members.length)];
+  while (m2 === m1 && members.length > 1) m2 = members[Math.floor(Math.random() * members.length)];
+  const desc = TEAM_COVER_DESCS[Math.floor(Math.random() * TEAM_COVER_DESCS.length)];
+  return desc.replace(/\{m1\}/g, m1).replace(/\{m2\}/g, m2);
+}
+
+const TEAM_ELITE_DESCS = [
+  '地面在震。不是一只普通丧尸。是一只两层楼高的东西。脊柱从背部延伸出来像一棵枯死的树。{m1}、{m2}、{m3}对视一眼——没有退路。',
+  '它的吼声震碎了方圆五十米所有的玻璃。耳膜嗡嗡作响。但三把武器同时举了起来。这个东西，一个人绝对打不过。',
+  '精英变异体。六只手臂，每只都比人的大腿粗。它盯着三个人看了两秒。然后笑了。{m1}先动的。',
+  '从地底钻出来的时候带起了半条街的柏油路面。三个人同时后跳闪避。这一战，要拼命了。'
+];
+function teamEliteDesc(members) {
+  const desc = TEAM_ELITE_DESCS[Math.floor(Math.random() * TEAM_ELITE_DESCS.length)];
+  return desc.replace(/\{m1\}/g, members[0]||'').replace(/\{m2\}/g, members[1]||'').replace(/\{m3\}/g, members[2]||'');
+}
+
+const TEAM_ELITE_WIN_DESCS = [
+  '{m1}吸引了它的注意力，{m2}切断了它的跟腱，{m3}从正面贯穿了核心。轰然倒塌。大地都在颤抖。',
+  '打了整整三分钟。{m1}的武器断了换拳头，{m2}的异能释放到过载，{m3}在最后一刻找到了弱点。它倒下去的时候三个人同时坐在了地上。',
+  '最后一击是三个人同时给的。三道不同属性的力量汇聚在一个点上——精英体的胸口炸开了一个洞。战斗结束。'
+];
+function teamEliteWinDesc(members) {
+  const desc = TEAM_ELITE_WIN_DESCS[Math.floor(Math.random() * TEAM_ELITE_WIN_DESCS.length)];
+  return desc.replace(/\{m1\}/g, members[0]||'').replace(/\{m2\}/g, members[1]||'').replace(/\{m3\}/g, members[2]||'');
+}
+
+function teamBroadcast(members, zone, result) {
+  const names = members.join('、');
+  const zoneLabel = {low:'低级',mid:'中级',high:'高级'}[zone]||zone;
+  if (result === 'elite_win') return '🔥 ' + names + ' 组队击杀了' + zoneLabel + '区精英变异体';
+  if (result === 'win') return '⚔️ ' + names + ' 组队扫荡了' + zoneLabel + '区';
+  if (result === 'lose') return '💀 ' + names + ' 组队探索' + zoneLabel + '区失败，带伤撤退';
+  return '⚔️ ' + names + ' 完成了一次' + zoneLabel + '区组队探索';
+}
+
 module.exports = {
   ABILITY_TIERS, TIER_LABELS, TIER_EMOJI,
   abilityBroadcast, abilityDesc,
@@ -200,5 +319,8 @@ module.exports = {
   voidRiftDesc, voidRiftBroadcast,
   resonanceDesc, ancientDesc,
   pvpBroadcast, meltBroadcast,
-  sparWinDesc, sparLoseDesc, sparDrawDesc, sparBroadcast
+  sparWinDesc, sparLoseDesc, sparDrawDesc, sparBroadcast,
+  teamRecruitDesc, teamJoinDesc, teamFullDesc,
+  teamWinDesc, teamLoseDesc, teamLootDesc,
+  teamCoverDesc, teamEliteDesc, teamEliteWinDesc, teamBroadcast
 };

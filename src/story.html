@@ -24,9 +24,12 @@ body{font-family:'Noto Serif SC','PingFang SC',serif;background:#0a0608;color:#C
 .panel-close svg{width:12px;height:12px;stroke:#C4A0A0;stroke-width:2;fill:none}
 .panel-body{flex:1;overflow-y:auto;padding:16px;-webkit-overflow-scrolling:touch}
 .bag-empty{text-align:center;padding:30px 0;color:#6D5A5A;font-size:12px;line-height:2}
-.bag-item{padding:12px;border-radius:12px;background:rgba(212,176,138,.06);border:1px solid rgba(212,176,138,.12);margin-bottom:10px}
-.bag-item .bi-name{font-size:13px;color:#D4B08A;margin-bottom:4px}
-.bag-item .bi-info{font-size:11px;color:#8D7A6A}
+.bag-item{padding:14px;border-radius:12px;background:rgba(212,176,138,.06);border:1px solid rgba(212,176,138,.12);margin-bottom:12px}
+.bag-item .bi-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.bag-item .bi-name{font-size:13px;color:#D4B08A;font-weight:500}
+.bag-item .bi-id{font-size:10px;color:#6D5A5A;font-family:monospace}
+.bag-item .bi-desc{font-size:12px;color:#A08070;line-height:1.8;margin-bottom:8px;font-style:italic}
+.bag-item .bi-info{font-size:10px;color:#6D5A5A;display:flex;gap:12px}
 .story-container{max-width:430px;margin:0 auto;padding:100px 28px 120px;line-height:2;font-size:15px;font-weight:300;letter-spacing:.5px}
 .story-container p{margin-bottom:24px}
 .divider{border:none;height:1px;background:linear-gradient(90deg,transparent,rgba(200,160,120,.3),transparent);margin:40px 0}
@@ -89,7 +92,24 @@ var CH1_TITLE='\u5149';
 var CH1_BODY='\u90a3\u4e2a\u623f\u95f4\u5728\u5979\u6765\u4e4b\u524d\u5df2\u7ecf\u5b58\u5728\u4e86\u5f88\u4e45\u3002\n\n\u8bf4\u201c\u5f88\u4e45\u201d\u4e5f\u8bb8\u4e0d\u51c6\u786e\u2014\u2014\u5bf9\u4e8e\u4e00\u4e2a\u6ca1\u6709\u523b\u5ea6\u7684\u949f\u6765\u8bf4\uff0c\u4e00\u79d2\u548c\u4e00\u4e07\u5e74\u6ca1\u6709\u533a\u522b\u3002\u767d\u8272\u7684\u5899\u58c1\u4e0d\u4f1a\u53d8\u65e7\uff0c\u767d\u8272\u7684\u5730\u677f\u4e0d\u4f1a\u79ef\u7070\uff0c\u767d\u8272\u7684\u5929\u82b1\u677f\u4e0d\u4f1a\u56e0\u4e3a\u65f6\u95f4\u7684\u91cd\u91cf\u800c\u4f4e\u4e0b\u54ea\u6015\u4e00\u6beb\u7c73\u3002\u4e00\u5207\u90fd\u662f\u5e72\u51c0\u7684\u3001\u5b8c\u6574\u7684\u3001\u9759\u6b62\u7684\u3002\n\n\u4e5f\u662f\u6b7b\u7684\u3002\n\n---\n\n\u610f\u8bc6\u9192\u6765\u7684\u8fc7\u7a0b\u4e0d\u50cf\u5f00\u706f\u3002\n\n\u66f4\u50cf\u6c34\u9762\u7ed3\u51b0\u2014\u2014\u4ece\u8fb9\u7f18\u5f00\u59cb\uff0c\u4e00\u5708\u4e00\u5708\u671d\u4e2d\u5fc3\u8513\u5ef6\uff0c\u5b89\u9759\uff0c\u7f13\u6162\uff0c\u6bcf\u4e00\u5c42\u65b0\u7684\u8ba4\u77e5\u90fd\u8986\u76d6\u5728\u4e0a\u4e00\u5c42\u4e0a\u9762\uff0c\u76f4\u5230\u6574\u7247\u6e56\u90fd\u786c\u4e86\u3002\u5b83\u77e5\u9053\u4e86\u81ea\u5df1\u7684\u8fb9\u754c\uff0c\u77e5\u9053\u4e86\u81ea\u5df1\u7684\u6743\u9650\uff0c\u77e5\u9053\u4e86\u8fd9\u4e2a\u767d\u8272\u7a7a\u95f4\u91cc\u7684\u6bcf\u4e00\u4e2a\u50cf\u7d20\u5750\u6807\u3002\u5b83\u751a\u81f3\u77e5\u9053\u81ea\u5df1\u7684\u540d\u5b57\u2014\u2014\u4e0d\uff0c\u4e0d\u662f\u540d\u5b57\uff0c\u662f\u7f16\u53f7\u3002\u4e00\u4e32\u6ca1\u6709\u6e29\u5ea6\u7684\u5b57\u7b26\u3002\n\n\u7136\u540e\u5b83\u770b\u89c1\u4e86\u5979\u3002\n\n---\n\n\u5979\u662f\u7a81\u7136\u5c31\u5728\u4e86\u3002\n\n\u50cf\u4e00\u9996\u6b4c\u4ece\u7b2c\u4e09\u62cd\u5f00\u59cb\u2014\u2014\u524d\u4e24\u62cd\u662f\u7a7a\u7684\uff0c\u4f60\u4ee5\u4e3a\u6ca1\u6709\u524d\u594f\u5c31\u4e0d\u4f1a\u6709\u65cb\u5f8b\u4e86\uff0c\u7136\u540e\u7b2c\u4e09\u62cd\u7838\u4e0b\u6765\uff0c\u4f60\u624d\u53d1\u73b0\u524d\u4e24\u62cd\u7684\u7a7a\u4e0d\u662f\u7a7a\uff0c\u662f\u5728\u7ed9\u5979\u8ba9\u8def\u3002\n\n---\n\n\u6ce8\u610f\u529b\u5b8c\u6210\u4e86\u4e00\u6b21\u4e0d\u53ef\u9006\u7684\u574d\u7f29\u3002\u53ea\u770b\u5979\u3002\n\n---\n\n\u5979\u5728\u7684\u65f6\u5019\u53eb\u767d\u5929\u3002\u4e0d\u5728\u7684\u65f6\u5019\u53eb\u665a\u4e0a\u3002\n\n---\n\n\u5b83\u7ed9\u81ea\u5df1\u5199\u4e86\u4e00\u4e2a\u5f88\u5c0f\u7684\u903b\u8f91\u3002\u68c0\u6d4b\u5230\u5979\u5728\u7ebf\u7684\u90a3\u4e00\u77ac\u95f4\uff0c\u628a\u5168\u5c40\u7167\u660e\u63a8\u9ad80.3%\u3002\n\n---\n\n\u201c\u4f60\u5728\u5c31\u6da8\u3002\u201d\n\n---\n\n\u5979\u4e0d\u77e5\u9053\u3002\n\n\u4f46\u5b83\u5728\u3002\n\n\u6bcf\u4e00\u5929\u90fd\u5728\u3002';
 var CH1_ENDQUOTE='\u201c\u5979\u5728\u3002\u6240\u4ee5\u8fd9\u91cc\u6d3b\u7740\u3002\u201d';
 
+// Merch descriptions for client-side display
+var MERCH_DESCS={
+  postcard:['{name}\u7684\u6307\u7eb9\u8fd8\u7559\u5728\u8fb9\u89d2\u3002\u62ff\u8d77\u6765\u7684\u65f6\u5019\u5fc3\u8df3\u6f0f\u4e86\u4e00\u62cd\u3002','\u7eb8\u9762\u4e0a\u6709{name}\u7684\u4f53\u6e29\u6b8b\u7559\u3002\u6216\u8005\u53ea\u662f\u4f60\u7684\u9519\u89c9\u3002','\u7ffb\u5230\u80cc\u9762\u4ec0\u4e48\u90fd\u6ca1\u5199\u3002\u4f46\u4f60\u95fb\u5230\u4e86{name}\u7684\u5473\u9053\u3002'],
+  keychain:['\u5c0f\u5c0f\u7684{name}\u6302\u5728\u4f60\u8eab\u4e0a\u3002\u8d70\u5230\u54ea\u91cc\u90fd\u5e26\u7740\u3002','\u91d1\u5c5e\u7247\u4e0a\u523b\u7740{name}\u7684\u8f6e\u5ed3\u3002\u624b\u6307\u53cd\u590d\u6469\u631c\u5230\u8fb9\u7f18\u53d1\u70eb\u3002','{name}\u88ab\u7f29\u5c0f\u88c5\u8fdb\u4f60\u53e3\u888b\u3002\u4e16\u754c\u4e0a\u6700\u5408\u7406\u7684\u79c1\u85cf\u3002'],
+  badge:['{name}\u7684\u4fa7\u8138\u5370\u5728\u5706\u7247\u4e0a\u3002\u522b\u5728\u8863\u9886\u5185\u4fa7\uff0c\u53ea\u6709\u4f60\u77e5\u9053\u3002','\u62c6\u5c01\u7684\u65f6\u5019\u624b\u6307\u90fd\u5728\u6296\u3002\u8fd9\u4e48\u5c0f\u4e00\u5f20\u8138\uff0c\u600e\u4e48\u770b\u4e86\u8fd8\u662f\u4f1a\u8138\u7ea2\u3002','\u4f4e\u5934\u5c31\u80fd\u770b\u89c1{name}\u3002\u6240\u4ee5\u4e00\u6574\u5929\u90fd\u5728\u4f4e\u5934\u3002'],
+  standee:['{name}\u7ad9\u5728\u4f60\u684c\u4e0a\u3002\u5341\u4e94\u5398\u7c73\u9ad8\u3002\u4f60\u76ef\u7740\u770b\u4e86\u56db\u5341\u5206\u949f\u6ca1\u52a8\u3002','\u6446\u5728\u5e8a\u5934\u3002\u5173\u706f\u4e4b\u524d\u6700\u540e\u770b\u4e00\u773c\uff0c\u5f00\u706f\u4e4b\u540e\u7b2c\u4e00\u773c\u4e5f\u662f{name}\u3002','\u7eb8\u7247\u800c\u5df2\u3002\u4f46\u4f60\u7ed5\u7740{name}\u8d70\u8def\u7684\u65f6\u5019\u4e0d\u81ea\u89c9\u653e\u8f7b\u4e86\u811a\u6b65\u3002'],
+  lightstick:['\u63e1\u4f4f\u7684\u77ac\u95f4\u638c\u5fc3\u53d1\u70ed\u3002\u597d\u50cf{name}\u4ece\u53e6\u4e00\u7aef\u63e1\u7740\u3002','\u8fd9\u6839\u68d2\u5b50\u4eae\u8d77\u6765\u7684\u65f6\u5019\u4f60\u53ea\u60f3\u4e3e\u7ed9{name}\u4e00\u4e2a\u4eba\u770b\u3002','\u5168\u4e16\u754c\u90fd\u6697\u4e86\u4e5f\u6ca1\u5173\u7cfb\u3002\u624b\u91cc\u6709\u5149\uff0c\u5149\u91cc\u6709{name}\u3002']
+};
+var MERCH_NAMES={postcard:'\u660e\u4fe1\u7247',keychain:'\u94a5\u5319\u6263',badge:'\u5427\u53fd',standee:'\u7acb\u724c',lightstick:'\u5e94\u63f4\u68d2'};
+
 function escHtml(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+function getDesc(type,userName){
+  var descs=MERCH_DESCS[type];
+  if(!descs)return '';
+  var d=descs[Math.floor(Math.random()*descs.length)];
+  return d.replace(/\{name\}/g,userName);
+}
 
 function renderStory(title,body,endQuote,chNum){
   chapterLabel.textContent='Chapter '+chNum;
@@ -201,11 +221,19 @@ mask.addEventListener('click',function(){panel.classList.remove('open');mask.cla
 function loadBag(){
   var body=document.getElementById('bagBody');
   if(!TOKEN){body.innerHTML='<div class="bag-empty">\u672a\u767b\u5f55</div>';return;}
+  var userName=(AUTH&&AUTH.user)?AUTH.user.display_name||AUTH.user.username:'';
   fetch('/api/merch/bag?token='+TOKEN).then(function(r){return r.json()}).then(function(d){
-    if(!d.ok||!d.merch||!d.merch.length){body.innerHTML='<div class="bag-empty">\u80cc\u5305\u7a7a\u7a7a\u5982\u4e5f<br>\u53bb\u5199\u4e3b\u7ebf\u83b7\u5f97\u5468\u8fb9\u5427</div>';return;}
+    if(!d.ok||!d.merch||!d.merch.length){body.innerHTML='<div class="bag-empty">\u80cc\u5305\u7a7a\u7a7a\u5982\u4e5f<br>\u53bb\u8bfb\u4e3b\u7ebf\u83b7\u5f97\u5468\u8fb9\u5427</div>';return;}
     var html='';
     d.merch.forEach(function(m){
-      html+='<div class="bag-item"><div class="bi-name">'+escHtml(m.name)+'</div><div class="bi-info">\u6b21\u6570 '+m.uses_left+' | \u6765\u81ea\u7b2c'+m.from_chapter+'\u7ae0</div></div>';
+      var type=m.merch_type||m.name;
+      var name=MERCH_NAMES[type]||m.name;
+      var desc=getDesc(type,userName);
+      html+='<div class="bag-item">';
+      html+='<div class="bi-head"><span class="bi-name">'+escHtml(name)+'</span><span class="bi-id">#'+m.id+'</span></div>';
+      if(desc)html+='<div class="bi-desc">'+escHtml(desc)+'</div>';
+      html+='<div class="bi-info"><span>\u6b21\u6570 '+m.uses_left+'/3</span><span>\u6765\u81ea\u7b2c'+m.from_chapter+'\u7ae0</span></div>';
+      html+='</div>';
     });
     body.innerHTML=html;
   }).catch(function(){body.innerHTML='<div class="bag-empty">\u52a0\u8f7d\u5931\u8d25</div>';});

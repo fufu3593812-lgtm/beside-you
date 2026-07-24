@@ -114,11 +114,19 @@ function renderStory(title, subtitle, body, endQuote, chapterNum){
   var container=document.getElementById('story');
   var label=document.getElementById('chapterLabel');
   label.textContent='Chapter '+(chapterNum||1);
-  var html='<div class="chapter-header" id="header"><h1>'+escHtml(title)+'</h1><div class="subtitle">'+escHtml(subtitle)+'</div></div>';
+  var html='<div class="chapter-header visible" id="header"><h1>'+escHtml(title)+'</h1><div class="subtitle">'+escHtml(subtitle)+'</div></div>';
   var parts=body.split(/\n*---\n*/);
+  var isFirst=true;
   parts.forEach(function(part){
     var lines=part.split('\n').filter(function(l){return l.trim()});
-    lines.forEach(function(line){html+='<p>'+escHtml(line)+'</p>';});
+    lines.forEach(function(line){
+      if(isFirst){
+        html+='<p class="visible">'+escHtml(line)+'</p>';
+        isFirst=false;
+      }else{
+        html+='<p>'+escHtml(line)+'</p>';
+      }
+    });
     html+='<hr>';
   });
   html=html.replace(/<hr>$/,'');
@@ -126,30 +134,40 @@ function renderStory(title, subtitle, body, endQuote, chapterNum){
   html+='<div class="reward-box" id="rewardBox"><div class="rw-title">章节通关奖励</div><div class="rw-amount">+800 token</div><div class="rw-hint">可用于情绪碎片抽取</div><a class="rw-btn" href="/src/gacha.html">去抽卡</a></div>';
   html+='<div class="already-read" id="alreadyRead" style="display:none">已领取本章奖励</div></div>';
   container.innerHTML=html;
-  setTimeout(initScrollAnim,100);
+  initScrollAnim();
 }
 
 function initScrollAnim(){
-  var els=document.querySelectorAll('.story-container p, .story-container hr, .chapter-header, .end-section');
+  var els=document.querySelectorAll('.story-container p:not(.visible), .story-container hr:not(.visible), .end-section:not(.visible)');
   var progress=document.getElementById('progress');
-  var total=els.length;
-  if(!total)return;
-  var obs=new IntersectionObserver(function(entries){
-    entries.forEach(function(e){
-      if(e.isIntersecting){
-        e.target.classList.add('visible');
-        updateProg();
+  var total=document.querySelectorAll('.story-container p, .story-container hr, .chapter-header, .end-section').length;
+  if(!total){progress.textContent='100%';return;}
+  
+  // Use scroll event as fallback for iOS Safari
+  function checkVisible(){
+    var viewH=window.innerHeight;
+    els.forEach(function(el){
+      if(el.classList.contains('visible'))return;
+      var rect=el.getBoundingClientRect();
+      if(rect.top<viewH*0.85){
+        el.classList.add('visible');
       }
     });
-  },{threshold:0.2});
-  els.forEach(function(el){obs.observe(el)});
-  updateProg();
+    updateProg();
+  }
+  
   function updateProg(){
     var v=document.querySelectorAll('.story-container .visible').length;
     var pct=Math.round(v/total*100);
     progress.textContent=pct+'%';
     if(pct>=90)giveReward();
   }
+  
+  // Initial check
+  checkVisible();
+  
+  // Scroll listener
+  window.addEventListener('scroll',checkVisible,{passive:true});
 }
 
 function giveReward(){

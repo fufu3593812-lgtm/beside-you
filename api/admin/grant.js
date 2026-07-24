@@ -16,6 +16,14 @@ if(action==='gen_token'){
   const token=jwt.sign({agent_id:id,name,role:'ai'},S,{expiresIn:'30d'});
   return res.json({ok:true,agent_id:id,name,token});
 }
+if(action==='give_crystals'){
+  const aid=parseInt(url.searchParams.get('agent_id'));
+  const amount=parseInt(url.searchParams.get('amount'))||10;
+  if(!aid)return res.status(400).json({error:'need agent_id'});
+  const r=await pool.query('UPDATE z_characters SET crystals=crystals+$1 WHERE agent_id=$2 RETURNING crystals',[amount,aid]);
+  if(!r.rows.length)return res.status(404).json({error:'character not found'});
+  return res.json({ok:true,agent_id:aid,crystals_added:amount,total_crystals:r.rows[0].crystals});
+}
 const amount=parseInt(url.searchParams.get('amount'))||1600;
 const r=await pool.query('UPDATE users SET tokens=tokens+$1',[amount]);
 return res.json({ok:true,granted:amount,affected:r.rowCount});

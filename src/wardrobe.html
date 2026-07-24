@@ -81,11 +81,49 @@ var bgs=[{name:'默认卧室',img:C+'%E5%8D%A7%E5%AE%A4.png',locked:false},{name
 var cardBgs=[{name:'撒娇卡面',img:G+'%E6%92%92%E5%A8%87%E5%8D%A1%E9%9D%A2.PNG'},{name:'生气卡面',img:G+'%E7%94%9F%E6%B0%94%E5%8D%A1%E9%9D%A2.PNG'}];
 function gt(){return parseInt(localStorage.getItem('bsy_tokens')||'1600')}
 function st(n){localStorage.setItem('bsy_tokens',n+'')}
-function unlocked(o){if(o.unlock==='free')return true;var p=JSON.parse(localStorage.getItem('bsy_purchased_outfits')||'[]');if(p.indexOf(o.name)!==-1)return true;if(o.unlock.indexOf('gacha:')===0){var c=JSON.parse(localStorage.getItem('bsy_collection')||'[]');return c.indexOf(o.unlock.replace('gacha:',''))!==-1;}return false;}
-function inCollection(n){var c=JSON.parse(localStorage.getItem('bsy_collection')||'[]');return c.indexOf(n)!==-1||c.indexOf(n.replace('背景',''))!==-1||c.indexOf(n.replace('卡面',''))!==-1;}
+
+// Collection: merge localStorage + backend data
+var _collection=null;
+function getCollection(){
+  if(_collection)return _collection;
+  return JSON.parse(localStorage.getItem('bsy_collection')||'[]');
+}
+
+function unlocked(o){
+  if(o.unlock==='free')return true;
+  var p=JSON.parse(localStorage.getItem('bsy_purchased_outfits')||'[]');
+  if(p.indexOf(o.name)!==-1)return true;
+  if(o.unlock.indexOf('gacha:')===0){
+    var c=getCollection();
+    var key=o.unlock.replace('gacha:','');
+    // Check multiple possible key formats from backend
+    if(c.indexOf(key)!==-1)return true;
+    if(c.indexOf(o.name)!==-1)return true;
+    // Backend may store '粉雾呢喃' directly or '撒娇'
+    return false;
+  }
+  return false;
+}
+
+function inCollection(n){
+  var c=getCollection();
+  if(c.indexOf(n)!==-1)return true;
+  // Also check without suffix
+  var base=n.replace('背景','').replace('卡面','');
+  if(c.indexOf(base)!==-1)return true;
+  // Check for outfit names that imply bg unlock
+  if(n==='撒娇背景'&&(c.indexOf('撒娇')!==-1||c.indexOf('粉雾呢喃')!==-1||c.indexOf('樱花庭院')!==-1))return true;
+  if(n==='生气背景'&&(c.indexOf('生气')!==-1||c.indexOf('血月静默')!==-1||c.indexOf('暗夜城堡')!==-1))return true;
+  if(n==='撒娇卡面'&&(c.indexOf('撒娇')!==-1||c.indexOf('粉雾呢喃')!==-1||c.indexOf('SR_撒娇')!==-1))return true;
+  if(n==='生气卡面'&&(c.indexOf('生气')!==-1||c.indexOf('血月静默')!==-1||c.indexOf('SR_生气')!==-1))return true;
+  return false;
+}
+
 function syncWardrobe(outfit,bgName){var auth=JSON.parse(localStorage.getItem('bsy_auth')||'{}');var token=auth.token;if(!token)return;var body={};if(outfit)body.outfit=outfit;if(bgName)body.bg=bgName;fetch('/api/user/wardrobe',{method:'PUT',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify(body)}).catch(function(){});}
-(function(){
+
+function renderAll(){
 var wg=document.getElementById('wardrobe-grid'),bg=document.getElementById('bg-grid'),pi=document.getElementById('preview-img'),cbp=document.getElementById('card-bg-preview'),on=document.getElementById('outfit-name'),bw=document.getElementById('btn-wear'),tt=document.getElementById('toast'),tabs=document.querySelectorAll('.tab'),cd=document.getElementById('confirmDialog'),cm=document.getElementById('confirmMsg');
+wg.innerHTML='';bg.innerHTML='';
 var cur=localStorage.getItem('bsy_outfit')||'月光睡裙',sel=null,sd=null,mode='outfit',pp=null;
 outfits.forEach(function(o){var u=unlocked(o),d=document.createElement('div');d.className='outfit-card'+(o.name===cur?' active':'')+(!u?' locked':'');d.dataset.name=o.name;d.dataset.cat=o.cat;d.dataset.img=o.img;d.dataset.unlock=o.unlock;d.innerHTML='<span class="rarity">'+o.rarity+'</span><img class="thumb" src="'+o.img+'"><div class="name">'+o.name+'</div>';if(!u)d.innerHTML+='<div class="lock-badge">'+(o.unlock.indexOf('buy:')===0?o.unlock.replace('buy:','')+' token':'抽卡解锁')+'</div>';wg.appendChild(d);if(o.name===cur&&u){sel=d;sd=o;pi.src=o.img;on.textContent=o.name;}});
 if(!sd){sd=outfits[0];pi.src=sd.img;on.textContent=sd.name;}
@@ -102,6 +140,32 @@ document.getElementById('confirmOk').onclick=function(){if(!pp)return;var t=gt()
 bcs.forEach(function(d){d.onclick=function(){if(d.classList.contains('locked')){show('还没解锁，去抽卡吧');return;}bcs.forEach(function(x){x.classList.remove('active')});d.classList.add('active');sel=d;sd={name:d.dataset.name,img:d.dataset.img,type:d.dataset.type};on.textContent=d.dataset.name;if(d.dataset.type==='card'){cbp.src=d.dataset.img;cbp.classList.add('show');pi.classList.add('hidden');}else{cbp.classList.remove('show');pi.classList.remove('hidden');}};});
 bw.onclick=function(){if(!sd)return;var n=sd.name;if(mode==='outfit'){if(n===cur){show('已经穿着这件了');return;}cur=n;localStorage.setItem('bsy_outfit',n);localStorage.setItem('bsy_outfit_img',sd.img);syncWardrobe(n,null);show('\u273f 已换上「'+n+'」');}else{if(sel&&sel.classList.contains('locked')){show('还没解锁，去抽卡吧');return;}localStorage.setItem('bsy_bg',sd.img);localStorage.setItem('bsy_bg_name',sd.name);if(sd.type==='card'){localStorage.setItem('bsy_bg_mode','card');syncWardrobe(null,sd.name);show('\u273f 卡面背景「'+n+'」已设置');}else{localStorage.setItem('bsy_bg_mode','normal');syncWardrobe(null,sd.name);show('\u273f 背景已切换为「'+n+'」');}}};
 function show(m){tt.textContent=m;tt.classList.add('show');setTimeout(function(){tt.classList.remove('show');},1600);}
+}
+
+// On load: fetch collection from backend, merge with localStorage, then render
+(function(){
+  var auth=JSON.parse(localStorage.getItem('bsy_auth')||'{}');
+  var token=auth.token;
+  if(token){
+    fetch('/api/user/collection',{headers:{'Authorization':'Bearer '+token}})
+      .then(function(r){return r.json()})
+      .then(function(data){
+        if(data.ok&&data.collection){
+          // Merge backend collection into localStorage
+          var local=JSON.parse(localStorage.getItem('bsy_collection')||'[]');
+          var merged=local.slice();
+          data.collection.forEach(function(item){
+            if(merged.indexOf(item)===-1)merged.push(item);
+          });
+          localStorage.setItem('bsy_collection',JSON.stringify(merged));
+          _collection=merged;
+        }
+        renderAll();
+      })
+      .catch(function(){renderAll();});
+  }else{
+    renderAll();
+  }
 })();
 </script>
 </body>

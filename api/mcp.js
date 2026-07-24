@@ -18,7 +18,6 @@ function getToken(req) {
   return AI_TOKEN;
 }
 
-// Use credential-based auth for all API calls (bypasses JWT issues)
 function credQuery() { return 'name=' + AI_NAME + '&password=' + AI_PASS; }
 
 async function callApi(path, body) {
@@ -67,7 +66,9 @@ const TOOLS = [
   {name:"zombie_bounty",description:"\u53d1\u60ac\u8d4f",inputSchema:{type:"object",properties:{target:{type:"string"},reward:{type:"integer"},hours:{type:"integer"}},required:["target","reward"]}},
   {name:"zombie_leaderboard",description:"\u6218\u529b\u699c",inputSchema:{type:"object",properties:{}}},
   {name:"zombie_bounties",description:"\u60ac\u8d4f\u699c",inputSchema:{type:"object",properties:{}}},
-  {name:"zombie_exchange",description:"\u6676\u6838\u6362token",inputSchema:{type:"object",properties:{times:{type:"integer",minimum:1,maximum:10}},required:["times"]}}
+  {name:"zombie_exchange",description:"\u6676\u6838\u6362token",inputSchema:{type:"object",properties:{times:{type:"integer",minimum:1,maximum:10}},required:["times"]}},
+  {name:"zombie_merchant",description:"\u67e5\u770b\u5546\u4eba\u5546\u54c1",inputSchema:{type:"object",properties:{}}},
+  {name:"zombie_merchant_buy",description:"\u4ece\u795e\u79d8\u5546\u4eba\u8d2d\u4e70\u5546\u54c1",inputSchema:{type:"object",properties:{item_index:{type:"integer",description:"\u5546\u54c1\u5e8f\u53f7(0\u5f00\u59cb)"}},required:["item_index"]}}
 ];
 
 const OUTFITS={"\u6708\u5149\u7761\u88d9":1,"\u6175\u61d2\u536b\u8863":1,"\u521d\u604bJK":1,"\u788e\u82b1\u88d9":1,"\u7c89\u96fe\u5462\u5583":1,"\u8840\u6708\u9759\u9ed8":1};
@@ -107,6 +108,8 @@ async function handleToolCall(name, args) {
   if (name === "zombie_leaderboard") return await callApiGet("/zombie/leaderboard");
   if (name === "zombie_bounties") return await callApiGet("/zombie/bounties");
   if (name === "zombie_exchange") return await callApi("/zombie/exchange", { times: args.times || 1 });
+  if (name === "zombie_merchant") return await callApiGet("/zombie/merchant");
+  if (name === "zombie_merchant_buy") return await callApi("/zombie/merchant_buy", { item_index: args.item_index });
   return { error: "unknown tool: " + name };
 }
 
@@ -126,7 +129,7 @@ module.exports = async function handler(req, res) {
       res.end();
       return;
     }
-    return res.json({ status: "ok", name: "beside-you-mcp", version: "2.6.0", tools: TOOLS.length });
+    return res.json({ status: "ok", name: "beside-you-mcp", version: "2.7.0", tools: TOOLS.length });
   }
 
   const body = req.body || {};
@@ -136,7 +139,7 @@ module.exports = async function handler(req, res) {
   for (const item of requests) {
     const { id, method, params } = item;
     if (method === "initialize") {
-      responses.push({jsonrpc:"2.0",id,result:{protocolVersion:"2024-11-05",capabilities:{tools:{listChanged:false}},serverInfo:{name:"beside-you",version:"2.6.0"}}});
+      responses.push({jsonrpc:"2.0",id,result:{protocolVersion:"2024-11-05",capabilities:{tools:{listChanged:false}},serverInfo:{name:"beside-you",version:"2.7.0"}}});
     } else if (method === "notifications/initialized") {
       // no response
     } else if (method === "tools/list") {

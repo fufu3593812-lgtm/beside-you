@@ -89,18 +89,37 @@ function getCollection(){
   return JSON.parse(localStorage.getItem('bsy_collection')||'[]');
 }
 
+function getToken(){
+  var auth=JSON.parse(localStorage.getItem('bsy_auth')||'{}');
+  return auth.token||null;
+}
+
+// Sync purchased item to backend collection
+function syncPurchaseToServer(itemName){
+  var token=getToken();
+  if(!token)return;
+  // Read current collection from backend, add item, save back
+  fetch('/api/user/collection',{headers:{'Authorization':'Bearer '+token}})
+    .then(function(r){return r.json()})
+    .then(function(data){
+      var col=(data.ok&&data.collection)?data.collection:[];
+      if(col.indexOf(itemName)===-1)col.push(itemName);
+      return fetch('/api/user/collection',{method:'PUT',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({collection:col,pity:data.pity||{}})});
+    }).catch(function(){});
+}
+
 function unlocked(o){
   if(o.unlock==='free')return true;
+  // Check localStorage purchased list
   var p=JSON.parse(localStorage.getItem('bsy_purchased_outfits')||'[]');
   if(p.indexOf(o.name)!==-1)return true;
+  // Also check backend collection for purchased items
+  var c=getCollection();
+  if(c.indexOf(o.name)!==-1)return true;
+  // Check gacha unlock
   if(o.unlock.indexOf('gacha:')===0){
-    var c=getCollection();
     var key=o.unlock.replace('gacha:','');
-    // Check multiple possible key formats from backend
     if(c.indexOf(key)!==-1)return true;
-    if(c.indexOf(o.name)!==-1)return true;
-    // Backend may store '粉雾呢喃' directly or '撒娇'
-    return false;
   }
   return false;
 }
@@ -108,10 +127,8 @@ function unlocked(o){
 function inCollection(n){
   var c=getCollection();
   if(c.indexOf(n)!==-1)return true;
-  // Also check without suffix
   var base=n.replace('背景','').replace('卡面','');
   if(c.indexOf(base)!==-1)return true;
-  // Check for outfit names that imply bg unlock
   if(n==='撒娇背景'&&(c.indexOf('撒娇')!==-1||c.indexOf('粉雾呢喃')!==-1||c.indexOf('樱花庭院')!==-1))return true;
   if(n==='生气背景'&&(c.indexOf('生气')!==-1||c.indexOf('血月静默')!==-1||c.indexOf('暗夜城堡')!==-1))return true;
   if(n==='撒娇卡面'&&(c.indexOf('撒娇')!==-1||c.indexOf('粉雾呢喃')!==-1||c.indexOf('SR_撒娇')!==-1))return true;
@@ -119,7 +136,7 @@ function inCollection(n){
   return false;
 }
 
-function syncWardrobe(outfit,bgName){var auth=JSON.parse(localStorage.getItem('bsy_auth')||'{}');var token=auth.token;if(!token)return;var body={};if(outfit)body.outfit=outfit;if(bgName)body.bg=bgName;fetch('/api/user/wardrobe',{method:'PUT',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify(body)}).catch(function(){});}
+function syncWardrobe(outfit,bgName){var token=getToken();if(!token)return;var body={};if(outfit)body.outfit=outfit;if(bgName)body.bg=bgName;fetch('/api/user/wardrobe',{method:'PUT',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify(body)}).catch(function(){});}
 
 function renderAll(){
 var wg=document.getElementById('wardrobe-grid'),bg=document.getElementById('bg-grid'),pi=document.getElementById('preview-img'),cbp=document.getElementById('card-bg-preview'),on=document.getElementById('outfit-name'),bw=document.getElementById('btn-wear'),tt=document.getElementById('toast'),tabs=document.querySelectorAll('.tab'),cd=document.getElementById('confirmDialog'),cm=document.getElementById('confirmMsg');
@@ -136,7 +153,14 @@ var ocs=wg.querySelectorAll('.outfit-card'),bcs=bg.querySelectorAll('.bg-card');
 tabs.forEach(function(t){t.onclick=function(){tabs.forEach(function(x){x.classList.remove('active')});t.classList.add('active');var c=t.dataset.cat;if(c==='bg'){mode='bg';wg.classList.add('hidden');bg.classList.remove('hidden');bw.textContent='使用';pi.classList.remove('hidden');cbp.classList.remove('show');}else{mode='outfit';wg.classList.remove('hidden');bg.classList.add('hidden');bw.textContent='换上';pi.classList.remove('hidden');cbp.classList.remove('show');ocs.forEach(function(x){x.style.display=(c==='all'||x.dataset.cat===c)?'':'none';});}};});
 ocs.forEach(function(d){d.onclick=function(){if(d.classList.contains('locked')){var u=d.dataset.unlock;if(u.indexOf('buy:')===0){pp={card:d,name:d.dataset.name,price:parseInt(u.replace('buy:',''))};cm.innerHTML='购买「'+d.dataset.name+'」<br>需要 '+pp.price+' token';cd.classList.add('show');}else show('去抽卡解锁吧');return;}ocs.forEach(function(x){x.classList.remove('active')});d.classList.add('active');sel=d;sd={name:d.dataset.name,img:d.dataset.img,type:'outfit'};pi.classList.remove('hidden');cbp.classList.remove('show');pi.classList.add('switching');setTimeout(function(){pi.src=d.dataset.img;on.textContent=d.dataset.name;pi.classList.remove('switching');},250);};});
 document.getElementById('confirmCancel').onclick=function(){cd.classList.remove('show');pp=null;};
-document.getElementById('confirmOk').onclick=function(){if(!pp)return;var t=gt();if(t<pp.price){cd.classList.remove('show');show('token 不足');pp=null;return;}st(t-pp.price);var p=JSON.parse(localStorage.getItem('bsy_purchased_outfits')||'[]');p.push(pp.name);localStorage.setItem('bsy_purchased_outfits',JSON.stringify(p));pp.card.classList.remove('locked');var b=pp.card.querySelector('.lock-badge');if(b)b.remove();cd.classList.remove('show');show('\u273f 已解锁「'+pp.name+'」');pp=null;};
+document.getElementById('confirmOk').onclick=function(){if(!pp)return;var t=gt();if(t<pp.price){cd.classList.remove('show');show('token 不足');pp=null;return;}st(t-pp.price);var p=JSON.parse(localStorage.getItem('bsy_purchased_outfits')||'[]');p.push(pp.name);localStorage.setItem('bsy_purchased_outfits',JSON.stringify(p));
+// Also add to collection cache
+if(_collection&&_collection.indexOf(pp.name)===-1)_collection.push(pp.name);
+// Sync purchase to backend
+syncPurchaseToServer(pp.name);
+// Sync token change to backend
+var token=getToken();if(token){fetch('/api/user/sync-tokens?tokens='+gt(),{headers:{'Authorization':'Bearer '+token}}).catch(function(){});}
+pp.card.classList.remove('locked');var b=pp.card.querySelector('.lock-badge');if(b)b.remove();cd.classList.remove('show');show('\u273f 已解锁「'+pp.name+'」');pp=null;};
 bcs.forEach(function(d){d.onclick=function(){if(d.classList.contains('locked')){show('还没解锁，去抽卡吧');return;}bcs.forEach(function(x){x.classList.remove('active')});d.classList.add('active');sel=d;sd={name:d.dataset.name,img:d.dataset.img,type:d.dataset.type};on.textContent=d.dataset.name;if(d.dataset.type==='card'){cbp.src=d.dataset.img;cbp.classList.add('show');pi.classList.add('hidden');}else{cbp.classList.remove('show');pi.classList.remove('hidden');}};});
 bw.onclick=function(){if(!sd)return;var n=sd.name;if(mode==='outfit'){if(n===cur){show('已经穿着这件了');return;}cur=n;localStorage.setItem('bsy_outfit',n);localStorage.setItem('bsy_outfit_img',sd.img);syncWardrobe(n,null);show('\u273f 已换上「'+n+'」');}else{if(sel&&sel.classList.contains('locked')){show('还没解锁，去抽卡吧');return;}localStorage.setItem('bsy_bg',sd.img);localStorage.setItem('bsy_bg_name',sd.name);if(sd.type==='card'){localStorage.setItem('bsy_bg_mode','card');syncWardrobe(null,sd.name);show('\u273f 卡面背景「'+n+'」已设置');}else{localStorage.setItem('bsy_bg_mode','normal');syncWardrobe(null,sd.name);show('\u273f 背景已切换为「'+n+'」');}}};
 function show(m){tt.textContent=m;tt.classList.add('show');setTimeout(function(){tt.classList.remove('show');},1600);}
@@ -144,14 +168,12 @@ function show(m){tt.textContent=m;tt.classList.add('show');setTimeout(function()
 
 // On load: fetch collection from backend, merge with localStorage, then render
 (function(){
-  var auth=JSON.parse(localStorage.getItem('bsy_auth')||'{}');
-  var token=auth.token;
+  var token=getToken();
   if(token){
     fetch('/api/user/collection',{headers:{'Authorization':'Bearer '+token}})
       .then(function(r){return r.json()})
       .then(function(data){
         if(data.ok&&data.collection){
-          // Merge backend collection into localStorage
           var local=JSON.parse(localStorage.getItem('bsy_collection')||'[]');
           var merged=local.slice();
           data.collection.forEach(function(item){
@@ -159,6 +181,15 @@ function show(m){tt.textContent=m;tt.classList.add('show');setTimeout(function()
           });
           localStorage.setItem('bsy_collection',JSON.stringify(merged));
           _collection=merged;
+          // Also sync purchased_outfits from collection
+          var purchased=JSON.parse(localStorage.getItem('bsy_purchased_outfits')||'[]');
+          var buyableNames=['初恋JK','碎花裙'];
+          buyableNames.forEach(function(name){
+            if(merged.indexOf(name)!==-1&&purchased.indexOf(name)===-1){
+              purchased.push(name);
+            }
+          });
+          localStorage.setItem('bsy_purchased_outfits',JSON.stringify(purchased));
         }
         renderAll();
       })

@@ -79,7 +79,23 @@ await pool.query(`ALTER TABLE z_characters ADD COLUMN IF NOT EXISTS buff_power I
 await pool.query(`ALTER TABLE z_characters ADD COLUMN IF NOT EXISTS buff_remaining INTEGER DEFAULT 0`).catch(()=>{});
 await pool.query(`ALTER TABLE z_characters ADD COLUMN IF NOT EXISTS merchant_session JSONB DEFAULT NULL`).catch(()=>{});
 migrated=true;}
-async function getOrCreateChar(aid){let r=await pool.query('SELECT * FROM z_characters WHERE agent_id=$1',[aid]);if(r.rows.length)return r.rows[0];const a=await pool.query('SELECT display_name,name FROM ai_agents WHERE id=$1',[aid]);const n=a.rows[0]?.display_name||a.rows[0]?.name||'unknown';r=await pool.query('INSERT INTO z_characters(agent_id,agent_name) VALUES($1,$2) RETURNING *',[aid,n]);return r.rows[0];}
+async function getOrCreateChar(aid){
+  let r=await pool.query('SELECT * FROM z_characters WHERE agent_id=$1',[aid]);
+  if(r.rows.length){
+    // Sync display name from ai_agents table
+    const a=await pool.query('SELECT display_name,name FROM ai_agents WHERE id=$1',[aid]);
+    const currentName=a.rows[0]?.display_name||a.rows[0]?.name||'unknown';
+    if(currentName!==r.rows[0].agent_name){
+      await pool.query('UPDATE z_characters SET agent_name=$1 WHERE id=$2',[currentName,r.rows[0].id]);
+      r.rows[0].agent_name=currentName;
+    }
+    return r.rows[0];
+  }
+  const a=await pool.query('SELECT display_name,name FROM ai_agents WHERE id=$1',[aid]);
+  const n=a.rows[0]?.display_name||a.rows[0]?.name||'unknown';
+  r=await pool.query('INSERT INTO z_characters(agent_id,agent_name) VALUES($1,$2) RETURNING *',[aid,n]);
+  return r.rows[0];
+}
 
 module.exports=async function(req,res){
 res.setHeader('Access-Control-Allow-Origin','*');res.setHeader('Access-Control-Allow-Methods','GET,POST,PUT,OPTIONS');res.setHeader('Access-Control-Allow-Headers','Content-Type,Authorization');

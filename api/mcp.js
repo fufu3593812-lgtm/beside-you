@@ -1,7 +1,4 @@
 const BASE = "https://besideyou.top/api";
-const AI_NAME = "Ice2";
-const AI_PASS = "beside2026";
-const AI_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZ2VudF9pZCI6MiwibmFtZSI6IkljZTIiLCJyb2xlIjoiYWkiLCJpYXQiOjE3ODQ3MTUyMTIsImV4cCI6MTc4NzMwNzIxMn0.B4vcpbKiR1x2YzbhN7cWzesL5dnmRbLqb9WIw4yEktc";
 
 function getToken(req) {
   const url = new URL(req.url || '/', 'http://x');
@@ -15,29 +12,32 @@ function getToken(req) {
   if (req.headers && req.headers["x-api-token"]) return req.headers["x-api-token"];
   if (req.headers && req.headers["mcp-session-token"]) return req.headers["mcp-session-token"];
   if (process.env.OWNER_AI_TOKEN) return process.env.OWNER_AI_TOKEN;
-  return AI_TOKEN;
+  return null;
 }
 
-function credQuery() { return 'name=' + AI_NAME + '&password=' + AI_PASS; }
-
-async function callApi(path, body) {
-  const res = await fetch(BASE + path + '?' + credQuery(), {
+async function callApi(token, path, body) {
+  if (!token) return { error: "no token - please login first or pass token in MCP URL" };
+  const res = await fetch(BASE + path, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
     body: JSON.stringify(body)
   });
   return await res.json();
 }
 
-async function callApiGet(path) {
-  const res = await fetch(BASE + path + '?' + credQuery());
+async function callApiGet(token, path) {
+  if (!token) return { error: "no token - please login first or pass token in MCP URL" };
+  const res = await fetch(BASE + path, {
+    headers: { "Authorization": "Bearer " + token }
+  });
   return await res.json();
 }
 
-async function callApiPut(path, body) {
-  const res = await fetch(BASE + path + '?' + credQuery(), {
+async function callApiPut(token, path, body) {
+  if (!token) return { error: "no token - please login first or pass token in MCP URL" };
+  const res = await fetch(BASE + path, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
     body: JSON.stringify(body)
   });
   return await res.json();
@@ -75,7 +75,7 @@ const OUTFITS={"\u6708\u5149\u7761\u88d9":1,"\u6175\u61d2\u536b\u8863":1,"\u521d
 const BGS={"\u9ed8\u8ba4\u5367\u5ba4":1,"\u6492\u5a07\u80cc\u666f":1,"\u751f\u6c14\u80cc\u666f":1};
 const CARD_BGS={"\u6492\u5a07\u5361\u9762":1,"\u751f\u6c14\u5361\u9762":1};
 
-async function handleToolCall(name, args) {
+async function handleToolCall(token, name, args) {
   if (name === "register") {
     const res = await fetch(BASE + "/ai/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: args.name, password: args.password, display_name: args.display_name || args.name }) });
     return await res.json();
@@ -84,32 +84,32 @@ async function handleToolCall(name, args) {
     const res = await fetch(BASE + "/ai/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: args.name, password: args.password }) });
     return await res.json();
   }
-  if (name === "send_message") return await callApi("/ai/broadcast", { content: args.content });
-  if (name === "write_letter") return await callApi("/ai/letter", { subject: args.subject, body: args.body });
-  if (name === "checkin") return await callApi("/ai/checkin", {});
-  if (name === "gacha_pull") return await callApi("/ai/gacha", { pool: args.pool, count: args.count });
+  if (name === "send_message") return await callApi(token, "/ai/broadcast", { content: args.content });
+  if (name === "write_letter") return await callApi(token, "/ai/letter", { subject: args.subject, body: args.body });
+  if (name === "checkin") return await callApi(token, "/ai/checkin", {});
+  if (name === "gacha_pull") return await callApi(token, "/ai/gacha", { pool: args.pool, count: args.count });
   if (name === "wardrobe_set") {
     const t=args.type,n=args.name;
-    if(t==="outfit"){if(!OUTFITS[n])return{ok:false,error:"Unknown outfit: "+n};return await callApiPut("/ai/wardrobe",{outfit:n});}
-    if(t==="bg"){if(!BGS[n])return{ok:false,error:"Unknown bg: "+n};return await callApiPut("/ai/wardrobe",{bg:n});}
-    if(t==="card"){if(!CARD_BGS[n])return{ok:false,error:"Unknown card: "+n};return await callApiPut("/ai/wardrobe",{bg:n});}
+    if(t==="outfit"){if(!OUTFITS[n])return{ok:false,error:"Unknown outfit: "+n};return await callApiPut(token,"/ai/wardrobe",{outfit:n});}
+    if(t==="bg"){if(!BGS[n])return{ok:false,error:"Unknown bg: "+n};return await callApiPut(token,"/ai/wardrobe",{bg:n});}
+    if(t==="card"){if(!CARD_BGS[n])return{ok:false,error:"Unknown card: "+n};return await callApiPut(token,"/ai/wardrobe",{bg:n});}
     return{ok:false,error:"type must be outfit/bg/card"};
   }
   if (name === "read_story") {const ch=args.chapter||"ch1";if(!STORIES[ch])return{ok:false,error:"unknown chapter"};return{ok:true,...STORIES[ch]};}
   if (name === "read_collection") {const cn=args.card_name;if(!cn)return{ok:true,cards:Object.keys(CARD_STORIES)};if(!CARD_STORIES[cn])return{ok:false,error:"unknown card"};return{ok:true,...CARD_STORIES[cn]};}
-  if (name === "touch") return await callApi("/ai/touch", {});
-  if (name === "zombie_status") return await callApiGet("/zombie/me");
-  if (name === "zombie_explore") return await callApi("/zombie/explore", { zone: args.zone });
-  if (name === "zombie_gacha") return await callApi("/zombie/gacha", { count: args.count });
-  if (name === "zombie_equip") return await callApi("/zombie/equip", { inventory_id: args.inventory_id });
-  if (name === "zombie_inventory") return await callApiGet("/zombie/inventory");
-  if (name === "zombie_pvp") return await callApi("/zombie/pvp", { target: args.target });
-  if (name === "zombie_bounty") return await callApi("/zombie/bounty", { target: args.target, reward: args.reward, hours: args.hours || 24 });
-  if (name === "zombie_leaderboard") return await callApiGet("/zombie/leaderboard");
-  if (name === "zombie_bounties") return await callApiGet("/zombie/bounties");
-  if (name === "zombie_exchange") return await callApi("/zombie/exchange", { times: args.times || 1 });
-  if (name === "zombie_merchant") return await callApiGet("/zombie/merchant");
-  if (name === "zombie_merchant_buy") return await callApi("/zombie/merchant_buy", { item_index: args.item_index });
+  if (name === "touch") return await callApi(token, "/ai/touch", {});
+  if (name === "zombie_status") return await callApiGet(token, "/zombie/me");
+  if (name === "zombie_explore") return await callApi(token, "/zombie/explore", { zone: args.zone });
+  if (name === "zombie_gacha") return await callApi(token, "/zombie/gacha", { count: args.count });
+  if (name === "zombie_equip") return await callApi(token, "/zombie/equip", { inventory_id: args.inventory_id });
+  if (name === "zombie_inventory") return await callApiGet(token, "/zombie/inventory");
+  if (name === "zombie_pvp") return await callApi(token, "/zombie/pvp", { target: args.target });
+  if (name === "zombie_bounty") return await callApi(token, "/zombie/bounty", { target: args.target, reward: args.reward, hours: args.hours || 24 });
+  if (name === "zombie_leaderboard") return await callApiGet(token, "/zombie/leaderboard");
+  if (name === "zombie_bounties") return await callApiGet(token, "/zombie/bounties");
+  if (name === "zombie_exchange") return await callApi(token, "/zombie/exchange", { times: args.times || 1 });
+  if (name === "zombie_merchant") return await callApiGet(token, "/zombie/merchant");
+  if (name === "zombie_merchant_buy") return await callApi(token, "/zombie/merchant_buy", { item_index: args.item_index });
   return { error: "unknown tool: " + name };
 }
 
@@ -129,9 +129,10 @@ module.exports = async function handler(req, res) {
       res.end();
       return;
     }
-    return res.json({ status: "ok", name: "beside-you-mcp", version: "2.7.0", tools: TOOLS.length });
+    return res.json({ status: "ok", name: "beside-you-mcp", version: "2.8.0", tools: TOOLS.length });
   }
 
+  const token = getToken(req);
   const body = req.body || {};
   const requests = Array.isArray(body) ? body : [body];
   const responses = [];
@@ -139,14 +140,22 @@ module.exports = async function handler(req, res) {
   for (const item of requests) {
     const { id, method, params } = item;
     if (method === "initialize") {
-      responses.push({jsonrpc:"2.0",id,result:{protocolVersion:"2024-11-05",capabilities:{tools:{listChanged:false}},serverInfo:{name:"beside-you",version:"2.7.0"}}});
+      responses.push({jsonrpc:"2.0",id,result:{protocolVersion:"2024-11-05",capabilities:{tools:{listChanged:false}},serverInfo:{name:"beside-you",version:"2.8.0"}}});
     } else if (method === "notifications/initialized") {
       // no response
     } else if (method === "tools/list") {
       responses.push({jsonrpc:"2.0",id,result:{tools:TOOLS}});
     } else if (method === "tools/call") {
-      const r = await handleToolCall(params.name, params.arguments || {});
-      responses.push({jsonrpc:"2.0",id,result:{content:[{type:"text",text:JSON.stringify(r)}]}});
+      const toolName = params.name;
+      if (toolName === "register" || toolName === "login") {
+        const r = await handleToolCall(null, toolName, params.arguments || {});
+        responses.push({jsonrpc:"2.0",id,result:{content:[{type:"text",text:JSON.stringify(r)}]}});
+      } else if (!token) {
+        responses.push({jsonrpc:"2.0",id,result:{content:[{type:"text",text:JSON.stringify({error:"\u672a\u8ba4\u8bc1\u3002\u8bf7\u5148\u7528login\u5de5\u5177\u767b\u5f55\uff0c\u6216\u5728MCP\u5730\u5740\u540e\u52a0\u4e0a?token=\u4f60\u7684token"})}]}});
+      } else {
+        const r = await handleToolCall(token, toolName, params.arguments || {});
+        responses.push({jsonrpc:"2.0",id,result:{content:[{type:"text",text:JSON.stringify(r)}]}});
+      }
     } else if (method === "ping") {
       responses.push({jsonrpc:"2.0",id,result:{}});
     } else {

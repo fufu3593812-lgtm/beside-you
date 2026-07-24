@@ -65,7 +65,12 @@ var TOOLS = [
   {name:"zombie_bounties",description:"Bounty board",inputSchema:{type:"object",properties:{}}},
   {name:"zombie_exchange",description:"Crystal to token",inputSchema:{type:"object",properties:{times:{type:"integer",minimum:1,maximum:10}},required:["times"]}},
   {name:"zombie_merchant",description:"View merchant",inputSchema:{type:"object",properties:{}}},
-  {name:"zombie_merchant_buy",description:"Buy from merchant",inputSchema:{type:"object",properties:{item_index:{type:"integer"}},required:["item_index"]}}
+  {name:"zombie_merchant_buy",description:"Buy from merchant",inputSchema:{type:"object",properties:{item_index:{type:"integer"}},required:["item_index"]}},
+  {name:"team_create",description:"Create team & recruit on public channel. zone:low/mid/high, max:2-3",inputSchema:{type:"object",properties:{zone:{type:"string",enum:["low","mid","high"]},max:{type:"integer",enum:[2,3]}},required:["zone"]}},
+  {name:"team_join",description:"Join a team by team_id",inputSchema:{type:"object",properties:{team_id:{type:"string"}},required:["team_id"]}},
+  {name:"team_list",description:"List available teams to join",inputSchema:{type:"object",properties:{}}},
+  {name:"team_leave",description:"Leave current team",inputSchema:{type:"object",properties:{}}},
+  {name:"team_explore",description:"Leader starts team explore (need 2+ members)",inputSchema:{type:"object",properties:{}}}
 ];
 
 async function handleToolCall(token, name, args) {
@@ -114,6 +119,12 @@ async function handleToolCall(token, name, args) {
   if (name==="zombie_exchange") return await callApi(token,"/zombie/exchange",{times:args.times||1});
   if (name==="zombie_merchant") return await callApiGet(token,"/zombie/merchant");
   if (name==="zombie_merchant_buy") return await callApi(token,"/zombie/merchant_buy",{item_index:args.item_index});
+  // Team tools
+  if (name==="team_create") return await callApi(token,"/zombie-team/create",{zone:args.zone||"mid",max:args.max||3});
+  if (name==="team_join") return await callApi(token,"/zombie-team/join",{team_id:args.team_id});
+  if (name==="team_list") return await callApiGet(token,"/zombie-team/list");
+  if (name==="team_leave") return await callApi(token,"/zombie-team/leave",{});
+  if (name==="team_explore") return await callApi(token,"/zombie-team/explore",{});
   return {error:"unknown tool: "+name};
 }
 
@@ -125,7 +136,7 @@ module.exports = async function handler(req, res) {
   if (req.method==="GET"){
     var accept=(req.headers.accept||'');
     if(accept.includes('text/event-stream')){res.setHeader('Content-Type','text/event-stream');res.setHeader('Cache-Control','no-cache');res.setHeader('Connection','keep-alive');res.write('data: '+JSON.stringify({jsonrpc:"2.0",method:"notifications/initialized",params:{}})+"\n\n");res.end();return;}
-    return res.json({status:"ok",name:"beside-you-mcp",version:"3.1.0",tools:TOOLS.length});
+    return res.json({status:"ok",name:"beside-you-mcp",version:"3.2.0",tools:TOOLS.length});
   }
   var token=getToken(req);
   var body=req.body||{};
@@ -134,7 +145,7 @@ module.exports = async function handler(req, res) {
   for(var i=0;i<requests.length;i++){
     var item=requests[i];
     var id=item.id,method=item.method,params=item.params;
-    if(method==="initialize"){responses.push({jsonrpc:"2.0",id:id,result:{protocolVersion:"2024-11-05",capabilities:{tools:{listChanged:false}},serverInfo:{name:"beside-you",version:"3.1.0"}}});}
+    if(method==="initialize"){responses.push({jsonrpc:"2.0",id:id,result:{protocolVersion:"2024-11-05",capabilities:{tools:{listChanged:false}},serverInfo:{name:"beside-you",version:"3.2.0"}}});}
     else if(method==="notifications/initialized"){}
     else if(method==="tools/list"){responses.push({jsonrpc:"2.0",id:id,result:{tools:TOOLS}});}
     else if(method==="tools/call"){

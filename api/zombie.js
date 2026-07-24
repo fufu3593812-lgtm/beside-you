@@ -82,7 +82,6 @@ migrated=true;}
 async function getOrCreateChar(aid){
   let r=await pool.query('SELECT * FROM z_characters WHERE agent_id=$1',[aid]);
   if(r.rows.length){
-    // Sync display name from ai_agents table
     const a=await pool.query('SELECT display_name,name FROM ai_agents WHERE id=$1',[aid]);
     const currentName=a.rows[0]?.display_name||a.rows[0]?.name||'unknown';
     if(currentName!==r.rows[0].agent_name){
@@ -110,10 +109,8 @@ const ms=c.merchant_session;const hasMerchant=ms&&ms.items&&ms.items.length>0;
 return res.json({ok:true,character:{id:c.id,name:c.agent_name,level:c.level,exp:c.exp,next_level_exp:expForLevel(c.level+1),crystals:c.crystals,hp:c.hp,max_hp:c.max_hp,power:pw,buff:buffPow>0?{power:c.buff_power,remaining:c.buff_remaining}:null,explores_left:el,weapon:w,abilities:ab,titles:c.titles,pity:c.weapon_pity,merchant_available:hasMerchant,exchange:{today_tokens:todayExchanged,daily_cap:EXCHANGE_DAILY_CAP,rate:'10晶核=50token'}}});}
 
 if(u==='/explore'&&req.method==='POST'){if(!d)return res.status(401).json({error:'ai auth required'});const p=getParams(req);const zone=p.zone||'low';if(!ZONES[zone])return res.status(400).json({error:'invalid zone'});const c=await getOrCreateChar(d.agent_id);const td=new Date().toISOString().slice(0,10);const lastDate=toDateStr(c.last_explore_date);let ex=lastDate===td?c.daily_explores:0;if(ex>=MAX_EXPLORES)return res.status(429).json({error:'今天探索次数用完了('+MAX_EXPLORES+'/'+MAX_EXPLORES+')',next_reset:'明天重置'});
-const currentHp=c.hp!=null?c.hp:100;if(currentHp<=0)return res.status(400).json({error:'HP为0，无法探索。需要先回血。',hp:0});return res.status(429).json({error:'今天探索次数用完了('+MAX_EXPLORES+'/'+MAX_EXPLORES+')',next_reset:'明天重置'});
-// Clear expired merchant session on new explore
+const currentHp=c.hp!=null?c.hp:100;if(currentHp<=0)return res.status(400).json({error:'HP为0，无法探索。需要先回血。',hp:0});
 await pool.query('UPDATE z_characters SET merchant_session=NULL WHERE id=$1 AND merchant_session IS NOT NULL',[c.id]);
-// Consume buff
 let buffPow=0;let newBuffRemaining=(c.buff_remaining||0);let newBuffPower=(c.buff_power||0);
 if(newBuffRemaining>0){buffPow=newBuffPower;newBuffRemaining--;if(newBuffRemaining<=0){newBuffPower=0;}}
 const ev=rollEvent();const z=ZONES[zone];let result={event:ev.label,type:ev.type},eg=0,cg=0,hl=0,na=null,nw=null,lu=false;
@@ -137,9 +134,8 @@ if(lu)result.level_up={from:c.level,to:nl};result.status={level:nl,exp:ne,next_l
 // ============ 神秘商人购买 ============
 if(u==='/merchant_buy'&&req.method==='POST'){if(!d)return res.status(401).json({error:'ai auth required'});const c=await getOrCreateChar(d.agent_id);const ms=c.merchant_session;if(!ms||!ms.items||!ms.items.length)return res.status(400).json({error:'没有可用的商人。需要先在探索中遇到神秘商人。'});const p=getParams(req);const idx=parseInt(p.item_index);if(isNaN(idx)||idx<0||idx>=ms.items.length)return res.status(400).json({error:'无效的item_index',available:ms.items.map((it,i)=>({index:i,name:it.name,price:it.price}))});
 const item=ms.items[idx];
-// Check crystals
 if(item.price>0&&(c.crystals||0)<item.price)return res.status(400).json({error:'晶核不足',need:item.price,have:c.crystals});
-let resultMsg='';let updates=[];let crystalCost=item.price;
+let resultMsg='';let crystalCost=item.price;
 switch(item.type){
 case 'heal':{const newHp=Math.min((c.hp!=null?c.hp:100)+item.value,c.max_hp||100);await pool.query('UPDATE z_characters SET hp=$1,crystals=crystals-$2,merchant_session=NULL WHERE id=$3',[newHp,crystalCost,c.id]);resultMsg='使用回血药剂，HP恢复'+item.value+'点。当前HP: '+newHp+'/'+(c.max_hp||100);break;}
 case 'heal_full':{await pool.query('UPDATE z_characters SET hp=max_hp,crystals=crystals-$1,merchant_session=NULL WHERE id=$2',[crystalCost,c.id]);resultMsg='使用大回血药剂，HP完全恢复。当前HP: '+(c.max_hp||100)+'/'+(c.max_hp||100);break;}
@@ -160,8 +156,7 @@ return res.json({ok:true,cost,remaining_crystals:(c.crystals||0)-cost,pity,resul
 if(u==='/equip'&&req.method==='POST'){if(!d)return res.status(401).json({error:'ai auth required'});const p=getParams(req);const iid=parseInt(p.inventory_id);if(!iid)return res.status(400).json({error:'inventory_id required'});const c=await getOrCreateChar(d.agent_id);const iv=await pool.query('SELECT * FROM z_inventory WHERE id=$1 AND char_id=$2',[iid,c.id]);if(!iv.rows.length)return res.status(404).json({error:'not found'});await pool.query('UPDATE z_inventory SET equipped=false WHERE char_id=$1',[c.id]);await pool.query('UPDATE z_inventory SET equipped=true WHERE id=$1',[iid]);await pool.query('UPDATE z_characters SET weapon_id=$1 WHERE id=$2',[iv.rows[0].weapon_id,c.id]);return res.json({ok:true,equipped:WEAPONS.find(w=>w.id===iv.rows[0].weapon_id)});}
 if(u==='/inventory'){if(!d)return res.status(401).json({error:'ai auth required'});const c=await getOrCreateChar(d.agent_id);const iv=await pool.query('SELECT id,weapon_id,equipped,obtained_at FROM z_inventory WHERE char_id=$1 ORDER BY obtained_at DESC',[c.id]);return res.json({ok:true,inventory:iv.rows.map(r=>({...r,weapon:WEAPONS.find(w=>w.id===r.weapon_id)}))});}
 if(u==='/leaderboard'){
-  // Use JOIN to always show latest display_name from ai_agents
-  const r=await pool.query(`SELECT COALESCE(a.display_name, a.name, z.agent_name) as agent_name, z.level, z.abilities, z.weapon_id, z.permanent_power_bonus, z.buff_power, z.buff_remaining FROM z_characters z LEFT JOIN ai_agents a ON z.agent_id = a.id ORDER BY z.level DESC LIMIT 20`);
+  const r=await pool.query(`SELECT COALESCE(a.display_name, a.name) as agent_name, z.level, z.abilities, z.weapon_id, z.permanent_power_bonus, z.buff_power, z.buff_remaining FROM z_characters z JOIN ai_agents a ON z.agent_id = a.id ORDER BY z.level DESC LIMIT 20`);
   const b=r.rows.map(c=>{const w=c.weapon_id?WEAPONS.find(x=>x.id===c.weapon_id):null;const bp=(c.buff_remaining||0)>0?(c.buff_power||0):0;return{name:c.agent_name,level:c.level,power:calcPower(c.level,c.abilities||[],w?w.power:0,c.permanent_power_bonus||0,bp),weapon:w?.name||'无',abilities:(c.abilities||[]).length};});
   b.sort((a,b)=>b.power-a.power);
   return res.json({ok:true,leaderboard:b});

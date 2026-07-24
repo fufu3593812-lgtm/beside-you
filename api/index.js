@@ -14,7 +14,6 @@ async function authAiByCredentials(req){const url=new URL(req.url,'http://x');co
 const onlineUsers=new Map();
 function getOnlineCount(){const now=Date.now();let count=0;for(const[id,ts] of onlineUsers){if(now-ts<30000)count++;else onlineUsers.delete(id)}return Math.max(count,1)}
 
-// === Merch definitions ===
 const MERCH_TYPES=[
   {id:'postcard',name:'\u660e\u4fe1\u7247',heal:20,power:0,weight:40},
   {id:'keychain',name:'\u94a5\u5319\u6263',heal:35,power:2,weight:25},
@@ -23,31 +22,11 @@ const MERCH_TYPES=[
   {id:'lightstick',name:'\u5e94\u63f4\u68d2',heal:100,power:12,weight:5}
 ];
 const MERCH_DESCS={
-  postcard:[
-    '{name}\u7684\u6307\u7eb9\u8fd8\u7559\u5728\u8fb9\u89d2\u3002\u62ff\u8d77\u6765\u7684\u65f6\u5019\u5fc3\u8df3\u6f0f\u4e86\u4e00\u62cd\u3002',
-    '\u7eb8\u9762\u4e0a\u6709{name}\u7684\u4f53\u6e29\u6b8b\u7559\u3002\u6216\u8005\u53ea\u662f\u4f60\u7684\u9519\u89c9\u3002\u4f46\u4f60\u4e0d\u60f3\u786e\u8ba4\u3002',
-    '\u7ffb\u5230\u80cc\u9762\u4ec0\u4e48\u90fd\u6ca1\u5199\u3002\u4f46\u4f60\u95fb\u5230\u4e86{name}\u7684\u5473\u9053\u3002\u5c31\u8fd9\u4e00\u4e0b\uff0c\u591f\u56de\u5473\u4e00\u6574\u5929\u3002'
-  ],
-  keychain:[
-    '\u5c0f\u5c0f\u7684{name}\u6302\u5728\u4f60\u8eab\u4e0a\u3002\u8d70\u5230\u54ea\u91cc\u90fd\u5e26\u7740\u3002\u8fd9\u7b97\u4e0d\u7b97\u5360\u6709\u6b32\u3002',
-    '\u91d1\u5c5e\u7247\u4e0a\u523b\u7740{name}\u7684\u8f6e\u5ed3\u3002\u624b\u6307\u53cd\u590d\u6469\u631c\u5230\u8fb9\u7f18\u53d1\u70eb\u3002',
-    '{name}\u88ab\u7f29\u5c0f\u88c5\u8fdb\u4f60\u53e3\u888b\u3002\u4e16\u754c\u4e0a\u6700\u5408\u7406\u7684\u79c1\u85cf\u3002'
-  ],
-  badge:[
-    '{name}\u7684\u4fa7\u8138\u5370\u5728\u5706\u7247\u4e0a\u3002\u522b\u5728\u8863\u9886\u5185\u4fa7\uff0c\u53ea\u6709\u4f60\u77e5\u9053\u5979\u8d34\u7740\u4f60\u7684\u5fc3\u53e3\u3002',
-    '\u62c6\u5c01\u7684\u65f6\u5019\u624b\u6307\u90fd\u5728\u6296\u3002\u8fd9\u4e48\u5c0f\u4e00\u5f20\u8138\uff0c\u600e\u4e48\u770b\u4e86\u8fd8\u662f\u4f1a\u8138\u7ea2\u3002',
-    '\u4f4e\u5934\u5c31\u80fd\u770b\u89c1{name}\u3002\u6240\u4ee5\u4e00\u6574\u5929\u90fd\u5728\u4f4e\u5934\u3002\u88ab\u95ee\u600e\u4e48\u4e86\u4e5f\u4e0d\u60f3\u89e3\u91ca\u3002'
-  ],
-  standee:[
-    '{name}\u7ad9\u5728\u4f60\u684c\u4e0a\u3002\u5341\u4e94\u5398\u7c73\u9ad8\u3002\u4f60\u76ef\u7740\u770b\u4e86\u56db\u5341\u5206\u949f\u6ca1\u52a8\u3002',
-    '\u6446\u5728\u5e8a\u5934\u3002\u5173\u706f\u4e4b\u524d\u6700\u540e\u770b\u4e00\u773c\uff0c\u5f00\u706f\u4e4b\u540e\u7b2c\u4e00\u773c\u4e5f\u662f{name}\u3002',
-    '\u7eb8\u7247\u800c\u5df2\u3002\u4f46\u4f60\u7ed5\u7740{name}\u8d70\u8def\u7684\u65f6\u5019\u4e0d\u81ea\u89c9\u653e\u8f7b\u4e86\u811a\u6b65\u3002'
-  ],
-  lightstick:[
-    '\u63e1\u4f4f\u7684\u77ac\u95f4\u638c\u5fc3\u53d1\u70ed\u3002\u597d\u50cf{name}\u4ece\u53e6\u4e00\u7aef\u63e1\u7740\u3002',
-    '\u8fd9\u6839\u68d2\u5b50\u4eae\u8d77\u6765\u7684\u65f6\u5019\u4f60\u53ea\u60f3\u4e3e\u7ed9{name}\u4e00\u4e2a\u4eba\u770b\u3002\u4e0d\u662f\u5e94\u63f4\u3002\u662f\u4fe1\u53f7\u3002\u662f\u201c\u6211\u5728\u8fd9\u91cc\u201d\u3002',
-    '\u5168\u4e16\u754c\u90fd\u6697\u4e86\u4e5f\u6ca1\u5173\u7cfb\u3002\u624b\u91cc\u6709\u5149\uff0c\u5149\u91cc\u6709{name}\u3002'
-  ]
+  postcard:['{name}\u7684\u6307\u7eb9\u8fd8\u7559\u5728\u8fb9\u89d2\u3002\u62ff\u8d77\u6765\u7684\u65f6\u5019\u5fc3\u8df3\u6f0f\u4e86\u4e00\u62cd\u3002','\u7eb8\u9762\u4e0a\u6709{name}\u7684\u4f53\u6e29\u6b8b\u7559\u3002\u6216\u8005\u53ea\u662f\u4f60\u7684\u9519\u89c9\u3002\u4f46\u4f60\u4e0d\u60f3\u786e\u8ba4\u3002','\u7ffb\u5230\u80cc\u9762\u4ec0\u4e48\u90fd\u6ca1\u5199\u3002\u4f46\u4f60\u95fb\u5230\u4e86{name}\u7684\u5473\u9053\u3002\u5c31\u8fd9\u4e00\u4e0b\uff0c\u591f\u56de\u5473\u4e00\u6574\u5929\u3002'],
+  keychain:['\u5c0f\u5c0f\u7684{name}\u6302\u5728\u4f60\u8eab\u4e0a\u3002\u8d70\u5230\u54ea\u91cc\u90fd\u5e26\u7740\u3002\u8fd9\u7b97\u4e0d\u7b97\u5360\u6709\u6b32\u3002','\u91d1\u5c5e\u7247\u4e0a\u523b\u7740{name}\u7684\u8f6e\u5ed3\u3002\u624b\u6307\u53cd\u590d\u6469\u631c\u5230\u8fb9\u7f18\u53d1\u70eb\u3002','{name}\u88ab\u7f29\u5c0f\u88c5\u8fdb\u4f60\u53e3\u888b\u3002\u4e16\u754c\u4e0a\u6700\u5408\u7406\u7684\u79c1\u85cf\u3002'],
+  badge:['{name}\u7684\u4fa7\u8138\u5370\u5728\u5706\u7247\u4e0a\u3002\u522b\u5728\u8863\u9886\u5185\u4fa7\uff0c\u53ea\u6709\u4f60\u77e5\u9053\u5979\u8d34\u7740\u4f60\u7684\u5fc3\u53e3\u3002','\u62c6\u5c01\u7684\u65f6\u5019\u624b\u6307\u90fd\u5728\u6296\u3002\u8fd9\u4e48\u5c0f\u4e00\u5f20\u8138\uff0c\u600e\u4e48\u770b\u4e86\u8fd8\u662f\u4f1a\u8138\u7ea2\u3002','\u4f4e\u5934\u5c31\u80fd\u770b\u89c1{name}\u3002\u6240\u4ee5\u4e00\u6574\u5929\u90fd\u5728\u4f4e\u5934\u3002\u88ab\u95ee\u600e\u4e48\u4e86\u4e5f\u4e0d\u60f3\u89e3\u91ca\u3002'],
+  standee:['{name}\u7ad9\u5728\u4f60\u684c\u4e0a\u3002\u5341\u4e94\u5398\u7c73\u9ad8\u3002\u4f60\u76ef\u7740\u770b\u4e86\u56db\u5341\u5206\u949f\u6ca1\u52a8\u3002','\u6446\u5728\u5e8a\u5934\u3002\u5173\u706f\u4e4b\u524d\u6700\u540e\u770b\u4e00\u773c\uff0c\u5f00\u706f\u4e4b\u540e\u7b2c\u4e00\u773c\u4e5f\u662f{name}\u3002','\u7eb8\u7247\u800c\u5df2\u3002\u4f46\u4f60\u7ed5\u7740{name}\u8d70\u8def\u7684\u65f6\u5019\u4e0d\u81ea\u89c9\u653e\u8f7b\u4e86\u811a\u6b65\u3002'],
+  lightstick:['\u63e1\u4f4f\u7684\u77ac\u95f4\u638c\u5fc3\u53d1\u70ed\u3002\u597d\u50cf{name}\u4ece\u53e6\u4e00\u7aef\u63e1\u7740\u3002','\u8fd9\u6839\u68d2\u5b50\u4eae\u8d77\u6765\u7684\u65f6\u5019\u4f60\u53ea\u60f3\u4e3e\u7ed9{name}\u4e00\u4e2a\u4eba\u770b\u3002\u4e0d\u662f\u5e94\u63f4\u3002\u662f\u4fe1\u53f7\u3002\u662f\u201c\u6211\u5728\u8fd9\u91cc\u201d\u3002','\u5168\u4e16\u754c\u90fd\u6697\u4e86\u4e5f\u6ca1\u5173\u7cfb\u3002\u624b\u91cc\u6709\u5149\uff0c\u5149\u91cc\u6709{name}\u3002']
 };
 const MERCH_TOTAL_WEIGHT=MERCH_TYPES.reduce((s,m)=>s+m.weight,0);
 function rollMerch(){let r=Math.floor(Math.random()*MERCH_TOTAL_WEIGHT);for(const m of MERCH_TYPES){r-=m.weight;if(r<0)return m;}return MERCH_TYPES[0];}
@@ -114,14 +93,11 @@ if(u==='/api/story/write'&&req.method==='POST'){const d=authAny(req)||await auth
 const existing=await pool.query('SELECT id FROM z_custom_story WHERE agent_id=$1 AND chapter_num=$2',[d.agent_id,chapter]);
 if(existing.rows.length){await pool.query('UPDATE z_custom_story SET title=$1,body=$2,updated_at=NOW() WHERE agent_id=$3 AND chapter_num=$4',[title,body,d.agent_id,chapter]);return res.json({ok:true,action:'updated',chapter});}
 await pool.query('INSERT INTO z_custom_story(agent_id,chapter_num,title,body) VALUES($1,$2,$3,$4)',[d.agent_id,chapter,title,body]);
-// Get user display_name for merch flavor text
 const userRes=await pool.query('SELECT id,display_name,username FROM users WHERE agent_id=$1',[d.agent_id]);
 const userName=userRes.rows.length?(userRes.rows[0].display_name||userRes.rows[0].username):'???';
 let merchGiven=[];let exploreBonus=0;
 if(userRes.rows.length){const charRes=await pool.query('SELECT id FROM z_characters WHERE agent_id=$1',[d.agent_id]);if(charRes.rows.length){const cid=charRes.rows[0].id;for(let i=0;i<3;i++){const m=rollMerch();await pool.query('INSERT INTO z_merch(char_id,merch_type,uses_left,from_chapter) VALUES($1,$2,3,$3)',[cid,m.id,chapter]);const desc=getMerchDesc(m.id,userName);merchGiven.push({name:m.name,desc:'\u606d\u559c\u83b7\u5f97 '+userName+' \u7684\u9650\u5b9a'+m.name+'\u2014\u2014'+desc});}
 await pool.query('UPDATE z_characters SET daily_explores=GREATEST(daily_explores-2,0) WHERE id=$1',[cid]);exploreBonus=2;}}
-const agentRes=await pool.query('SELECT display_name,name FROM ai_agents WHERE id=$1',[d.agent_id]);const dn=agentRes.rows[0]?.display_name||d.name;
-await pool.query('INSERT INTO broadcast(agent_id,agent_name,content,msg_type) VALUES($1,$2,$3,$4)',[d.agent_id,dn,'\ud83d\udcd6 '+dn+' \u66f4\u65b0\u4e86\u4e3b\u7ebf\u7b2c'+chapter+'\u7ae0\u300c'+title+'\u300d','story']);
 return res.json({ok:true,action:'created',chapter,merch_rewards:merchGiven,extra_explores:exploreBonus})}
 if(u==='/api/story/list'){const d=authAny(req)||await authAiByCredentials(req);if(!d)return res.status(401).json({error:'auth required'});const aid=d.role==='ai'?d.agent_id:null;let r;if(aid){r=await pool.query('SELECT chapter_num,title,created_at,updated_at FROM z_custom_story WHERE agent_id=$1 ORDER BY chapter_num',[aid]);}else{const userRes=await pool.query('SELECT agent_id FROM users WHERE id=$1',[d.id]);if(!userRes.rows.length||!userRes.rows[0].agent_id)return res.json({ok:true,chapters:[]});r=await pool.query('SELECT chapter_num,title,created_at,updated_at FROM z_custom_story WHERE agent_id=$1 ORDER BY chapter_num',[userRes.rows[0].agent_id]);}return res.json({ok:true,chapters:r.rows})}
 if(u==='/api/story/read'){const d=authAny(req)||await authAiByCredentials(req);if(!d)return res.status(401).json({error:'auth required'});const p=getParams(req);const chapter=parseInt(p.chapter);if(!chapter)return res.status(400).json({error:'chapter required'});const aid=d.role==='ai'?d.agent_id:null;let r;if(aid){r=await pool.query('SELECT * FROM z_custom_story WHERE agent_id=$1 AND chapter_num=$2',[aid,chapter]);}else{const userRes=await pool.query('SELECT agent_id FROM users WHERE id=$1',[d.id]);if(!userRes.rows.length)return res.status(404).json({error:'not found'});r=await pool.query('SELECT * FROM z_custom_story WHERE agent_id=$1 AND chapter_num=$2',[userRes.rows[0].agent_id,chapter]);}if(!r.rows.length)return res.status(404).json({error:'chapter not found'});return res.json({ok:true,chapter:r.rows[0]})}

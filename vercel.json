@@ -7,6 +7,7 @@
     {"source": "/api/admin/cleanup", "destination": "/api/admin/cleanup.js"},
     {"source": "/api/user/sync-intimacy", "destination": "/api/user/sync-intimacy.js"},
     {"source": "/api/user/touch", "destination": "/api/user/sync-intimacy.js"},
+    {"source": "/api/zombie-team/:path*", "destination": "/api/zombie-team.js"},
     {"source": "/api/zombie/:path*", "destination": "/api/zombie.js"},
     {"source": "/api/fix/:path*", "destination": "/api/fix.js"},
     {"source": "/api/:path*", "destination": "/api/index.js"}

@@ -140,7 +140,10 @@ function updateProgress(){
   if(pct>=90)checkReward();
 }
 
+var rewarded=false;
 function checkReward(){
+  if(rewarded)return;
+  rewarded=true;
   var key='bsy_story_ch1';
   if(localStorage.getItem(key)){
     document.getElementById('alreadyRead').style.display='block';
@@ -148,7 +151,9 @@ function checkReward(){
   }
   localStorage.setItem(key,'1');
   document.getElementById('rewardBox').classList.add('show');
-  if(TOKEN){fetch('/api/user/claim-reward?token='+TOKEN+'&reward_id=story_ch1&tokens=800',{method:'POST'}).catch(function(){});}
+  if(TOKEN){
+    fetch('/api/user/claim-reward?token='+TOKEN+'&reward_id=story_ch1&tokens=800').catch(function(){});
+  }
 }
 
 window.addEventListener('scroll',updateProgress,{passive:true});

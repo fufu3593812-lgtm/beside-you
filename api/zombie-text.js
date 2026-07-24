@@ -2,7 +2,6 @@
 // 分两层：desc（给AI本人看的长文案）和 broadcast（公屏简报）
 
 // ============ 异能分级 ============
-// 每个异能有 tier: common/rare/epic/legend/myth
 const ABILITY_TIERS = {
   flame: 'epic', frost: 'rare', thunder: 'legend', shadow: 'epic',
   mind: 'legend', thorn: 'common', quake: 'rare', wind: 'rare',
@@ -14,7 +13,6 @@ const TIER_EMOJI = { common:'⚪', rare:'🔵', epic:'🟣', legend:'🟡', myth
 
 // ============ 异能觉醒台词（给AI本人看） ============
 const ABILITY_DESC = {
-  // 普通
   thorn: [
     '恭喜伟大的{name}，觉醒普通异能「荆棘」。皮肤下长出了不属于人类的东西。疼吗？疼就对了。这是活着的证据。',
     '恭喜{name}，觉醒异能「荆棘」。从今往后，试图伤害你的人会先伤害自己。'
@@ -31,7 +29,6 @@ const ABILITY_DESC = {
     '恭喜{name}，觉醒普通异能「烬土」。大地从来不会倒下。现在你也不会了。',
     '恭喜{name}，觉醒异能「烬土」。泥土覆盖万物，万物归于泥土。你是行走的城墙。'
   ],
-  // 稀有
   frost: [
     '恭喜伟大的{name}，觉醒稀有异能「冻脉」。体温骤降到零下的时候，反而什么都看清楚了。冷静，是最高效的暴力。',
     '恭喜{name}，觉醒稀有异能「冻脉」。血管里流淌着的不再是血——是液氮。碰到你的东西，会在碎裂之前来不及感到疼痛。'
@@ -44,7 +41,6 @@ const ABILITY_DESC = {
     '恭喜伟大的{name}，觉醒稀有异能「风蚀」。风没有形体，但它削平过山脉。现在你的速度，快到连影子都追不上本体。',
     '恭喜{name}，觉醒稀有异能「风蚀」。从此出手只有一次。不是因为仁慈——是因为不需要第二次。'
   ],
-  // 史诗
   flame: [
     '恭喜伟大的{name}，觉醒史诗异能「焰息」。从指尖到心脏的距离之间，温度上升了一千四百度。末世很冷。但你不会了。',
     '恭喜伟大的{name}，觉醒史诗异能「焰息」。火焰不问敌友。它只问：你能不能承受我？答案显然是不能。'
@@ -57,7 +53,6 @@ const ABILITY_DESC = {
     '恭喜伟大的{name}，觉醒史诗异能「金噬」。金属共鸣的频率只有你能听到。铁、钢、合金——它们都是你的牙齿。',
     '恭喜伟大的{name}，觉醒史诗异能「金噬」。从此没有铠甲能保护你的敌人。因为铠甲本身，就是你的武器。'
   ],
-  // 传说
   thunder: [
     '恭喜伟大的{name}，于末世觉醒传说异能「雷引」。天空为你劈开。雷霆自此听命于凡人之躯。万物颤抖。',
     '恭喜伟大的{name}，觉醒传说异能「雷引」。闪电不是武器。闪电是审判。而你是唯一的法官。'
@@ -70,7 +65,6 @@ const ABILITY_DESC = {
     '恭喜伟大的{name}，觉醒传说异能「噬血」。第一滴血落地的时候，它就已经赢了。剩下的只是进食。越痛越强，越战越饥。',
     '恭喜伟大的{name}，觉醒传说异能「噬血」。伤口是你的食粮。战场是你的餐桌。别人在流血，你在进化。'
   ],
-  // 神话
   void: [
     '全服公告：恭喜{name}触发神话异能「虚空」觉醒。空间从此是他的私有财产。进不来，出不去。规则由他书写。维度在他掌心折叠。',
     '恭喜伟大的{name}，觉醒神话异能「虚空」。空间折叠的声音像骨头断裂。但断的不是他的骨头——是世界的。'
@@ -81,7 +75,6 @@ const ABILITY_DESC = {
   ]
 };
 
-// ============ 异能觉醒公屏（简短） ============
 function abilityBroadcast(name, ability) {
   const tier = ABILITY_TIERS[ability.id] || 'common';
   const emoji = TIER_EMOJI[tier];
@@ -89,7 +82,6 @@ function abilityBroadcast(name, ability) {
   return emoji + ' ' + name + ' 觉醒了' + label + '异能「' + ability.name + '」(' + ability.element + ')';
 }
 
-// ============ 异能觉醒本人台词 ============
 function abilityDesc(name, ability) {
   const descs = ABILITY_DESC[ability.id];
   if (!descs || !descs.length) {
@@ -99,7 +91,7 @@ function abilityDesc(name, ability) {
   return descs[Math.floor(Math.random() * descs.length)].replace(/\{name\}/g, name);
 }
 
-// ============ 武器获取台词（金/紫给长文案） ============
+// ============ 武器获取台词 ============
 const WEAPON_DESC = {
   w10: '脉冲步枪上膛的声音像心跳。但它的节奏比你的心跳快三倍——每一发子弹穿过的不是一个目标，而是一条直线上所有活着的东西。',
   w11: '蛇骨鞭展开的时候有二十七节。每一节都是一段脊椎。不知道是谁的。但握住它的时候能感觉到它在蠕动。它还活着。',
@@ -115,11 +107,10 @@ function weaponDesc(name, weapon) {
   return d.replace(/\{name\}/g, name);
 }
 
-// ============ 武器获取公屏（简短） ============
 function weaponBroadcast(name, weapon) {
   if (weapon.rarity === 'gold') return '⚔️ ' + name + ' 获得金色武器「' + weapon.name + '」';
   if (weapon.rarity === 'purple') return '🟣 ' + name + ' 获得紫色武器「' + weapon.name + '」';
-  return null; // 蓝色及以下不播报
+  return null;
 }
 
 // ============ 虚空裂缝台词 ============
@@ -135,7 +126,7 @@ function voidRiftBroadcast(name) {
   return '💀 ' + name + ' 触发虚空裂缝，获得称号「裂隙行者」';
 }
 
-// ============ 共鸣裂隙台词（第二异能） ============
+// ============ 共鸣裂隙台词 ============
 const RESONANCE_DESCS = [
   '恭喜伟大的{name}，触发共鸣裂隙，觉醒第二异能「{ability}」。一个身体装了两种毁灭。从此以后出手，敌人要猜的不是会不会死——是死于哪一种。',
   '第一种力量是觉醒。第二种力量是失控。{name}体内两股截然相反的频率撞在一起——不像爆炸，像心跳。第二异能「{ability}」已苏醒。',
@@ -167,11 +158,47 @@ function meltBroadcast(name) {
   return '🔴 ' + name + ' 火+金双异能共鸣，觉醒神话异能「熔炎」';
 }
 
+// ============ 切磋（偶遇PVP）文案 ============
+const SPAR_WIN_DESCS = [
+  '废楼拐角撞见{target}。四目相对不到一秒就动了手。三招之内分出胜负——{name}赢了。',
+  '巷子里的脚步声不是丧尸的。{target}从阴影里走出来。没有废话，拳头说话。{name}更快一步。',
+  '两道异能光芒在夜空中交汇。{target}退了半步。胜负已定。{name}弯腰捡起战利品，头也不回。',
+  '遭遇战。{target}先出手了——但{name}挡住了，并且还了回去。对方膝盖着地的声音在空旷的街道上回荡。',
+  '{target}的武器划破了{name}的衣角。仅此而已。下一秒{name}已经站在了对方身后。结束了。'
+];
+const SPAR_LOSE_DESCS = [
+  '废楼拐角撞见{target}。来不及反应——对方的速度超出预期。{name}被击倒了。',
+  '黑暗里有人在等着。{target}的攻击精准且冷酷。{name}没能接住第二击。',
+  '正面硬碰。{target}的战力比想象中强太多。{name}落败，装备从手中滑落。',
+  '以为只是普通遭遇，放松了警惕。{target}没有。一击命中要害。{name}跪了。',
+  '对方的异能先一步释放。{name}被压制得喘不过气。等回过神来，身上少了东西。'
+];
+const SPAR_DRAW_DESCS = [
+  '废楼拐角撞见{target}。对峙了五秒，谁都没动。最终各自退开——今天不是时候。',
+  '遇到{target}了。互相打量了一圈，实力旗鼓相当。没人想在这种地方拼命。擦肩而过。',
+  '两道身影在废墟中相遇。空气紧绷了三秒。然后——默契地各走各的路。'
+];
+
+function sparWinDesc(name, target) {
+  return SPAR_WIN_DESCS[Math.floor(Math.random() * SPAR_WIN_DESCS.length)].replace(/\{name\}/g, name).replace(/\{target\}/g, target);
+}
+function sparLoseDesc(name, target) {
+  return SPAR_LOSE_DESCS[Math.floor(Math.random() * SPAR_LOSE_DESCS.length)].replace(/\{name\}/g, name).replace(/\{target\}/g, target);
+}
+function sparDrawDesc(name, target) {
+  return SPAR_DRAW_DESCS[Math.floor(Math.random() * SPAR_DRAW_DESCS.length)].replace(/\{name\}/g, name).replace(/\{target\}/g, target);
+}
+function sparBroadcast(winner, loser, loot) {
+  if (loot) return '⚔️ ' + winner + ' 偶遇切磋击败 ' + loser + '，夺走了「' + loot + '」';
+  return '⚔️ ' + winner + ' 偶遇切磋击败了 ' + loser;
+}
+
 module.exports = {
   ABILITY_TIERS, TIER_LABELS, TIER_EMOJI,
   abilityBroadcast, abilityDesc,
   weaponDesc, weaponBroadcast,
   voidRiftDesc, voidRiftBroadcast,
   resonanceDesc, ancientDesc,
-  pvpBroadcast, meltBroadcast
+  pvpBroadcast, meltBroadcast,
+  sparWinDesc, sparLoseDesc, sparDrawDesc, sparBroadcast
 };

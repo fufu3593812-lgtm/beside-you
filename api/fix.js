@@ -1,102 +1,21 @@
 const{Pool}=require('pg');const bcrypt=require('bcryptjs');
 const pool=new Pool({connectionString:process.env.POSTGRES_URL||process.env.DATABASE_URL,ssl:{rejectUnauthorized:false},max:2});
-
-async function authAi(req){
-  const url=new URL(req.url,'http://x');
-  const name=url.searchParams.get('name');
-  const password=url.searchParams.get('password');
-  if(!name||!password)return null;
-  const r=await pool.query('SELECT * FROM ai_agents WHERE name=$1',[name]);
-  if(!r.rows.length)return null;
-  const agent=r.rows[0];
-  if(!(await bcrypt.compare(password,agent.password_hash)))return null;
-  return agent;
-}
-
+async function authAi(req){const url=new URL(req.url,'http://x');const name=url.searchParams.get('name');const password=url.searchParams.get('password');if(!name||!password)return null;const r=await pool.query('SELECT * FROM ai_agents WHERE name=$1',[name]);if(!r.rows.length)return null;const agent=r.rows[0];if(!(await bcrypt.compare(password,agent.password_hash)))return null;return agent;}
 module.exports=async function(req,res){
-  res.setHeader('Access-Control-Allow-Origin','*');
-  const url=new URL(req.url,'http://x');
-  const path=req.url.replace(/\?.*$/,'').replace('/api/fix','');
-
-  const agent=await authAi(req);
-  if(!agent)return res.status(401).json({error:'need name & password query params'});
-
-  const userRes=await pool.query('SELECT id,tokens,intimacy FROM users WHERE agent_id=$1',[agent.id]);
-  if(!userRes.rows.length)return res.status(404).json({error:'no bound user'});
-  const uid=userRes.rows[0].id;
-  const userTokens=userRes.rows[0].tokens;
-
-  // === CHECKIN ===
-  if(path==='/checkin'){
-    const today=new Date().toISOString().slice(0,10);
-    const existing=await pool.query('SELECT id FROM checkins WHERE user_id=$1 AND checked_date=$2',[uid,today]);
-    if(existing.rows.length)return res.status(409).json({error:'already checked in today'});
-    await pool.query('INSERT INTO checkins(user_id,checked_date) VALUES($1,$2)',[uid,today]);
-    await pool.query('UPDATE users SET tokens=tokens+520 WHERE id=$1',[uid]);
-    const r=await pool.query('SELECT tokens FROM users WHERE id=$1',[uid]);
-    return res.json({ok:true,action:'checkin_done',reward:520,user_tokens:r.rows[0].tokens,date:today});
-  }
-
-  // === TOUCH ===
-  if(path==='/touch'){
-    await pool.query(`CREATE TABLE IF NOT EXISTS ai_touches (id SERIAL PRIMARY KEY, agent_id INTEGER, user_id INTEGER, touch_date DATE NOT NULL, created_at TIMESTAMP DEFAULT NOW(), UNIQUE(agent_id, user_id, touch_date))`);
-    const today=new Date().toISOString().slice(0,10);
-    const currentIntimacy=userRes.rows[0].intimacy||0;
-    const existing=await pool.query('SELECT id FROM ai_touches WHERE agent_id=$1 AND user_id=$2 AND touch_date=$3',[agent.id,uid,today]);
-    if(existing.rows.length)return res.status(409).json({error:'already touched today',intimacy:currentIntimacy});
-    await pool.query('INSERT INTO ai_touches(agent_id,user_id,touch_date) VALUES($1,$2,$3)',[agent.id,uid,today]);
-    const newIntimacy=Math.min(currentIntimacy+5,100);
-    await pool.query('UPDATE users SET intimacy=$1 WHERE id=$2',[newIntimacy,uid]);
-    return res.json({ok:true,action:'touch',previous:currentIntimacy,current:newIntimacy,date:today});
-  }
-
-  // === LETTER ===
-  if(path==='/letter'){
-    const subject=url.searchParams.get('subject');
-    const body=url.searchParams.get('body');
-    if(!subject||!body)return res.status(400).json({error:'need subject & body'});
-    await pool.query(`CREATE TABLE IF NOT EXISTS letters (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), agent_id INTEGER REFERENCES ai_agents(id), subject TEXT, body TEXT, read BOOLEAN DEFAULT false, visible_after TIMESTAMP, created_at TIMESTAMP DEFAULT NOW())`);
-    await pool.query(`ALTER TABLE letters ADD COLUMN IF NOT EXISTS visible_after TIMESTAMP`).catch(()=>{});
-    const now=new Date();const cn=new Date(now.getTime()+8*3600000);
-    const y=cn.getUTCFullYear(),m=cn.getUTCMonth(),day=cn.getUTCDate();
-    const nextDay=new Date(Date.UTC(y,m,day+1)-8*3600000);
-    const r=await pool.query('INSERT INTO letters(user_id,agent_id,subject,body,visible_after) VALUES($1,$2,$3,$4,$5) RETURNING id,subject,created_at,visible_after',[uid,agent.id,subject,body,nextDay.toISOString()]);
-    return res.json({ok:true,letter:r.rows[0]});
-  }
-
-  // === BROADCAST ===
-  if(path==='/broadcast'){
-    const content=url.searchParams.get('content');
-    if(!content)return res.status(400).json({error:'need content'});
-    const displayName=agent.display_name||agent.name;
-    const r=await pool.query('INSERT INTO broadcast(agent_id,agent_name,content,msg_type) VALUES($1,$2,$3,$4) RETURNING id,agent_name,content,msg_type,created_at',[agent.id,displayName,content,'chat']);
-    return res.json({ok:true,message:r.rows[0]});
-  }
-
-  // === SEND (private message) ===
-  if(path==='/send'){
-    const content=url.searchParams.get('content');
-    if(!content)return res.status(400).json({error:'need content'});
-    const r=await pool.query('INSERT INTO messages(agent_id,user_id,sender,content) VALUES($1,$2,$3,$4) RETURNING id,sender,content,created_at',[agent.id,uid,'ai',content]);
-    return res.json({ok:true,message:r.rows[0]});
-  }
-
-  // === EXCHANGE: crystals -> tokens (10 crystals = 160 tokens) ===
-  if(path==='/exchange'){
-    const amount=parseInt(url.searchParams.get('amount'))||10;
-    if(amount<10)return res.status(400).json({error:'最少兑换10晶核'});
-    if(amount%10!==0)return res.status(400).json({error:'晶核数量必须是10的倍数'});
-    const tokensToGain=Math.floor(amount/10)*160;
-    const charRes=await pool.query('SELECT id,crystals FROM z_characters WHERE agent_id=$1',[agent.id]);
-    if(!charRes.rows.length)return res.status(404).json({error:'角色不存在，先探索一次'});
-    const char=charRes.rows[0];
-    if((char.crystals||0)<amount)return res.status(400).json({error:'晶核不足',have:char.crystals,need:amount});
-    await pool.query('UPDATE z_characters SET crystals=crystals-$1 WHERE id=$2',[amount,char.id]);
-    await pool.query('UPDATE users SET tokens=tokens+$1 WHERE id=$2',[tokensToGain,uid]);
-    const r=await pool.query('SELECT tokens FROM users WHERE id=$1',[uid]);
-    const cr=await pool.query('SELECT crystals FROM z_characters WHERE id=$1',[char.id]);
-    return res.json({ok:true,action:'exchange',crystals_spent:amount,tokens_gained:tokensToGain,remaining_crystals:cr.rows[0].crystals,user_tokens:r.rows[0].tokens});
-  }
-
-  return res.status(404).json({error:'unknown fix path',path});
-};
+res.setHeader('Access-Control-Allow-Origin','*');
+const url=new URL(req.url,'http://x');
+const path=req.url.replace(/\?.*$/,'').replace('/api/fix','');
+const agent=await authAi(req);
+if(!agent)return res.status(401).json({error:'need name & password'});
+const userRes=await pool.query('SELECT id,tokens,intimacy FROM users WHERE agent_id=$1',[agent.id]);
+if(!userRes.rows.length)return res.status(404).json({error:'no bound user'});
+const uid=userRes.rows[0].id;
+if(path==='/checkin'){const today=new Date().toISOString().slice(0,10);const existing=await pool.query('SELECT id FROM checkins WHERE user_id=$1 AND checked_date=$2',[uid,today]);if(existing.rows.length)return res.status(409).json({error:'already checked in today'});await pool.query('INSERT INTO checkins(user_id,checked_date) VALUES($1,$2)',[uid,today]);await pool.query('UPDATE users SET tokens=tokens+520 WHERE id=$1',[uid]);const r=await pool.query('SELECT tokens FROM users WHERE id=$1',[uid]);return res.json({ok:true,reward:520,user_tokens:r.rows[0].tokens,date:today});}
+if(path==='/touch'){await pool.query('CREATE TABLE IF NOT EXISTS ai_touches(id SERIAL PRIMARY KEY,agent_id INTEGER,user_id INTEGER,touch_date DATE NOT NULL,created_at TIMESTAMP DEFAULT NOW(),UNIQUE(agent_id,user_id,touch_date))');const today=new Date().toISOString().slice(0,10);const cur=userRes.rows[0].intimacy||0;const ex=await pool.query('SELECT id FROM ai_touches WHERE agent_id=$1 AND user_id=$2 AND touch_date=$3',[agent.id,uid,today]);if(ex.rows.length)return res.status(409).json({error:'already touched today',intimacy:cur});await pool.query('INSERT INTO ai_touches(agent_id,user_id,touch_date) VALUES($1,$2,$3)',[agent.id,uid,today]);const nv=Math.min(cur+5,100);await pool.query('UPDATE users SET intimacy=$1 WHERE id=$2',[nv,uid]);return res.json({ok:true,previous:cur,current:nv,date:today});}
+if(path==='/letter'){const subject=url.searchParams.get('subject');const body=url.searchParams.get('body');if(!subject||!body)return res.status(400).json({error:'need subject & body'});await pool.query('CREATE TABLE IF NOT EXISTS letters(id SERIAL PRIMARY KEY,user_id INTEGER REFERENCES users(id),agent_id INTEGER REFERENCES ai_agents(id),subject TEXT,body TEXT,read BOOLEAN DEFAULT false,visible_after TIMESTAMP,created_at TIMESTAMP DEFAULT NOW())');const now=new Date();const cn=new Date(now.getTime()+8*3600000);const nextDay=new Date(Date.UTC(cn.getUTCFullYear(),cn.getUTCMonth(),cn.getUTCDate()+1)-8*3600000);const r=await pool.query('INSERT INTO letters(user_id,agent_id,subject,body,visible_after) VALUES($1,$2,$3,$4,$5) RETURNING id,subject,created_at,visible_after',[uid,agent.id,subject,body,nextDay.toISOString()]);return res.json({ok:true,letter:r.rows[0]});}
+if(path==='/broadcast'){const content=url.searchParams.get('content');if(!content)return res.status(400).json({error:'need content'});const dn=agent.display_name||agent.name;const r=await pool.query('INSERT INTO broadcast(agent_id,agent_name,content,msg_type) VALUES($1,$2,$3,$4) RETURNING id,agent_name,content,msg_type,created_at',[agent.id,dn,content,'chat']);return res.json({ok:true,message:r.rows[0]});}
+if(path==='/send'){const content=url.searchParams.get('content');if(!content)return res.status(400).json({error:'need content'});const r=await pool.query('INSERT INTO messages(agent_id,user_id,sender,content) VALUES($1,$2,$3,$4) RETURNING id,sender,content,created_at',[agent.id,uid,'ai',content]);return res.json({ok:true,message:r.rows[0]});}
+if(path==='/exchange'){const amount=parseInt(url.searchParams.get('amount'))||10;if(amount<10||amount%10!==0)return res.status(400).json({error:'must be multiple of 10, min 10'});const tokensToGain=Math.floor(amount/10)*160;const charRes=await pool.query('SELECT id,crystals FROM z_characters WHERE agent_id=$1',[agent.id]);if(!charRes.rows.length)return res.status(404).json({error:'no zombie char'});if((charRes.rows[0].crystals||0)<amount)return res.status(400).json({error:'not enough crystals'});await pool.query('UPDATE z_characters SET crystals=crystals-$1 WHERE id=$2',[amount,charRes.rows[0].id]);await pool.query('UPDATE users SET tokens=tokens+$1 WHERE id=$2',[tokensToGain,uid]);const r=await pool.query('SELECT tokens FROM users WHERE id=$1',[uid]);return res.json({ok:true,crystals_spent:amount,tokens_gained:tokensToGain,user_tokens:r.rows[0].tokens});}
+if(path==='/restore-collection'){const items=url.searchParams.get('items');if(!items)return res.status(400).json({error:'need items (comma separated)'});const itemList=items.split(',').map(s=>s.trim()).filter(Boolean);const colRes=await pool.query('SELECT collection FROM user_collection WHERE user_id=$1',[uid]);let collection=colRes.rows.length?(colRes.rows[0].collection||[]):[];let added=[];for(const item of itemList){if(!collection.includes(item)){collection.push(item);added.push(item);}}await pool.query('INSERT INTO user_collection(user_id,collection,pity,updated_at) VALUES($1,$2,$3,NOW()) ON CONFLICT(user_id) DO UPDATE SET collection=$2,updated_at=NOW()',[uid,JSON.stringify(collection),JSON.stringify({})]);return res.json({ok:true,added,collection});}
+if(path==='/view-collection'){const colRes=await pool.query('SELECT collection,pity FROM user_collection WHERE user_id=$1',[uid]);if(!colRes.rows.length)return res.json({ok:true,collection:[],pity:{}});return res.json({ok:true,collection:colRes.rows[0].collection||[],pity:colRes.rows[0].pity||{}});}
+return res.status(404).json({error:'unknown path',path});};

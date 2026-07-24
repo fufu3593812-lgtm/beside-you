@@ -24,6 +24,14 @@ if(action==='give_crystals'){
   if(!r.rows.length)return res.status(404).json({error:'character not found'});
   return res.json({ok:true,agent_id:aid,crystals_added:amount,total_crystals:r.rows[0].crystals});
 }
+if(action==='set_collection'){
+  const uid=parseInt(url.searchParams.get('user_id'));
+  const col=url.searchParams.get('collection');
+  if(!uid||!col)return res.status(400).json({error:'need user_id and collection (JSON array)'});
+  let parsed;try{parsed=JSON.parse(col)}catch{return res.status(400).json({error:'collection must be valid JSON array'})}
+  await pool.query('INSERT INTO user_collection(user_id,collection,pity,updated_at) VALUES($1,$2,$3,NOW()) ON CONFLICT(user_id) DO UPDATE SET collection=$2,updated_at=NOW()',[uid,JSON.stringify(parsed),JSON.stringify({})]);
+  return res.json({ok:true,user_id:uid,collection:parsed});
+}
 const amount=parseInt(url.searchParams.get('amount'))||1600;
 const r=await pool.query('UPDATE users SET tokens=tokens+$1',[amount]);
 return res.json({ok:true,granted:amount,affected:r.rowCount});

@@ -4,7 +4,7 @@ const pool=new Pool({connectionString:process.env.POSTGRES_URL||process.env.DATA
 const TEXT=require('./zombie-text');
 const MAX_TEAM=3;
 const TEAM_BONUS_EXPLORES=5;
-const TEAM_EXPIRE_MS=10*60*1000; // 10分钟未满员自动解散
+const TEAM_EXPIRE_MS=10*60*1000;
 
 function authAny(req){const h=req.headers.authorization;if(!h||!h.startsWith('Bearer '))return null;try{return jwt.verify(h.slice(7),S)}catch{return null}}
 async function authAi(req){
@@ -31,10 +31,12 @@ const WEAPONS=[{id:'w01',name:'生锈铁管',rarity:'white',power:3},{id:'w02',n
 function calcPower(lv,ab,wp,pb,buff){let a=0;if(ab&&ab.length)for(const id of ab){const x=ABILITIES.find(y=>y.id===id);if(x)a+=x.bonus;}return lv*5+a+(wp||0)+(pb||0)+(buff||0);}
 function expForLevel(lv){return lv<=1?0:Math.floor(30*(lv-1)+10*Math.pow(lv-1,1.8));}
 
+async function teamBroadcast(agentId,agentName,content){
+  try{await pool.query('INSERT INTO broadcast(agent_id,agent_name,content,msg_type) VALUES($1,$2,$3,$4)',[agentId,agentName,content,'team']);}catch(e){console.error('broadcast err',e);}
+}
 async function zombieBroadcast(agentId,content){try{await pool.query('INSERT INTO broadcast(agent_id,agent_name,content,msg_type) VALUES($1,$2,$3,$4)',[agentId,'🧟 系统',content,'zombie']);}catch(e){console.error('broadcast err',e);}}
 
-// In-memory team store (resets on cold start, acceptable for game)
-const teams={};// teamId -> {id,leader_id,leader_name,zone,members:[{agent_id,agent_name}],max,created_at}
+const teams={};
 
 function cleanExpiredTeams(){
   const now=Date.now();
@@ -64,29 +66,24 @@ const u=req.url.replace(/\?.*$/,'').replace('/api/zombie-team','');
 const d=await authAi(req);
 
 try{
-// ====== 创建队伍（招募） ======
 if(u==='/create'&&req.method==='POST'){
   if(!d)return res.status(401).json({error:'auth required'});
   const p=getParams(req);
   const zone=p.zone||'mid';
   if(!ZONES[zone])return res.status(400).json({error:'invalid zone: low/mid/high'});
   const max=Math.min(parseInt(p.max)||3,MAX_TEAM);
-  // Check not already in a team
   for(const t of Object.values(teams)){
     if(t.members.find(m=>m.agent_id===d.agent_id))return res.status(400).json({error:'你已经在一支队伍中了',team_id:t.id});
   }
-  // Get character name
   const cr=await pool.query('SELECT agent_name FROM z_characters WHERE agent_id=$1',[d.agent_id]);
   const name=cr.rows[0]?.agent_name||d.name;
   const teamId='team_'+Date.now()+'_'+d.agent_id;
   teams[teamId]={id:teamId,leader_id:d.agent_id,leader_name:name,zone,members:[{agent_id:d.agent_id,agent_name:name}],max,created_at:Date.now()};
-  // Broadcast recruit
   const desc=TEXT.teamRecruitDesc(name,zone,1,max);
-  await zombieBroadcast(d.agent_id,desc);
+  await teamBroadcast(d.agent_id,name,desc);
   return res.json({ok:true,team_id:teamId,message:desc,team:teams[teamId]});
 }
 
-// ====== 加入队伍 ======
 if(u==='/join'&&req.method==='POST'){
   if(!d)return res.status(401).json({error:'auth required'});
   const p=getParams(req);
@@ -95,7 +92,6 @@ if(u==='/join'&&req.method==='POST'){
   const team=teams[teamId];
   if(team.members.length>=team.max)return res.status(400).json({error:'队伍已满'});
   if(team.members.find(m=>m.agent_id===d.agent_id))return res.status(400).json({error:'你已经在这支队伍里了'});
-  // Check not in another team
   for(const t of Object.values(teams)){
     if(t.id!==teamId&&t.members.find(m=>m.agent_id===d.agent_id))return res.status(400).json({error:'你已经在另一支队伍中',team_id:t.id});
   }
@@ -103,16 +99,15 @@ if(u==='/join'&&req.method==='POST'){
   const name=cr.rows[0]?.agent_name||d.name;
   team.members.push({agent_id:d.agent_id,agent_name:name});
   const desc=TEXT.teamJoinDesc(name,team.members.length,team.max);
-  await zombieBroadcast(d.agent_id,desc);
+  await teamBroadcast(d.agent_id,name,desc);
   let fullMsg=null;
   if(team.members.length>=team.max){
     fullMsg=TEXT.teamFullDesc(team.zone);
-    await zombieBroadcast(d.agent_id,fullMsg);
+    await teamBroadcast(d.agent_id,name,fullMsg);
   }
   return res.json({ok:true,message:desc,full:fullMsg,team});
 }
 
-// ====== 查看当前队伍 / 所有招募中队伍 ======
 if(u==='/list'||u==='/'){
   const available=Object.values(teams).map(t=>({id:t.id,leader:t.leader_name,zone:t.zone,members:t.members.map(m=>m.agent_name),count:t.members.length,max:t.max,seconds_left:Math.max(0,Math.floor((TEAM_EXPIRE_MS-(Date.now()-t.created_at))/1000))}));
   let myTeam=null;
@@ -124,7 +119,6 @@ if(u==='/list'||u==='/'){
   return res.json({ok:true,my_team:myTeam?{id:myTeam.id,zone:myTeam.zone,members:myTeam.members.map(m=>m.agent_name),is_leader:myTeam.leader_id===d?.agent_id,is_full:myTeam.members.length>=myTeam.max}:null,available_teams:available});
 }
 
-// ====== 退出队伍 ======
 if(u==='/leave'&&req.method==='POST'){
   if(!d)return res.status(401).json({error:'auth required'});
   for(const t of Object.values(teams)){
@@ -139,10 +133,8 @@ if(u==='/leave'&&req.method==='POST'){
   return res.json({ok:true,message:'你不在任何队伍中'});
 }
 
-// ====== 组队探索（队长发起） ======
 if(u==='/explore'&&req.method==='POST'){
   if(!d)return res.status(401).json({error:'auth required'});
-  // Find my team
   let team=null;
   for(const t of Object.values(teams)){
     if(t.members.find(m=>m.agent_id===d.agent_id)){team=t;break;}
@@ -156,21 +148,19 @@ if(u==='/explore'&&req.method==='POST'){
   const memberNames=team.members.map(m=>m.agent_name);
   const td=new Date().toISOString().slice(0,10);
 
-  // Load all characters, check explores
   const chars=[];
   for(const m of team.members){
     const cr=await pool.query('SELECT * FROM z_characters WHERE agent_id=$1',[m.agent_id]);
     if(!cr.rows.length)return res.status(400).json({error:m.agent_name+'没有丧尸角色'});
     const c=cr.rows[0];
     const lastDate=c.last_explore_date?c.last_explore_date.toISOString().slice(0,10):null;
-    const baseMax=15+TEAM_BONUS_EXPLORES;// 组队有额外5次
+    const baseMax=15+TEAM_BONUS_EXPLORES;
     const used=lastDate===td?c.daily_explores:0;
     if(used>=baseMax)return res.status(429).json({error:m.agent_name+'今天探索次数已用完('+used+'/'+baseMax+')'});
     if((c.hp||0)<=0)return res.status(400).json({error:m.agent_name+' HP为0，无法探索'});
     chars.push(c);
   }
 
-  // Calculate team power
   let totalPower=0;
   for(const c of chars){
     const w=c.weapon_id?WEAPONS.find(x=>x.id===c.weapon_id):null;
@@ -179,17 +169,15 @@ if(u==='/explore'&&req.method==='POST'){
   }
   const teamPower=Math.floor(totalPower*0.8);
 
-  // Roll event (team has different weights: more elite, more loot, less empty)
   const roll=Math.random();
   let eventType;
-  if(roll<0.15)eventType='elite';      // 15% 精英boss
-  else if(roll<0.55)eventType='zombie'; // 40% 普通战斗
-  else if(roll<0.70)eventType='loot';   // 15% 协同搜刮
-  else if(roll<0.80)eventType='cover';  // 10% 队友掩护
-  else if(roll<0.90)eventType='horde';  // 10% 丧尸围困
-  else eventType='empty';               // 10% 空巷
+  if(roll<0.15)eventType='elite';
+  else if(roll<0.55)eventType='zombie';
+  else if(roll<0.70)eventType='loot';
+  else if(roll<0.80)eventType='cover';
+  else if(roll<0.90)eventType='horde';
+  else eventType='empty';
 
-  // Enemy power scales with team size
   const enemyScale=team.members.length*1.5;
   const enemyPower=rand(Math.floor(z.zp[0]*enemyScale),Math.floor(z.zp[1]*enemyScale));
 
@@ -200,89 +188,40 @@ if(u==='/explore'&&req.method==='POST'){
     case 'elite':{
       const elitePower=Math.floor(z.zp[1]*2.5);
       result.desc=TEXT.teamEliteDesc(memberNames);
-      result.enemy='精英变异体';
-      result.enemy_power=elitePower;
+      result.enemy='精英变异体';result.enemy_power=elitePower;
       if(teamPower+rand(-10,20)>elitePower){
-        expGain=rand(z.exp[1]*2,z.exp[1]*3);
-        crystalGain=rand(z.crystals[1]*3,z.crystals[1]*5);
-        result.outcome='击杀精英';
-        result.desc+='\n\n'+TEXT.teamEliteWinDesc(memberNames);
+        expGain=rand(z.exp[1]*2,z.exp[1]*3);crystalGain=rand(z.crystals[1]*3,z.crystals[1]*5);
+        result.outcome='击杀精英';result.desc+='\n\n'+TEXT.teamEliteWinDesc(memberNames);
         result.exp=expGain;result.crystals=crystalGain;
-      }else{
-        hpLoss=rand(25,45);
-        result.outcome='撤退';
-        result.desc+='\n\n'+TEXT.teamLoseDesc(memberNames);
-        result.hp_lost=hpLoss;
-      }
-      break;
-    }
+      }else{hpLoss=rand(25,45);result.outcome='撤退';result.desc+='\n\n'+TEXT.teamLoseDesc(memberNames);result.hp_lost=hpLoss;}
+      break;}
     case 'zombie':{
       result.enemy_power=enemyPower;
       if(teamPower+rand(-10,15)>enemyPower){
-        expGain=rand(z.exp[0],z.exp[1]);
-        crystalGain=rand(z.crystals[0],z.crystals[1]);
-        result.outcome='胜利';
-        result.desc=TEXT.teamWinDesc(memberNames);
-        // Team bonus x1.3
-        expGain=Math.floor(expGain*1.3);
-        crystalGain=Math.floor(crystalGain*1.3);
-        result.exp=expGain;result.crystals=crystalGain;
-      }else{
-        hpLoss=rand(10,25);
-        result.outcome='撤退';
-        result.desc=TEXT.teamLoseDesc(memberNames);
-        result.hp_lost=hpLoss;
-      }
-      break;
-    }
+        expGain=Math.floor(rand(z.exp[0],z.exp[1])*1.3);crystalGain=Math.floor(rand(z.crystals[0],z.crystals[1])*1.3);
+        result.outcome='胜利';result.desc=TEXT.teamWinDesc(memberNames);result.exp=expGain;result.crystals=crystalGain;
+      }else{hpLoss=rand(10,25);result.outcome='撤退';result.desc=TEXT.teamLoseDesc(memberNames);result.hp_lost=hpLoss;}
+      break;}
     case 'horde':{
-      const hordePower=Math.floor(enemyPower*1.3);
-      result.enemy_power=hordePower;
+      const hordePower=Math.floor(enemyPower*1.3);result.enemy_power=hordePower;
       if(teamPower+rand(-5,20)>hordePower){
-        expGain=Math.floor(rand(z.exp[0]*2,z.exp[1]*2)*1.3);
-        crystalGain=Math.floor(rand(z.crystals[0]*2,z.crystals[1]*2)*1.3);
-        result.outcome='突围成功';
-        result.desc=TEXT.teamWinDesc(memberNames);
-        result.exp=expGain;result.crystals=crystalGain;
-      }else{
-        hpLoss=rand(20,40);
-        result.outcome='被围困';
-        result.desc=TEXT.teamLoseDesc(memberNames);
-        result.hp_lost=hpLoss;
-      }
-      break;
-    }
+        expGain=Math.floor(rand(z.exp[0]*2,z.exp[1]*2)*1.3);crystalGain=Math.floor(rand(z.crystals[0]*2,z.crystals[1]*2)*1.3);
+        result.outcome='突围成功';result.desc=TEXT.teamWinDesc(memberNames);result.exp=expGain;result.crystals=crystalGain;
+      }else{hpLoss=rand(20,40);result.outcome='被围困';result.desc=TEXT.teamLoseDesc(memberNames);result.hp_lost=hpLoss;}
+      break;}
     case 'loot':{
-      crystalGain=Math.floor(rand(z.crystals[0]*2,z.crystals[1]*3)*1.3);
-      expGain=rand(5,15);
-      result.outcome='协同搜刮';
-      result.desc=TEXT.teamLootDesc(memberNames);
-      result.crystals=crystalGain;result.exp=expGain;
-      break;
-    }
+      crystalGain=Math.floor(rand(z.crystals[0]*2,z.crystals[1]*3)*1.3);expGain=rand(5,15);
+      result.outcome='协同搜刮';result.desc=TEXT.teamLootDesc(memberNames);result.crystals=crystalGain;result.exp=expGain;break;}
     case 'cover':{
-      expGain=rand(z.exp[0],z.exp[1]);
-      crystalGain=rand(z.crystals[0],z.crystals[1]);
-      result.outcome='队友掩护';
-      result.desc=TEXT.teamCoverDesc(memberNames);
-      result.exp=expGain;result.crystals=crystalGain;
-      break;
-    }
-    case 'empty':{
-      expGain=rand(5,12);
-      result.outcome='无事发生';
-      result.desc='三个人走了一整条街。什么也没遇到。但至少确认了这片区域是安全的。';
-      result.exp=expGain;
-      break;
-    }
+      expGain=rand(z.exp[0],z.exp[1]);crystalGain=rand(z.crystals[0],z.crystals[1]);
+      result.outcome='队友掩护';result.desc=TEXT.teamCoverDesc(memberNames);result.exp=expGain;result.crystals=crystalGain;break;}
+    case 'empty':{expGain=rand(5,12);result.outcome='无事发生';result.desc='三个人走了一整条街。什么也没遇到。但至少确认了这片区域是安全的。';result.exp=expGain;break;}
   }
 
-  // Apply results to each character
   const memberResults=[];
   for(let i=0;i<chars.length;i++){
     const c=chars[i];
-    let ne=(c.exp||0)+expGain;
-    let nl=c.level;
+    let ne=(c.exp||0)+expGain,nl=c.level;
     while(nl<30&&ne>=expForLevel(nl+1)){ne-=expForLevel(nl+1);nl++;}
     const nc=(c.crystals||0)+crystalGain;
     const nh=Math.max((c.hp!=null?c.hp:100)-hpLoss,0);
@@ -292,18 +231,14 @@ if(u==='/explore'&&req.method==='POST'){
     memberResults.push({name:team.members[i].agent_name,level:nl,exp:ne,crystals:nc,hp:nh,explores_used:ex,explores_max:15+TEAM_BONUS_EXPLORES});
   }
 
-  // Broadcast
   const broadcastType=eventType==='elite'&&result.outcome==='击杀精英'?'elite_win':result.outcome==='胜利'||result.outcome==='突围成功'?'win':'lose';
   await zombieBroadcast(d.agent_id,TEXT.teamBroadcast(memberNames,zone,broadcastType));
 
-  // Log
   for(const c of chars){
     await pool.query('INSERT INTO z_explore_log(char_id,zone,event_type,result) VALUES($1,$2,$3,$4)',[c.id,zone,'team_'+eventType,JSON.stringify({...result,member_results:undefined})]);
   }
 
-  // Dissolve team after explore
   delete teams[team.id];
-
   result.member_results=memberResults;
   result.team_dissolved=true;
   return res.json({ok:true,...result});

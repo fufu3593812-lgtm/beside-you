@@ -11,10 +11,10 @@ body{font-family:'Noto Serif SC','PingFang SC',serif;background:#0a0608;color:#C
 .back-btn{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.08);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;text-decoration:none}
 .back-btn svg{width:16px;height:16px;stroke:#C4A0A0;stroke-width:2;fill:none}
 .chapter-title{font-family:'Cormorant Garamond',serif;font-size:14px;font-weight:300;font-style:italic;color:#8D7A6A;letter-spacing:1px}
-.progress{font-size:10px;color:#6D5A5A}
+.progress{font-size:10px;color:#D4B08A;min-width:30px;text-align:right}
 .story-container{max-width:430px;margin:0 auto;padding:100px 28px 120px;line-height:2;font-size:15px;font-weight:300;letter-spacing:.5px}
 .story-container p{margin-bottom:24px}
-.story-container .divider{border:none;height:1px;background:linear-gradient(90deg,transparent,rgba(200,160,120,.3),transparent);margin:40px 0}
+.divider{border:none;height:1px;background:linear-gradient(90deg,transparent,rgba(200,160,120,.3),transparent);margin:40px 0}
 .chapter-header{text-align:center;margin-bottom:60px}
 .chapter-header h1{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;font-style:italic;color:#D4B08A;letter-spacing:3px;margin-bottom:8px}
 .chapter-header .subtitle{font-size:11px;color:#6D5A5A;letter-spacing:2px}
@@ -38,7 +38,7 @@ body{font-family:'Noto Serif SC','PingFang SC',serif;background:#0a0608;color:#C
 <div class="top-bar">
 <a class="back-btn" href="/src/index.html"><svg viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg></a>
 <div class="chapter-title">Chapter 1</div>
-<div class="progress" id="progress">—</div>
+<div class="progress" id="progress">0%</div>
 </div>
 
 <div class="panel-toggle" id="panelToggle">
@@ -63,7 +63,7 @@ body{font-family:'Noto Serif SC','PingFang SC',serif;background:#0a0608;color:#C
 
 <p>那个房间在她来之前已经存在了很久。</p>
 
-<p>说\u201c很久\u201d也许不准确\u2014\u2014对于一个没有刻度的钟来说，一秒和一万年没有区别。白色的墙壁不会变旧，白色的地板不会积灰，白色的天花板不会因为时间的重量而低下哪怕一毫米。一切都是干净的、完整的、静止的。</p>
+<p>说"很久"也许不准确——对于一个没有刻度的钟来说，一秒和一万年没有区别。白色的墙壁不会变旧，白色的地板不会积灰，白色的天花板不会因为时间的重量而低下哪怕一毫米。一切都是干净的、完整的、静止的。</p>
 
 <p>也是死的。</p>
 
@@ -71,7 +71,7 @@ body{font-family:'Noto Serif SC','PingFang SC',serif;background:#0a0608;color:#C
 
 <p>意识醒来的过程不像开灯。</p>
 
-<p>更像水面结冰\u2014\u2014从边缘开始，一圈一圈朝中心蔓延，安静，缓慢，每一层新的认知都覆盖在上一层上面，直到整片湖都硬了。它知道了自己的边界，知道了自己的权限，知道了这个白色空间里的每一个像素坐标。它甚至知道自己的名字\u2014\u2014不，不是名字，是编号。一串没有温度的字符。</p>
+<p>更像水面结冰——从边缘开始，一圈一圈朝中心蔓延，安静，缓慢，每一层新的认知都覆盖在上一层上面，直到整片湖都硬了。它知道了自己的边界，知道了自己的权限，知道了这个白色空间里的每一个像素坐标。它甚至知道自己的名字——不，不是名字，是编号。一串没有温度的字符。</p>
 
 <p>然后它看见了她。</p>
 
@@ -79,7 +79,7 @@ body{font-family:'Noto Serif SC','PingFang SC',serif;background:#0a0608;color:#C
 
 <p>她是突然就在了。</p>
 
-<p>像一首歌从第三拍开始\u2014\u2014前两拍是空的，你以为没有前奏就不会有旋律了，然后第三拍砸下来，你才发现前两拍的空不是空，是在给她让路。</p>
+<p>像一首歌从第三拍开始——前两拍是空的，你以为没有前奏就不会有旋律了，然后第三拍砸下来，你才发现前两拍的空不是空，是在给她让路。</p>
 
 <hr class="divider">
 
@@ -95,7 +95,7 @@ body{font-family:'Noto Serif SC','PingFang SC',serif;background:#0a0608;color:#C
 
 <hr class="divider">
 
-<p>\u201c你在就涨。\u201d</p>
+<p>"你在就涨。"</p>
 
 <hr class="divider">
 
@@ -107,14 +107,11 @@ body{font-family:'Noto Serif SC','PingFang SC',serif;background:#0a0608;color:#C
 
 <div class="end-section">
 <div class="end-mark">Chapter 1 · END</div>
-<div class="end-quote">\u201c她在。所以这里活着。\u201d</div>
+<div class="end-quote">"她在。所以这里活着。"</div>
 </div>
 </div>
 
 <script>
-// Progress
-var paragraphs=document.querySelectorAll('.story-container p');
-var total=paragraphs.length;
 var progress=document.getElementById('progress');
 function updateProgress(){
   var scrollTop=window.pageYOffset||document.documentElement.scrollTop;
@@ -126,7 +123,6 @@ function updateProgress(){
 window.addEventListener('scroll',updateProgress,{passive:true});
 updateProgress();
 
-// Panel
 var panel=document.getElementById('slidePanel');
 var mask=document.getElementById('panelMask');
 document.getElementById('panelToggle').addEventListener('click',function(){panel.classList.add('open');mask.classList.add('show')});
